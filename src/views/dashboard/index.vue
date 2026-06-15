@@ -112,6 +112,31 @@
               <span class="down">▼ {{ netSpeed.down }}</span>
             </span>
           </div>
+          
+          <el-divider class="inner-divider" />
+          
+          <div class="info-item traffic-quota-item">
+            <div class="quota-meta">
+              <span class="info-label">服务器总流量限额</span>
+              <span v-if="serverTotalQuota !== -1" :class="{'quota-warning-text': true, 'warning': serverUsePercent >= 80}">
+                {{ serverUsePercent >= 80 ? '⚠️ 已超 80%！' : '限额充足' }}
+              </span>
+              <span v-else class="quota-warning-text normal">无限制</span>
+            </div>
+            <div class="quota-progress-wrapper" v-if="serverTotalQuota !== -1">
+              <el-progress 
+                :percentage="serverUsePercent" 
+                :stroke-width="12" 
+                :text-inside="true"
+                :color="serverUsePercent >= 80 ? '#ef4444' : '#6366f1'"
+                class="mini-progress"
+              />
+            </div>
+            <div class="quota-details">
+              <span>已用：{{ formatBytes(serverUsedTraffic) }}</span>
+              <span>限额：{{ serverTotalQuota !== -1 ? formatBytes(serverTotalQuota) : '无限制' }}</span>
+            </div>
+          </div>
         </div>
       </el-card>
 
@@ -130,36 +155,6 @@
           <div class="info-item">
             <span class="info-label">安全状况</span>
             <span class="info-value status-safe">未发现安全问题</span>
-          </div>
-        </div>
-      </el-card>
-    </div>
-
-    <!-- 服务器总流量用量进度展示 -->
-    <div v-if="isAdmin" class="quota-progress-container">
-      <el-card class="quota-progress-card" shadow="never">
-        <div class="progress-header">
-          <span class="progress-title">服务器双向总流量限额进度</span>
-          <span v-if="serverTotalQuota !== -1" :class="{'progress-status': true, 'warning': serverUsePercent >= 80}">
-            {{ serverUsePercent >= 80 ? '⚠️ 服务器已用流量已达 80% 以上，请合理规划额度！' : '流量配额充足' }}
-          </span>
-          <span v-else class="progress-status normal">
-            流量无限制
-          </span>
-        </div>
-        <div class="progress-body">
-          <el-progress 
-            v-if="serverTotalQuota !== -1"
-            :percentage="serverUsePercent" 
-            :stroke-width="18" 
-            :text-inside="true"
-            :color="serverUsePercent >= 80 ? '#ef4444' : '#6366f1'"
-            class="custom-progress"
-          />
-          <div class="progress-info">
-            <span>已使用：{{ formatBytes(serverUsedTraffic) }}</span>
-            <span v-if="serverTotalQuota !== -1">总限额：{{ formatBytes(serverTotalQuota) }}</span>
-            <span v-else>总限额：无限制</span>
           </div>
         </div>
       </el-card>
@@ -566,30 +561,27 @@ export default {
   }
 }
 
-.quota-progress-container {
-  margin-bottom: 24px;
+.inner-divider {
+  margin: 12px 0 !important;
+  border-top-color: rgba(255, 255, 255, 0.05) !important;
 }
-.quota-progress-card {
-  border-radius: 12px !important;
-  background: #111827 !important;
-  border: 1px solid #1f2937 !important;
 
-  .progress-header {
+.traffic-quota-item {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+
+  .quota-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    padding: 2px 4px;
+    font-size: 13px;
 
-    .progress-title {
-      font-size: 15px;
+    .quota-warning-text {
       font-weight: 600;
-      color: #ffffff;
-    }
-
-    .progress-status {
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
       
       &.normal {
         color: #9ca3af;
@@ -602,22 +594,30 @@ export default {
     }
   }
 
-  .custom-progress {
-    margin-bottom: 12px;
-    ::v-deep(.el-progress-bar__outer) {
-      background-color: #1a202c !important;
-      border-radius: 10px;
-    }
-    ::v-deep(.el-progress-bar__inner) {
-      border-radius: 10px;
+  .quota-progress-wrapper {
+    margin: 4px 0;
+    
+    .mini-progress {
+      ::v-deep(.el-progress-bar__outer) {
+        background-color: #1a202c !important;
+        border-radius: 6px;
+      }
+      ::v-deep(.el-progress-bar__inner) {
+        border-radius: 6px;
+      }
+      ::v-deep(.el-progress-bar__innerText) {
+        font-size: 10px;
+        line-height: 12px;
+      }
     }
   }
 
-  .progress-info {
+  .quota-details {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
     color: #9ca3af;
+    margin-top: 2px;
   }
 }
 
