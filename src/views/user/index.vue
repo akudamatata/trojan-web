@@ -55,7 +55,7 @@
         :label="$t('user.total')"
         :sort-method="totalSort" sortable>
           <template #default="scope">
-            <span :class="{'quota-warning-text': isUserQuotaWarning(scope.row)}">{{ formatBytes(scope.row.Upload + scope.row.Download) }}</span>
+            <span :class="{'quota-warning-text': isUserQuotaWarning(scope.row)}">{{ readablizeBytes(scope.row.Upload + scope.row.Download) }}</span>
           </template>
         </el-table-column>
         <el-table-column

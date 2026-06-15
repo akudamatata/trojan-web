@@ -226,8 +226,6 @@
             </span>
           </div>
           
-          <el-divider class="inner-divider" />
-          
           <div class="info-item traffic-quota-item">
             <div class="quota-meta">
               <span class="info-label">服务器总流量限额</span>
@@ -428,15 +426,24 @@ export default {
                 this.top10Users = data.top10Users || []
 
                 const history = this.historyPoints
-                history.cpu.push(this.cpu.percentage)
-                history.memory.push(this.memory.percentage)
-                history.upSpeed.push(data.speed.Up)
-                history.downSpeed.push(data.speed.Down)
-                if (history.cpu.length > this.maxPoints) {
-                    history.cpu.shift()
-                    history.memory.shift()
-                    history.upSpeed.shift()
-                    history.downSpeed.shift()
+                if (history.cpu.length === 0) {
+                    for (let i = 0; i < this.maxPoints; i++) {
+                        history.cpu.push(this.cpu.percentage)
+                        history.memory.push(this.memory.percentage)
+                        history.upSpeed.push(data.speed.Up)
+                        history.downSpeed.push(data.speed.Down)
+                    }
+                } else {
+                    history.cpu.push(this.cpu.percentage)
+                    history.memory.push(this.memory.percentage)
+                    history.upSpeed.push(data.speed.Up)
+                    history.downSpeed.push(data.speed.Down)
+                    if (history.cpu.length > this.maxPoints) {
+                        history.cpu.shift()
+                        history.memory.shift()
+                        history.upSpeed.shift()
+                        history.downSpeed.shift()
+                    }
                 }
             })
         },
@@ -770,12 +777,6 @@ export default {
   }
 }
 
-.inner-divider {
-  margin: 12px 20px !important;
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-  border-bottom: none !important;
-}
-
 .traffic-quota-item {
   flex-direction: column !important;
   align-items: stretch !important;
@@ -783,7 +784,7 @@ export default {
   border-bottom: none !important;
   border-top: none !important;
   padding-bottom: 0 !important;
-  padding-top: 0 !important;
+  padding-top: 12px !important;
 
   .quota-meta {
     display: flex;
