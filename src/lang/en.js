@@ -17,6 +17,7 @@ export default {
     navbar: {
         version: 'System Version',
         setting: 'System Setting',
+        logout: 'Logout',
         password: 'Reset Password',
         title: 'Change Title',
         importExport: 'Import Export',

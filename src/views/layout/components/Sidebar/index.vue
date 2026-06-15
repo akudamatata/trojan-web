@@ -146,6 +146,10 @@ export default {
     justify-content: center;
     .logo-wrapper {
       justify-content: center;
+      
+      .logo-icon {
+        margin: 0 !important;
+      }
     }
   }
   .collapse-trigger {

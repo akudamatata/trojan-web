@@ -38,6 +38,7 @@ export default {
     navbar: {
         version: '系统版本',
         setting: '系统设置',
+        logout: '注销登录',
         password: '修改密码',
         title: '修改标题',
         clashRules: '修改规则',
