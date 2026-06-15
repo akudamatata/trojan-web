@@ -23,3 +23,12 @@ export function getClashRules() {
 export function resetClashRules() {
     return request.delete('/common/clashRules')
 }
+
+export function getWebPort() {
+    return request.get('/trojan/webport')
+}
+
+export function setWebPort(data) {
+    return request.post('/trojan/webport', data)
+}
+

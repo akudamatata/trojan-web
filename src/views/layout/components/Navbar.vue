@@ -22,6 +22,7 @@
                                     <el-dropdown-item @click="getRules(); rulesVisible=true">{{ $t('navbar.clashRules') }}</el-dropdown-item>
                                     <el-dropdown-item @click="importExportVisible=true">{{ $t('navbar.importExport') }}</el-dropdown-item>
                                     <el-dropdown-item @click="getResetDay(); resetDayVisible=true">{{ $t('navbar.resetDay') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="getWebPortData(); webPortVisible=true">修改Web端口</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -81,6 +82,17 @@
                     </el-upload>
                 </el-tooltip>
             </el-dialog>
+            <el-dialog :modal="false" title="修改Web端口" v-model="webPortVisible" :width="dialogWidth">
+                <el-tooltip effect="dark" content="修改端口后，Web面板将重启并使用新端口，请使用新端口重新连接" placement="top">
+                    <el-input-number size="small" v-model="webPort" :min=1 :max=65535></el-input-number>
+                </el-tooltip>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button @click="webPortVisible = false">{{ $t('cancel') }}</el-button>
+                        <el-button type="primary" @click="handleWebPort()">{{ $t('ok') }}</el-button>
+                    </span>
+                </template>
+            </el-dialog>
             <el-dialog :modal="false" :title="$t('navbar.passwordTitle')" v-model="dialogVisible" :width="dialogWidth">
                 <el-form :model="form" :rules="registerRules" ref="form" label-position="left">
                     <el-form-item prop="password1">
@@ -114,7 +126,7 @@ import Hamburger from '@/components/Hamburger'
 import CryptoJS from 'crypto-js'
 import { sleep } from '@/utils/common'
 import { resetPass, check } from '@/api/permission'
-import { version, setLoginInfo, getClashRules, setClashRules, resetClashRules } from '@/api/common'
+import { version, setLoginInfo, getClashRules, setClashRules, resetClashRules, getWebPort, setWebPort } from '@/api/common'
 import { getResetDay, updateResetDay } from '@/api/data'
 
 export default {
@@ -145,7 +157,9 @@ export default {
             importExportVisible: false,
             loginVisible: false,
             rulesVisible: false,
+            webPortVisible: false,
             title: '',
+            webPort: 80,
             rules: '',
             resetDay: 1,
             form: {
@@ -293,6 +307,27 @@ export default {
         async systemVersion() {
             const result = await version()
             this.versionList = result.Data
+        },
+        async getWebPortData() {
+            const result = await getWebPort()
+            this.webPort = result.Data.port
+        },
+        async handleWebPort() {
+            const formData = new FormData()
+            formData.set('port', this.webPort)
+            const result = await setWebPort(formData)
+            if (result.Msg === 'success') {
+                ElMessage({
+                    message: '修改Web端口成功，正在重启Web服务，请稍后使用新端口访问',
+                    type: 'success'
+                })
+                this.webPortVisible = false
+                await sleep(2000)
+                const newOrigin = location.protocol + '//' + location.hostname + ':' + this.webPort
+                location.href = newOrigin
+            } else {
+                ElMessage.error(result.Msg)
+            }
         },
         async changePass() {
             const formData = new FormData()
