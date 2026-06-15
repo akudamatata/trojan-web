@@ -8,6 +8,10 @@ export function serverInfo() {
     return request.get('/common/serverInfo')
 }
 
+export function getTrafficHistory(params) {
+    return request.get('/common/trafficHistory', { params })
+}
+
 export function setLoginInfo(data) {
     return request.post('/common/loginInfo', data)
 }

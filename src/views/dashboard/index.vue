@@ -1,80 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <!-- Row 1: System Status Radial Progresses (Only for Admin) -->
-    <div v-if="isAdmin" class="metrics-grid">
-      <el-card class="metric-card" shadow="never">
-        <div class="metric-content">
-          <div class="metric-icon-wrap cpu">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="16" rx="2" />
-              <rect x="9" y="9" width="6" height="6" />
-              <path d="M9 1v3" />
-              <path d="M15 1v3" />
-              <path d="M9 20v3" />
-              <path d="M15 20v3" />
-              <path d="M20 9h3" />
-              <path d="M20 15h3" />
-              <path d="M1 9h3" />
-              <path d="M1 15h3" />
-            </svg>
-          </div>
-          <div class="metric-info">
-            <h4 class="metric-title">CPU 使用率</h4>
-            <p class="metric-value">{{ cpu.percentage }}%</p>
-          </div>
-        </div>
-      </el-card>
-
-      <el-card class="metric-card" shadow="never">
-        <div class="metric-content">
-          <div class="metric-icon-wrap mem">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M2 10h20M2 14h20" />
-              <rect x="2" y="6" width="20" height="12" rx="2" />
-              <path d="M6 6v4M10 6v4M14 6v4M18 6v4M6 14v4M10 14v4M14 14v4M18 14v4" />
-            </svg>
-          </div>
-          <div class="metric-info">
-            <h4 class="metric-title">{{ $t('dashboard.memory') }}</h4>
-            <p class="metric-value">{{ memory.used }} / {{ memory.total }}</p>
-          </div>
-        </div>
-      </el-card>
-
-      <el-card class="metric-card" shadow="never">
-        <div class="metric-content">
-          <div class="metric-icon-wrap disk">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3" />
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-              <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
-            </svg>
-          </div>
-          <div class="metric-info">
-            <h4 class="metric-title">{{ $t('dashboard.disk') }}</h4>
-            <p class="metric-value">{{ disk.used }} / {{ disk.total }}</p>
-          </div>
-        </div>
-      </el-card>
-
-      <el-card class="metric-card" shadow="never">
-        <div class="metric-content">
-          <div class="metric-icon-wrap swap">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-              <path d="M16 16h5v5" />
-            </svg>
-          </div>
-          <div class="metric-info">
-            <h4 class="metric-title">Swap 缓存</h4>
-            <p class="metric-value">{{ swap.used }} / {{ swap.total }}</p>
-          </div>
-        </div>
-      </el-card>
-    </div>
-
     <!-- Row 2: Traffic Counters (Upload, Download, Total) -->
     <div class="traffic-grid">
       <el-card class="traffic-card upload" shadow="never">
@@ -152,6 +77,45 @@
       <el-card class="chart-card" shadow="never">
         <template #header>
           <div class="chart-header">
+            <span class="chart-title">存储资源实时走势 (硬盘 / Swap)</span>
+            <div class="chart-legends">
+              <span class="legend-item"><span class="legend-dot disk"></span>硬盘: {{ disk.percentage }}%</span>
+              <span class="legend-item"><span class="legend-dot swap"></span>Swap: {{ swap.percentage }}%</span>
+            </div>
+          </div>
+        </template>
+        <div class="chart-body">
+          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+            <!-- 网格线 -->
+            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+            
+            <defs>
+              <linearGradient id="diskGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="swapGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 渐变区域 -->
+            <path :d="diskAreaPath" fill="url(#diskGrad)" v-if="diskAreaPath" />
+            <path :d="swapAreaPath" fill="url(#swapGrad)" v-if="swapAreaPath" />
+
+            <!-- 折线 -->
+            <path :d="diskLinePath" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" v-if="diskLinePath" />
+            <path :d="swapLinePath" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" v-if="swapLinePath" />
+          </svg>
+        </div>
+      </el-card>
+
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <div class="chart-header">
             <span class="chart-title">实时网络速率走势</span>
             <div class="chart-legends">
               <span class="legend-item"><span class="legend-dot up"></span>上传: {{ netSpeed.up }}</span>
@@ -172,8 +136,8 @@
                 <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
               </linearGradient>
               <linearGradient id="downGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
               </linearGradient>
             </defs>
 
@@ -183,8 +147,56 @@
 
             <!-- 折线 -->
             <path :d="upLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="upLinePath" />
-            <path :d="downLinePath" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" v-if="downLinePath" />
+            <path :d="downLinePath" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="downLinePath" />
           </svg>
+        </div>
+      </el-card>
+
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <div class="chart-header">
+            <span class="chart-title">历史流量走势 ({{ historyTrafficType === 'day' ? '日维度' : '周维度' }})</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <el-radio-group v-model="historyTrafficType" size="small" @change="fetchTrafficHistory" class="mini-radio-group">
+                <el-radio-button label="day">日</el-radio-button>
+                <el-radio-button label="week">周</el-radio-button>
+              </el-radio-group>
+              <div class="chart-legends" style="margin-left: 4px;">
+                <span class="legend-item"><span class="legend-dot up"></span>上传</span>
+                <span class="legend-item"><span class="legend-dot down"></span>下载</span>
+              </div>
+            </div>
+          </div>
+        </template>
+        <div class="chart-body">
+          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+            <!-- 网格线 -->
+            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+
+            <defs>
+              <linearGradient id="histUpGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="histDownGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 渐变区域 -->
+            <path :d="historyTrafficUpArea" fill="url(#histUpGrad)" v-if="historyTrafficUpArea" />
+            <path :d="historyTrafficDownArea" fill="url(#histDownGrad)" v-if="historyTrafficDownArea" />
+
+            <!-- 折线 -->
+            <path :d="historyTrafficUpLine" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="historyTrafficUpLine" />
+            <path :d="historyTrafficDownLine" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="historyTrafficDownLine" />
+          </svg>
+          <div class="x-axis-labels" style="display: flex; justify-content: space-between; padding: 6px 10px 0 10px; font-size: 10px; color: #6b7280; font-family: monospace;">
+            <span v-for="item in historyTrafficList" :key="item.label">{{ item.label }}</span>
+          </div>
         </div>
       </el-card>
     </div>
@@ -218,13 +230,7 @@
             <span class="info-label">网络并发连接数 (TCP/UDP)</span>
             <span class="info-value">{{ netCount }}</span>
           </div>
-          <div class="info-item">
-            <span class="info-label">实时速率 (上传/下载)</span>
-            <span class="info-value speed-value">
-              <span class="up">▲ {{ netSpeed.up }}</span>
-              <span class="down">▼ {{ netSpeed.down }}</span>
-            </span>
-          </div>
+          
           
           <div class="info-item traffic-quota-item">
             <div class="quota-meta">
@@ -296,7 +302,7 @@
 </template>
 
 <script>
-import { version, serverInfo } from '@/api/common'
+import { version, serverInfo, getTrafficHistory } from '@/api/common'
 import { userList } from '@/api/user'
 import { readablizeBytes } from '@/utils/common'
 import { mapState } from 'vuex'
@@ -326,10 +332,14 @@ export default {
             historyPoints: {
                 cpu: [],
                 memory: [],
+                disk: [],
+                swap: [],
                 upSpeed: [],
                 downSpeed: []
             },
-            maxPoints: 20
+            maxPoints: 20,
+            historyTrafficType: 'day',
+            historyTrafficList: []
         }
     },
     computed: {
@@ -364,6 +374,36 @@ export default {
         },
         downAreaPath() {
             return this.generateSvgPath(this.historyPoints.downSpeed, 'dynamic', true)
+        },
+        diskLinePath() {
+            return this.generateSvgPath(this.historyPoints.disk, 100, false)
+        },
+        diskAreaPath() {
+            return this.generateSvgPath(this.historyPoints.disk, 100, true)
+        },
+        swapLinePath() {
+            return this.generateSvgPath(this.historyPoints.swap, 100, false)
+        },
+        swapAreaPath() {
+            return this.generateSvgPath(this.historyPoints.swap, 100, true)
+        },
+        historyTrafficUpPoints() {
+            return this.historyTrafficList.map(item => item.up)
+        },
+        historyTrafficDownPoints() {
+            return this.historyTrafficList.map(item => item.down)
+        },
+        historyTrafficUpLine() {
+            return this.generateHistorySvgPath(this.historyTrafficUpPoints, false)
+        },
+        historyTrafficUpArea() {
+            return this.generateHistorySvgPath(this.historyTrafficUpPoints, true)
+        },
+        historyTrafficDownLine() {
+            return this.generateHistorySvgPath(this.historyTrafficDownPoints, false)
+        },
+        historyTrafficDownArea() {
+            return this.generateHistorySvgPath(this.historyTrafficDownPoints, true)
         }
     },
     created() {
@@ -375,14 +415,16 @@ export default {
     mounted() {
         if (this.isAdmin) {
             this.getServerInfo()
+            this.fetchTrafficHistory()
         }
         this.timer = setInterval(() => {
             if (this.isAdmin) {
                 this.getServerInfo()
+                this.fetchTrafficHistory()
             }
             this.getVersion()
             this.getUserList()
-        }, 6000)
+        }, 10000)
         window.onresize = () => {
             return (() => {
                 this.setOffset()
@@ -430,17 +472,23 @@ export default {
                     for (let i = 0; i < this.maxPoints; i++) {
                         history.cpu.push(this.cpu.percentage)
                         history.memory.push(this.memory.percentage)
+                        history.disk.push(this.disk.percentage)
+                        history.swap.push(this.swap.percentage)
                         history.upSpeed.push(data.speed.Up)
                         history.downSpeed.push(data.speed.Down)
                     }
                 } else {
                     history.cpu.push(this.cpu.percentage)
                     history.memory.push(this.memory.percentage)
+                    history.disk.push(this.disk.percentage)
+                    history.swap.push(this.swap.percentage)
                     history.upSpeed.push(data.speed.Up)
                     history.downSpeed.push(data.speed.Down)
                     if (history.cpu.length > this.maxPoints) {
                         history.cpu.shift()
                         history.memory.shift()
+                        history.disk.shift()
+                        history.swap.shift()
                         history.upSpeed.shift()
                         history.downSpeed.shift()
                     }
@@ -547,6 +595,38 @@ export default {
             if (!row || row.Quota === -1 || row.Quota === 0) return false
             const total = row.Upload + row.Download
             return total >= row.Quota * 0.8
+        },
+        async fetchTrafficHistory() {
+            try {
+                const res = await getTrafficHistory({ type: this.historyTrafficType })
+                if (res.Msg === 'success') {
+                    this.historyTrafficList = res.Data || []
+                }
+            } catch (err) {
+                console.error(err)
+            }
+        },
+        generateHistorySvgPath(points, isArea = false) {
+            if (!points || points.length < 2) return ''
+            const maxVal = Math.max(...points)
+            const actualMax = maxVal > 0 ? maxVal : 1024
+            const count = points.length
+            const stepX = 500 / (count - 1)
+            let path = ''
+            points.forEach((val, index) => {
+                const x = index * stepX
+                const ratio = val / actualMax
+                const y = 110 - (ratio > 1 ? 1 : ratio) * 100
+                if (index === 0) {
+                    path += `M ${x.toFixed(1)} ${y.toFixed(1)}`
+                } else {
+                    path += ` L ${x.toFixed(1)} ${y.toFixed(1)}`
+                }
+            })
+            if (isArea) {
+                path += ` L 500 120 L 0 120 Z`
+            }
+            return path
         }
     }
 }
@@ -846,7 +926,7 @@ export default {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
   margin-bottom: 24px;
 
@@ -896,8 +976,10 @@ export default {
           
           &.cpu { background-color: #10b981; }
           &.mem { background-color: #3b82f6; }
+          &.disk { background-color: #f59e0b; }
+          &.swap { background-color: #8b5cf6; }
           &.up { background-color: #10b981; }
-          &.down { background-color: #8b5cf6; }
+          &.down { background-color: #3b82f6; }
         }
       }
     }
@@ -984,6 +1066,22 @@ export default {
       background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
       box-shadow: 0 2px 8px rgba(180, 83, 9, 0.4);
     }
+  }
+}
+
+::v-deep(.mini-radio-group) {
+  .el-radio-button__inner {
+    background-color: #1a202c !important;
+    border-color: #1f2937 !important;
+    color: #9ca3af !important;
+    font-size: 11px !important;
+    padding: 5px 10px !important;
+  }
+  .el-radio-button__original-radio:checked + .el-radio-button__inner {
+    background-color: var(--el-color-primary) !important;
+    border-color: var(--el-color-primary) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
   }
 }
 </style>

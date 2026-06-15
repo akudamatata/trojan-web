@@ -239,6 +239,12 @@ body {
     }
   }
 
+  &.avatar-menu {
+    .el-dropdown-menu__item {
+      justify-content: center !important;
+    }
+  }
+
   .el-dropdown-menu__item--divided {
     border-top: 1px solid var(--el-border-color) !important;
     margin-top: 6px !important;
