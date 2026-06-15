@@ -1,3 +1,27 @@
+/* 全局及页面滚动条美化 */
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: #1f2937 #060913;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060913;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
 // Cover Element Plus styles with a premium dark theme
 :root {
   --el-color-primary: #6366f1;
@@ -58,6 +82,22 @@ body {
   border-radius: 8px !important;
   font-weight: 500 !important;
   transition: all 0.2s ease !important;
+
+  &:not(.el-button--primary):not(.el-button--success):not(.el-button--danger):not(.el-button--warning):not(.el-button--info):not(.is-link) {
+    background-color: #1a202c !important;
+    border: 1px solid #374151 !important;
+    color: #e5e7eb !important;
+
+    &:hover, &:focus {
+      background-color: #242f41 !important;
+      border-color: #6366f1 !important;
+      color: #a5b4fc !important;
+    }
+
+    &:active {
+      background-color: #111827 !important;
+    }
+  }
 
   &--primary:not(.is-link) {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
@@ -251,5 +291,37 @@ body {
     border-color: #1f2937 !important;
     color: #f3f4f6 !important;
   }
+}
+
+/* 隐藏 element plus 弹窗的尖角 */
+.el-popper__arrow {
+  display: none !important;
+}
+
+/* 下拉菜单去聚焦蓝框、增强阴影 */
+.el-dropdown {
+  &:focus, &:focus-visible {
+    outline: none !important;
+  }
+}
+
+.avatar-dropdown {
+  outline: none !important;
+  &:focus, &:focus-visible {
+    outline: none !important;
+  }
+  
+  .avatar-wrapper {
+    outline: none !important;
+    &:focus, &:focus-visible {
+      outline: none !important;
+    }
+  }
+}
+
+/* 加强下拉菜单在深色背景下的投影 */
+.el-dropdown__popper {
+  border: none !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
 }
 

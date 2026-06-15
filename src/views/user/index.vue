@@ -17,10 +17,10 @@
                 clearable
                 class="search-input"
             />
-            <el-button type="warning" plain :icon="RefreshLeft" @click="copySelection=multipleSelection;patchButton=true;commonType=1;confirmVisible=true">
+            <el-button :icon="RefreshLeft" @click="copySelection=multipleSelection;patchButton=true;commonType=1;confirmVisible=true">
                 {{ textShow($t('user.reset')) }}
             </el-button>
-            <el-button type="primary" plain :icon="Scissor" @click="copySelection=multipleSelection;patchButton=true;quotaVisible=true">
+            <el-button :icon="Scissor" @click="copySelection=multipleSelection;patchButton=true;quotaVisible=true">
                 {{ textShow($t('user.limitData')) }}
             </el-button>
             <el-button type="danger" :icon="Delete" @click="copySelection=multipleSelection;patchButton=true;commonType=0;confirmVisible=true">
