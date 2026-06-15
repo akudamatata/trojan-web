@@ -224,6 +224,23 @@ body {
   }
 }
 
+.el-menu--collapse {
+  width: 54px !important;
+  
+  .el-menu-item {
+    margin: 4px 0 !important;
+    padding: 0 !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    .svg-icon {
+      margin: 0 !important;
+      font-size: 18px;
+    }
+  }
+}
+
 .ruleDialog {
   .el-dialog__body {
     padding: 0;

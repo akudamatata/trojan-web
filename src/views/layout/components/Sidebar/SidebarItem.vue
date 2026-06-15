@@ -1,23 +1,21 @@
 <template>
   <div v-if="!item.hidden && showRoute(item)">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
-        <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
-            <svg-icon :icon-class="onlyOneChild.meta.icon"/>
-            <template #title>{{ generateTitle(onlyOneChild.meta.title) }}</template>
-        </el-menu-item>
-      </app-link>
+      <el-menu-item v-if="onlyOneChild.meta" :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
+          <svg-icon :icon-class="onlyOneChild.meta.icon"/>
+          <template #title>
+              <span>{{ generateTitle(onlyOneChild.meta.title) }}</span>
+          </template>
+      </el-menu-item>
     </template>
   </div>
 </template>
 
 <script>
 import { isExternal } from '@/utils/common'
-import AppLink from './Link'
 
 export default {
     name: 'SidebarItem',
-    components: { AppLink },
     props: {
     // route object
         item: {
