@@ -17,10 +17,10 @@
             </div>
             <template #dropdown>
                 <el-dropdown-menu class="avatar-menu">
-                    <el-dropdown-item @click="systemVersion(); versionVisible=true">
+                    <el-dropdown-item :icon="InfoFilled" @click="systemVersion(); versionVisible=true">
                         {{ $t('navbar.version') }}
                     </el-dropdown-item>
-                    <el-dropdown-item divided @click="loginOut">
+                    <el-dropdown-item :icon="SwitchButton" divided @click="loginOut">
                         {{ $t('navbar.logout') }}
                     </el-dropdown-item>
                 </el-dropdown-menu>
