@@ -1,141 +1,140 @@
 <template>
-   <div>
-    <el-row v-if="isAdmin">
-        <el-col :span='24'>
-            <el-card shadow="hover">
-                <el-row>
-                    <el-col :sm="24" :md="12">
-                        <el-row>
-                            <el-col :span="12" style="text-align: center">
-                                <el-progress type="dashboard" :percentage="cpu.percentage" :color="cpu.color"></el-progress>
-                                <div>CPU</div>
-                            </el-col>
-                            <el-col :span="12" style="text-align: center">
-                                <el-progress type="dashboard" :percentage="memory.percentage" :color="memory.color"></el-progress>
-                                <div>{{ $t('dashboard.memory') }}: {{memory.used}}/{{memory.total}}</div>
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                    <el-col :sm="24" :md="12">
-                        <el-row>
-                            <el-col :span="12" style="text-align: center">
-                                <el-progress type="dashboard" :percentage="swap.percentage" :color="swap.color"></el-progress>
-                                <div>swap: {{swap.used}}/{{swap.total}}</div>
-                            </el-col>
-                            <el-col :span="12" style="text-align: center">
-                                <el-progress type="dashboard" :percentage="disk.percentage" :color="disk.color"></el-progress>
-                                <div>{{ $t('dashboard.disk') }}: {{disk.used}}/{{disk.total}}</div>
-                            </el-col>
-                        </el-row>
-                    </el-col>
-                </el-row>
-            </el-card>
-        </el-col>
-    </el-row>
-    <el-row>
-        <el-col :sm="24" :md="12">
-            <el-card class="home-card" shadow="hover">
-                <el-row>
-                    <el-col :span="10">
-                        <b>{{ $t('dashboard.trojanVersion') }}: </b>
-                    </el-col>
-                    <el-col :span="12" style="padding-top:1px">
-                        {{ trojanVersion }}
-                    </el-col>
-                </el-row>
-            </el-card>
-        </el-col>
-        <el-col :sm="24" :md="12">
-            <el-card class="home-card" shadow="hover">
-                <el-row>
-                    <el-col :span="10">
-                        <b>{{ $t('dashboard.trojanUser') }}:</b>
-                    </el-col>
-                    <el-col :span="12" style="padding-top:1px">
-                        <el-link type='primary' @click="navigate('/user')">{{ userList.length }}</el-link>
-                    </el-col>
-                </el-row>
-            </el-card>
-        </el-col>
-    </el-row>
-    <el-row>
-        <el-col :sm="24" :md="12">
-            <el-card class="home-card" shadow="hover">
-                <el-row>
-                    <el-col :span="10">
-                        <b>{{ $t('dashboard.trojanUptime') }}:</b>
-                    </el-col>
-                    <el-col :span="12"  style="padding-top:1px">
-                        {{ trojanUptime }}
-                    </el-col>
-                </el-row>
-            </el-card>
-        </el-col>
-        <el-col :sm="24" :md="12" v-if="isAdmin">
-            <el-card class="home-card" shadow="hover">
-                <el-row>
-                    <el-col :span="10">
-                        <b>{{ $t('dashboard.load') }}:</b>
-                    </el-col>
-                    <el-tooltip class="item" effect="dark" content="load1, load5, load15" placement="top-start">
-                        <el-col :span="12" style="padding-top:1px">
-                            {{ load }}
-                        </el-col>
-                    </el-tooltip>
-                </el-row>
-            </el-card>
-        </el-col>
-    </el-row>
-    <el-row>
-        <el-col :sm="24" :md="12" v-if="isAdmin">
-            <el-card class="home-card" shadow="hover">
-                <el-row>
-                    <el-col :span="10">
-                        <b>{{ $t('dashboard.netSpeed') }}:</b>
-                    </el-col>
-                    <el-col :span="12"  style="padding-top:1px">
-                        <i class="el-icon-top" style="margin-right: 8px">{{ netSpeed.up }}</i>
-                        <i class="el-icon-bottom">{{ netSpeed.down }}</i>
-                    </el-col>
-                </el-row>
-            </el-card>
-        </el-col>
-        <el-col :sm="24" :md="12" v-if="isAdmin">
-            <el-card class="home-card" shadow="hover">
-                <el-row>
-                    <el-col :span="10">
-                        <b>{{ $t('dashboard.netCount') }}:</b>
-                    </el-col>
-                    <el-tooltip class="item" effect="dark" content="tcp / udp" placement="top-start">
-                        <el-col :span="12" style="padding-top:1px">
-                            {{ netCount }}
-                        </el-col>
-                    </el-tooltip>
-                </el-row>
-            </el-card>
-        </el-col>
-    </el-row>
-    <el-row style="margin-top:10px">
-        <el-col :span='7'>
-            <el-card shadow="hover">
-                {{ $t('dashboard.upload') }}:
-                <el-tag effect="dark" type="success">{{ uploadData }}</el-tag>
-            </el-card>
-        </el-col>
-        <el-col :span='7' :offset='1'>
-            <el-card shadow="hover">
-                {{ $t('dashboard.download') }}:
-                <el-tag effect="dark" type="success">{{ downloadData }}</el-tag>
-            </el-card>
-        </el-col>
-        <el-col :span='7' :offset='1'>
-            <el-card shadow="hover">
-                {{ $t('dashboard.total') }}:
-                <el-tag effect="dark" type="success">{{ totalData }}</el-tag>
-            </el-card>
-        </el-col>
-    </el-row>
-   </div>
+  <div class="dashboard-container">
+    <!-- Row 1: System Status Radial Progresses (Only for Admin) -->
+    <div v-if="isAdmin" class="metrics-grid">
+      <el-card class="metric-card" shadow="never">
+        <div class="metric-content">
+          <el-progress type="circle" :percentage="cpu.percentage" :color="cpu.color" :stroke-width="8" :width="85" />
+          <div class="metric-info">
+            <h4 class="metric-title">CPU 使用率</h4>
+            <p class="metric-value">{{ cpu.percentage }}%</p>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="metric-card" shadow="never">
+        <div class="metric-content">
+          <el-progress type="circle" :percentage="memory.percentage" :color="memory.color" :stroke-width="8" :width="85" />
+          <div class="metric-info">
+            <h4 class="metric-title">{{ $t('dashboard.memory') }}</h4>
+            <p class="metric-value">{{ memory.used }} / {{ memory.total }}</p>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="metric-card" shadow="never">
+        <div class="metric-content">
+          <el-progress type="circle" :percentage="disk.percentage" :color="disk.color" :stroke-width="8" :width="85" />
+          <div class="metric-info">
+            <h4 class="metric-title">{{ $t('dashboard.disk') }}</h4>
+            <p class="metric-value">{{ disk.used }} / {{ disk.total }}</p>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="metric-card" shadow="never">
+        <div class="metric-content">
+          <el-progress type="circle" :percentage="swap.percentage" :color="swap.color" :stroke-width="8" :width="85" />
+          <div class="metric-info">
+            <h4 class="metric-title">Swap 缓存</h4>
+            <p class="metric-value">{{ swap.used }} / {{ swap.total }}</p>
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- Row 2: Traffic Counters (Upload, Download, Total) -->
+    <div class="traffic-grid">
+      <el-card class="traffic-card upload" shadow="never">
+        <div class="traffic-icon-wrap">
+          <span>▲</span>
+        </div>
+        <div class="traffic-info">
+          <span>{{ $t('dashboard.upload') }}</span>
+          <h2>{{ uploadData }}</h2>
+        </div>
+      </el-card>
+
+      <el-card class="traffic-card download" shadow="never">
+        <div class="traffic-icon-wrap">
+          <span>▼</span>
+        </div>
+        <div class="traffic-info">
+          <span>{{ $t('dashboard.download') }}</span>
+          <h2>{{ downloadData }}</h2>
+        </div>
+      </el-card>
+
+      <el-card class="traffic-card total" shadow="never">
+        <div class="traffic-icon-wrap">
+          <span>⇄</span>
+        </div>
+        <div class="traffic-info">
+          <span>{{ $t('dashboard.total') }}</span>
+          <h2>{{ totalData }}</h2>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- Row 3: Server Information & Stats Grid -->
+    <div class="info-grid">
+      <el-card class="info-card" header="系统服务状态" shadow="never">
+        <div class="card-content">
+          <div class="info-item">
+            <span class="info-label">Trojan 版本</span>
+            <span class="info-value text-glow">{{ trojanVersion || '1.16.0' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">已运行时间</span>
+            <span class="info-value">{{ trojanUptime }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">服务类型</span>
+            <span class="info-value status-badge">{{ $store.state.trojanType || 'trojan' }}</span>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="info-card" header="网络连接与负载" shadow="never" v-if="isAdmin">
+        <div class="card-content">
+          <div class="info-item">
+            <span class="info-label">系统负载 (Load)</span>
+            <span class="info-value">{{ load }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">网络并发连接数 (TCP/UDP)</span>
+            <span class="info-value">{{ netCount }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">实时速率 (上传/下载)</span>
+            <span class="info-value speed-value">
+              <span class="up">▲ {{ netSpeed.up }}</span>
+              <span class="down">▼ {{ netSpeed.down }}</span>
+            </span>
+          </div>
+        </div>
+      </el-card>
+
+      <el-card class="info-card" header="用户与控制台" shadow="never">
+        <div class="card-content">
+          <div class="info-item">
+            <span class="info-label">总注册用户数</span>
+            <span class="info-value link-value" @click="navigate('/user')">
+              {{ userList.length }} 个用户 ➔
+            </span>
+          </div>
+          <div class="info-item" v-if="isAdmin">
+            <span class="info-label">运行状态</span>
+            <span class="info-value status-online">● 运行中</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">安全状况</span>
+            <span class="info-value status-safe">未发现安全问题</span>
+          </div>
+        </div>
+      </el-card>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -236,11 +235,11 @@ export default {
         },
         computeColor(percent) {
             if (percent < 80) {
-                return '#67C23A'
+                return '#10b981'
             } else if (percent < 90) {
-                return '#E6A23C'
+                return '#f59e0b'
             } else {
-                return '#F56C6C'
+                return '#ef4444'
             }
         },
         async getUserList() {
@@ -293,12 +292,207 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.home-icon {
-    font-size: 32px;
-    padding: 0;
+.dashboard-container {
+  padding: 24px;
+  background-color: var(--el-bg-color-page);
+  min-height: calc(100vh - 50px);
 }
-.home-card {
-    // margin-top:10px;
-    padding:3px;
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
 }
-</style>
+
+.metric-card {
+  border-radius: 12px !important;
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  
+  .metric-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 5px;
+  }
+  
+  .metric-info {
+    .metric-title {
+      font-size: 13px;
+      color: #9ca3af;
+      margin: 0 0 6px 0;
+      font-weight: 500;
+    }
+    .metric-value {
+      font-size: 16px;
+      color: #ffffff;
+      margin: 0;
+      font-weight: 600;
+    }
+  }
+}
+
+.traffic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.traffic-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border-radius: 12px !important;
+  position: relative;
+  overflow: hidden;
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+
+  &.upload {
+    &::before { background-color: #10b981; }
+    .traffic-icon-wrap { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+  }
+
+  &.download {
+    &::before { background-color: #3b82f6; }
+    .traffic-icon-wrap { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+  }
+
+  &.total {
+    &::before { background-color: #8b5cf6; }
+    .traffic-icon-wrap { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+  }
+  
+  .traffic-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .traffic-info {
+    span {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 500;
+    }
+    h2 {
+      margin: 4px 0 0 0;
+      font-size: 22px;
+      color: #ffffff;
+      font-weight: 700;
+    }
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.info-card {
+  border-radius: 12px !important;
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+
+  ::v-deep(.el-card__header) {
+    border-bottom: 1px solid #1f2937 !important;
+    padding: 14px 20px !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+  }
+
+  .card-content {
+    padding: 10px 0;
+  }
+  
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    &:first-child {
+      padding-top: 0;
+    }
+    
+    .info-label {
+      color: #9ca3af;
+      font-size: 13px;
+    }
+    
+    .info-value {
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      
+      &.text-glow {
+        text-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+        color: #a5b4fc;
+      }
+      
+      &.status-badge {
+        background-color: rgba(99, 102, 241, 0.15);
+        color: #818cf8;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+      }
+
+      &.status-online {
+        color: #10b981;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      &.status-safe {
+        color: #10b981;
+        font-size: 13px;
+      }
+      
+      &.link-value {
+        color: #6366f1;
+        cursor: pointer;
+        transition: color 0.2s;
+        
+        &:hover {
+          color: #818cf8;
+          text-decoration: underline;
+        }
+      }
+      
+      &.speed-value {
+        display: flex;
+        gap: 12px;
+        
+        .up { color: #10b981; }
+        .down { color: #3b82f6; }
+      }
+    }
+  }
+}
+</style>

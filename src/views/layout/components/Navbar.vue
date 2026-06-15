@@ -375,21 +375,27 @@ export default {
 .icon-quit:before { content: "\e67d"; }
 
 .navbar {
-    border-bottom: 1px solid #e5e5e5;
+    background-color: var(--el-bg-color);
+    border-bottom: 1px solid var(--el-border-color);
     height: 50px;
     line-height: 50px;
     position: relative;
     transition: left 0.25s;
+
     .hamburger-container {
         line-height: 46px;
         height: 100%;
         float: left;
         cursor: pointer;
-        transition: background .3s;
-        -webkit-tap-highlight-color:transparent;
+        transition: background 0.3s;
+        -webkit-tap-highlight-color: transparent;
 
         &:hover {
-            background: rgba(0, 0, 0, .025)
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        :deep(.hamburger) {
+            fill: var(--el-text-color-regular);
         }
     }
 
@@ -426,7 +432,7 @@ export default {
                 bottom: 0;
                 width: 100%;
                 height: 2px;
-                background: #ef4747;
+                background: var(--el-color-primary);
                 transform: scaleX(0);
                 transform-origin: right 0;
                 transition: transform 0.5s;
@@ -438,12 +444,23 @@ export default {
                 top: 50%;
                 left: -8px;
                 margin-top: -10px;
-                border-left: 1px solid #ccc;
+                border-left: 1px solid var(--el-border-color);
             }
             .iconfont {
                 position: relative;
                 font-size: 24px;
-                color: #758eb5;
+                color: var(--el-text-color-secondary);
+                transition: color 0.3s;
+
+                &:hover {
+                    color: var(--el-color-danger);
+                }
+            }
+            :deep(.el-button) {
+                color: var(--el-text-color-secondary) !important;
+                &:hover {
+                    color: var(--el-color-primary) !important;
+                }
             }
         }
     }

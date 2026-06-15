@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-form :inline="true" label-width="80px">
+  <div class="user-container">
+    <el-form :inline="true" label-width="80px" class="user-control-form">
     <el-form-item>
         <el-button-group>
             <el-button type="primary" :icon="Refresh" @click="refresh()">{{ textShow($t('refresh')) }}</el-button>
@@ -626,5 +626,17 @@ export default {
             display: inline;
         }
     }
+}
+.user-container {
+    padding: 24px;
+    background-color: var(--el-bg-color-page);
+    min-height: calc(100vh - 50px);
+}
+.user-control-form {
+    background: #111827;
+    padding: 16px 24px 0 24px;
+    border-radius: 12px;
+    border: 1px solid #1f2937;
+    margin-bottom: 24px;
 }
 </style>

@@ -122,97 +122,118 @@ export default {
 </script>
 
 <style lang="scss">
-
-$bg:#283443;
 $light_gray:#fff;
 $cursor: #fff;
 
-/* reset element-ui css */
 .login-container {
   .el-input {
-    height: 47px;
-    width: 92%;
+    height: 48px;
+    width: 90%;
     position: static;
 
     .el-input__wrapper {
-      padding:0;
-      box-shadow:none;
+      padding: 0;
+      box-shadow: none;
+      background: transparent !important;
     }
 
     input {
-      background: $bg;
+      background: transparent !important;
       border: 0px;
       -webkit-appearance: none;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
       color: $light_gray;
-      height: 47px;
+      height: 48px;
       caret-color: $cursor;
 
       &:-webkit-autofill {
-        box-shadow: 0 0 0px 1000px $bg inset !important;
+        box-shadow: 0 0 0px 1000px #1a202c inset !important;
         -webkit-text-fill-color: $cursor !important;
       }
     }
   }
 
   .el-form-item {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+    border-radius: 10px !important;
     color: #454545;
+    margin-bottom: 20px !important;
+    transition: border-color 0.3s ease !important;
+
+    &:hover {
+      border-color: rgba(99, 102, 241, 0.4) !important;
+    }
   }
 }
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
-
 .login-container {
   min-height: 100%;
   width: 100%;
-  background-color: $bg;
+  background-color: #030712;
+  // Beautiful glowing gradient spots
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 40%);
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   .login-form {
     position: relative;
-    width: 520px;
-    max-width: 100%;
-    padding: 160px 35px 0;
-    margin: 0 auto;
-    overflow: hidden;
+    width: 460px;
+    max-width: 90%;
+    padding: 40px;
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
   }
 
   .svg-container {
     padding: 6px 5px 6px 15px;
-    color: $dark_gray;
+    color: #9ca3af;
     vertical-align: middle;
-    width: 30px;
+    width: 35px;
     display: inline-block;
   }
 
   .title-container {
     position: relative;
+    margin-bottom: 40px;
 
     .title {
-      font-size: 26px;
-      color: $light_gray;
-      margin: 0px auto 40px auto;
+      font-size: 24px;
+      // Gradient text
+      background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0px auto;
       text-align: center;
-      font-weight: bold;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
   }
 
   .show-pwd {
     position: absolute;
-    right: 10px;
-    top: 7px;
+    right: 12px;
+    top: 10px;
     font-size: 16px;
-    color: $dark_gray;
+    color: #9ca3af;
     cursor: pointer;
     user-select: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #6366f1;
+    }
   }
 }
 </style>
+

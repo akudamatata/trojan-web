@@ -1,46 +1,221 @@
-// cover some element-ui styles
+// Cover Element Plus styles with a premium dark theme
+:root {
+  --el-color-primary: #6366f1;
+  --el-color-primary-light-3: #818cf8;
+  --el-color-primary-light-5: #a5b4fc;
+  --el-color-primary-light-7: #c7d2fe;
+  --el-color-primary-light-8: #e0e7ff;
+  --el-color-primary-light-9: #eef2ff;
+  --el-color-primary-dark-2: #4f46e5;
+  
+  --el-color-success: #10b981;
+  --el-color-warning: #f59e0b;
+  --el-color-danger: #ef4444;
+  --el-color-info: #6b7280;
 
-.el-breadcrumb__inner,
-.el-breadcrumb__inner a {
-  font-weight: 400 !important;
+  --el-bg-color: #0b0f19;
+  --el-bg-color-page: #060913;
+  --el-bg-color-overlay: #111827;
+
+  --el-text-color-primary: #f3f4f6;
+  --el-text-color-regular: #e5e7eb;
+  --el-text-color-secondary: #9ca3af;
+  --el-text-color-placeholder: #4b5563;
+
+  --el-border-color: #1f2937;
+  --el-border-color-light: #374151;
+  --el-border-color-lighter: #4b5563;
+  --el-border-color-extra-light: #1f2937;
+
+  --el-fill-color: #1a202c;
+  --el-fill-color-light: #1a202c;
+  --el-fill-color-blank: #111827;
+
+  --el-card-bg-color: #111827;
+  --el-card-border-color: #1f2937;
+  --el-card-border-radius: 12px;
 }
 
-// dropdown
-.el-dropdown-menu {
-  a {
-    display: block
+body {
+  background-color: var(--el-bg-color-page);
+  color: var(--el-text-color-primary);
+}
+
+.el-card {
+  background-color: var(--el-card-bg-color) !important;
+  border: 1px solid var(--el-card-border-color) !important;
+  border-radius: var(--el-card-border-radius) !important;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px 0 rgba(99, 102, 241, 0.15) !important;
   }
 }
 
-// to fix el-date-picker css style
-.el-range-separator {
-  box-sizing: content-box;
+.el-button {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+
+  &--primary {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+
+    &:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4) !important;
+    }
+  }
+
+  &--success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    border: none !important;
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border: none !important;
+  }
+}
+
+.el-input__wrapper {
+  background-color: #1a202c !important;
+  box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+  border-radius: 8px !important;
+  color: var(--el-text-color-primary) !important;
+
+  &.is-focus {
+    box-shadow: 0 0 0 1px var(--el-color-primary) inset !important;
+  }
+}
+
+.el-input__inner {
+  color: var(--el-text-color-primary) !important;
+}
+
+.el-select__wrapper {
+  background-color: #1a202c !important;
+  box-shadow: 0 0 0 1px var(--el-border-color) inset !important;
+  border-radius: 8px !important;
+}
+
+.el-dialog {
+  background-color: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+
+  .el-dialog__title {
+    color: var(--el-text-color-primary) !important;
+    font-weight: 600 !important;
+  }
 }
 
 .el-table {
+  background-color: transparent !important;
+  border: none !important;
+
+  tr {
+    background-color: transparent !important;
+    color: var(--el-text-color-primary) !important;
+
+    &:hover > td {
+      background-color: #1a202c !important;
+    }
+  }
+
+  th.el-table__cell {
+    background-color: #0d111a !important;
+    color: var(--el-text-color-secondary) !important;
+    border-bottom: 1px solid #1f2937 !important;
+  }
+
+  td.el-table__cell {
+    border-bottom: 1px solid #1f2937 !important;
+  }
+
+  &::before, &::after {
+    display: none !important;
+  }
+
   ::-webkit-scrollbar {
-    /*滚动条整体部分，其中的属性有width,height,background,border等*/
     width: 6px;
     height: 6px;
   }
 
   ::-webkit-scrollbar-button {
-    /*滚动条两端的按钮，可以用display:none让其不显示*/
     display: none;
   }
 
   ::-webkit-scrollbar-thumb {
-    /*滚动条里面可以拖动的那部分*/
-    background: #cee0f0;
+    background: #1f2937;
     border-radius: 4px;
     &:hover {
-      background-color: rgba(0, 0, 0, .4);
+      background-color: #374151;
     }
   }
 
   ::-webkit-scrollbar-corner, ::-webkit-scrollbar-resizer, 
   ::-webkit-scrollbar-track, ::-webkit-scrollbar-track-piece {
-    background: #F0F5FB;
+    background: #0d111a;
+  }
+}
+
+.el-breadcrumb__inner,
+.el-breadcrumb__inner a {
+  font-weight: 400 !important;
+  color: var(--el-text-color-secondary) !important;
+
+  &.is-link:hover {
+    color: var(--el-color-primary) !important;
+  }
+}
+
+.el-dropdown-menu {
+  background-color: #111827 !important;
+  border: 1px solid #1f2937 !important;
+  border-radius: 8px !important;
+  padding: 6px 0 !important;
+
+  a {
+    display: block;
+  }
+
+  .el-dropdown-menu__item {
+    color: var(--el-text-color-primary) !important;
+
+    &:hover {
+      background-color: #1a202c !important;
+      color: var(--el-color-primary) !important;
+    }
+  }
+}
+
+.el-menu {
+  background-color: transparent !important;
+  border-right: none !important;
+}
+
+.el-menu-item {
+  color: var(--el-text-color-secondary) !important;
+  border-radius: 8px !important;
+  margin: 4px 8px !important;
+  height: 48px !important;
+  line-height: 48px !important;
+
+  &:hover {
+    background-color: #1a202c !important;
+    color: var(--el-text-color-primary) !important;
+  }
+
+  &.is-active {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    color: #a5b4fc !important;
+    font-weight: 600 !important;
   }
 }
 
@@ -49,14 +224,10 @@
     padding: 0;
   }
   .el-textarea__inner {
-    padding: 3px;
+    padding: 10px;
+    background-color: #1a202c !important;
+    border-color: #1f2937 !important;
+    color: #f3f4f6 !important;
   }
 }
 
-.el-menu-item .el-menu-tooltip__trigger {
-  display: inline
-}
-
-.el-form-item__content {
-  flex-wrap: nowrap
-}
