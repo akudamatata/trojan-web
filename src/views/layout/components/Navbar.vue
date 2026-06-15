@@ -5,7 +5,6 @@
     <div class="right-menu">
         <!-- 一键切换语言按钮 -->
         <div class="lang-switch-btn" @click="toggleLanguage">
-            <el-icon class="lang-icon"><Translate /></el-icon>
             <span class="lang-text">{{ currentLangText }}</span>
         </div>
 
@@ -49,7 +48,7 @@
 
 <script>
 import { ElMessage } from "element-plus"
-import { ArrowDown, Translate, UserFilled, SwitchButton, InfoFilled } from '@element-plus/icons-vue'
+import { ArrowDown, UserFilled, SwitchButton, InfoFilled } from '@element-plus/icons-vue'
 import { mapGetters, mapState } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import { version } from '@/api/common'
@@ -58,7 +57,6 @@ export default {
     setup() {
         return {
             ArrowDown,
-            Translate,
             UserFilled,
             SwitchButton,
             InfoFilled
