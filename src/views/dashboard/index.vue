@@ -4,7 +4,20 @@
     <div v-if="isAdmin" class="metrics-grid">
       <el-card class="metric-card" shadow="never">
         <div class="metric-content">
-          <el-progress type="circle" :percentage="cpu.percentage" :color="cpu.color" :stroke-width="8" :width="85" />
+          <div class="metric-icon-wrap cpu">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <rect x="9" y="9" width="6" height="6" />
+              <path d="M9 1v3" />
+              <path d="M15 1v3" />
+              <path d="M9 20v3" />
+              <path d="M15 20v3" />
+              <path d="M20 9h3" />
+              <path d="M20 15h3" />
+              <path d="M1 9h3" />
+              <path d="M1 15h3" />
+            </svg>
+          </div>
           <div class="metric-info">
             <h4 class="metric-title">CPU 使用率</h4>
             <p class="metric-value">{{ cpu.percentage }}%</p>
@@ -14,7 +27,13 @@
 
       <el-card class="metric-card" shadow="never">
         <div class="metric-content">
-          <el-progress type="circle" :percentage="memory.percentage" :color="memory.color" :stroke-width="8" :width="85" />
+          <div class="metric-icon-wrap mem">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 10h20M2 14h20" />
+              <rect x="2" y="6" width="20" height="12" rx="2" />
+              <path d="M6 6v4M10 6v4M14 6v4M18 6v4M6 14v4M10 14v4M14 14v4M18 14v4" />
+            </svg>
+          </div>
           <div class="metric-info">
             <h4 class="metric-title">{{ $t('dashboard.memory') }}</h4>
             <p class="metric-value">{{ memory.used }} / {{ memory.total }}</p>
@@ -24,7 +43,13 @@
 
       <el-card class="metric-card" shadow="never">
         <div class="metric-content">
-          <el-progress type="circle" :percentage="disk.percentage" :color="disk.color" :stroke-width="8" :width="85" />
+          <div class="metric-icon-wrap disk">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3" />
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+              <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
+            </svg>
+          </div>
           <div class="metric-info">
             <h4 class="metric-title">{{ $t('dashboard.disk') }}</h4>
             <p class="metric-value">{{ disk.used }} / {{ disk.total }}</p>
@@ -34,7 +59,14 @@
 
       <el-card class="metric-card" shadow="never">
         <div class="metric-content">
-          <el-progress type="circle" :percentage="swap.percentage" :color="swap.color" :stroke-width="8" :width="85" />
+          <div class="metric-icon-wrap swap">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+              <path d="M3 3v5h5" />
+              <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+              <path d="M16 16h5v5" />
+            </svg>
+          </div>
           <div class="metric-info">
             <h4 class="metric-title">Swap 缓存</h4>
             <p class="metric-value">{{ swap.used }} / {{ swap.total }}</p>
@@ -256,7 +288,7 @@
           <el-table-column prop="Download" label="已用下载" :formatter="formatTableBytes" />
           <el-table-column label="总使用流量">
             <template #default="scope">
-              <span>{{ formatBytes(scope.row.Upload + scope.row.Download) }}</span>
+              <span :class="{'quota-warning-text': isUserQuotaWarning(scope.row)}">{{ formatBytes(scope.row.Upload + scope.row.Download) }}</span>
             </template>
           </el-table-column>
         </el-table>
@@ -503,6 +535,11 @@ export default {
                 path += ` L ${lastX.toFixed(1)} 120 L ${firstX.toFixed(1)} 120 Z`
             }
             return path
+        },
+        isUserQuotaWarning(row) {
+            if (!row || row.Quota === -1 || row.Quota === 0) return false
+            const total = row.Upload + row.Download
+            return total >= row.Quota * 0.8
         }
     }
 }
@@ -533,6 +570,21 @@ export default {
     gap: 16px;
     padding: 10px 5px;
   }
+
+  .metric-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    
+    &.cpu { background-color: rgba(16, 185, 129, 0.08); color: #10b981; }
+    &.mem { background-color: rgba(59, 130, 246, 0.08); color: #3b82f6; }
+    &.disk { background-color: rgba(245, 158, 11, 0.08); color: #f59e0b; }
+    &.swap { background-color: rgba(139, 92, 246, 0.08); color: #8b5cf6; }
+  }
   
   .metric-info {
     .metric-title {
@@ -548,6 +600,11 @@ export default {
       font-weight: 600;
     }
   }
+}
+
+.quota-warning-text {
+  color: #ef4444 !important;
+  font-weight: 600 !important;
 }
 
 .traffic-grid {

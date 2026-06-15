@@ -53,7 +53,10 @@
         </el-table-column>
         <el-table-column
         :label="$t('user.total')"
-        :formatter="totalFormatter" :sort-method="totalSort" sortable>
+        :sort-method="totalSort" sortable>
+          <template #default="scope">
+            <span :class="{'quota-warning-text': isUserQuotaWarning(scope.row)}">{{ formatBytes(scope.row.Upload + scope.row.Download) }}</span>
+          </template>
         </el-table-column>
         <el-table-column
         :label="$t('user.quota')"
@@ -157,9 +160,9 @@
         <p class="qrcodeCenter"> {{ shareLink }} </p>
     </el-dialog>
     <el-dialog :title="expiryShow" v-model="expiryVisible" :width="dialogWidth">
-        <el-form>
+        <el-form label-position="top">
             <el-form-item :label="$t('user.preset')">
-                <el-select v-model="useDays" :placeholder="$t('choice')" filterable style="width: 130px;">
+                <el-select v-model="useDays" :placeholder="$t('choice')" filterable style="width: 100%;">
                     <el-option
                         v-for="item in expiryDateOptions"
                         :key="item.label"
@@ -169,7 +172,16 @@
                 </el-select>
             </el-form-item>
             <el-form-item :label="$t('user.days')">
-                <el-input-number v-model="useDays" :min=0></el-input-number>
+                <el-input-number v-model="useDays" :min="0" style="width: 100%;"></el-input-number>
+            </el-form-item>
+            <el-form-item label="直接指定到期日期 (年月日)">
+                <el-date-picker
+                    v-model="expireDate"
+                    type="date"
+                    placeholder="选择到期日期"
+                    value-format="YYYY-MM-DD"
+                    style="width: 100%;"
+                />
             </el-form-item>
         </el-form>
         <template #footer>
@@ -226,6 +238,7 @@ export default {
             quota: -1,
             quotaUnit: 'MB',
             useDays: 7,
+            expireDate: dayjs().add(7, 'day').format('YYYY-MM-DD'),
             quotaOptions: [
                 {
                     value: 'MB'
@@ -312,6 +325,25 @@ export default {
             }
         }
     },
+    watch: {
+        expireDate(newVal) {
+            if (newVal) {
+                const today = dayjs().startOf('day')
+                const target = dayjs(newVal).startOf('day')
+                const diffDays = target.diff(today, 'day')
+                if (diffDays >= 0 && this.useDays !== diffDays) {
+                    this.useDays = diffDays
+                }
+            }
+        },
+        useDays(newVal) {
+            const today = dayjs().startOf('day')
+            const computedDate = today.add(newVal, 'day').format('YYYY-MM-DD')
+            if (this.expireDate !== computedDate) {
+                this.expireDate = computedDate
+            }
+        }
+    },
     created() {
         this.refresh()
         this.clientHeight = document.body.clientHeight - 120
@@ -333,6 +365,11 @@ export default {
         },
         expiryFormatter(row) {
             return row.ExpiryDate === '' ? this.$t('user.unlimit') : row.ExpiryDate
+        },
+        isUserQuotaWarning(row) {
+            if (!row || row.Quota === -1 || row.Quota === 0) return false
+            const total = row.Upload + row.Download
+            return total >= row.Quota * 0.8
         },
         uploadFormatter(row) {
             return readablizeBytes(row.Upload)
@@ -672,5 +709,9 @@ export default {
     .search-input {
         width: 200px;
     }
+}
+.quota-warning-text {
+    color: #ef4444 !important;
+    font-weight: 600 !important;
 }
 </style>

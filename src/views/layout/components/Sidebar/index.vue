@@ -79,7 +79,7 @@ export default {
 }
 
 .sidebar-logo-container {
-  height: 51px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: space-between;
