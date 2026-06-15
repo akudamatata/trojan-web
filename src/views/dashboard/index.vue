@@ -562,8 +562,9 @@ export default {
 }
 
 .inner-divider {
-  margin: 12px 0 !important;
-  border-top-color: rgba(255, 255, 255, 0.05) !important;
+  margin: 12px 20px !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  border-bottom: none !important;
 }
 
 .traffic-quota-item {
@@ -571,7 +572,9 @@ export default {
   align-items: stretch !important;
   gap: 8px;
   border-bottom: none !important;
+  border-top: none !important;
   padding-bottom: 0 !important;
+  padding-top: 0 !important;
 
   .quota-meta {
     display: flex;
@@ -608,6 +611,10 @@ export default {
       ::v-deep(.el-progress-bar__innerText) {
         font-size: 10px;
         line-height: 12px;
+        vertical-align: middle;
+        display: inline-flex;
+        align-items: center;
+        height: 100%;
       }
     }
   }

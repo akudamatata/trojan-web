@@ -11,9 +11,7 @@
         <!-- Admin 用户头像与下拉菜单 -->
         <el-dropdown trigger="hover" class="avatar-dropdown">
             <div class="avatar-wrapper">
-                <el-avatar :size="32" class="user-avatar">
-                    <el-icon class="avatar-user-icon"><UserFilled /></el-icon>
-                </el-avatar>
+                <img src="@/assets/avatar.png" class="user-avatar" alt="Avatar" />
                 <span class="username">Admin</span>
                 <el-icon class="arrow-icon"><ArrowDown /></el-icon>
             </div>
@@ -48,7 +46,7 @@
 
 <script>
 import { ElMessage } from "element-plus"
-import { ArrowDown, UserFilled, SwitchButton, InfoFilled } from '@element-plus/icons-vue'
+import { ArrowDown, SwitchButton, InfoFilled } from '@element-plus/icons-vue'
 import { mapGetters, mapState } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import { version } from '@/api/common'
@@ -57,7 +55,6 @@ export default {
     setup() {
         return {
             ArrowDown,
-            UserFilled,
             SwitchButton,
             InfoFilled
         }
@@ -188,19 +185,13 @@ export default {
             }
 
             .user-avatar {
-                background-color: #1f2937;
-                color: #a5b4fc;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
                 border: 2px solid transparent;
                 transition: all 0.3s;
-                width: 32px;
-                height: 32px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                .avatar-user-icon {
-                    font-size: 16px;
-                }
+                object-fit: cover;
+                flex-shrink: 0;
             }
 
             .username {

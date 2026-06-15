@@ -3,7 +3,7 @@
     <!-- 系统 Logo 与标题区域 -->
     <div class="sidebar-logo-container">
       <div class="logo-wrapper">
-        <svg-icon icon-class="dashboard" class="logo-icon" />
+        <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
         <span v-show="!isCollapse" class="logo-title">Trojan Web</span>
       </div>
     </div>
@@ -79,22 +79,25 @@ export default {
 }
 
 .sidebar-logo-container {
-  height: 50px;
+  height: 51px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 16px;
   border-bottom: 1px solid #1f2937;
   overflow: hidden;
   
   .logo-wrapper {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
   
-  .logo-icon {
-    font-size: 20px;
-    color: #6366f1;
+  .logo-img {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
   }
   
   .logo-title {
