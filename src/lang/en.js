@@ -83,6 +83,7 @@ export default {
         modifyUser: 'modify user',
         trojanShareLink: 'trojan share link',
         clashShareLink: 'clash share link',
+        universalShareLink: 'universal share link',
         importClash: 'import to clash',
         meanUnlimit: '-1 means unlimited',
         inputUsername: 'username',

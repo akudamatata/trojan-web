@@ -103,6 +103,7 @@
                     <el-dropdown-menu>
                         <el-dropdown-item @click="userItem=scope.row;commonType=4;handleShare()">{{ $t('user.trojanShareLink') }}</el-dropdown-item>
                         <el-dropdown-item @click="userItem=scope.row;commonType=5;handleShare()">{{ $t('user.clashShareLink') }}</el-dropdown-item>
+                        <el-dropdown-item @click="userItem=scope.row;commonType=6;handleShare()">{{ $t('user.universalShareLink') }}</el-dropdown-item>
                         <el-dropdown-item @click="userItem=scope.row;handleClash()">{{ $t('user.importClash') }}</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
@@ -359,6 +360,10 @@ export default {
                 let userInfo = base64Encode(`{"user": "${this.userItem.Username}", "pass": "${base64Decode(this.userItem.Password)}"}`)
                 let protocol = `${window.location.hostname}` === '127.0.0.1' ? 'https:': `${window.location.protocol}`
                 this.shareLink = `${protocol}//${this.domain}:${this.port}/trojan/user/subscribe?token=${userInfo}`
+            } else if (this.commonType === 6) {
+                let userInfo = base64Encode(`{"user": "${this.userItem.Username}", "pass": "${base64Decode(this.userItem.Password)}"}`)
+                let protocol = `${window.location.hostname}` === '127.0.0.1' ? 'https:': `${window.location.protocol}`
+                this.shareLink = `${protocol}//${this.domain}:${this.port}/trojan/user/subscribe?token=${userInfo}&flag=shadowrocket`
             }
             this.$nextTick(() => {
                 // eslint-disable-next-line

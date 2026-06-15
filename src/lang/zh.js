@@ -31,7 +31,7 @@ export default {
     inputNotNull: '用户名或密码不能为空!',
     route: {
         dashboard: '首页',
-        trojan: 'trojan管理',
+        trojan: 'Trojan管理',
         user: '用户管理',
         setting: '系统设置'
     },
@@ -104,6 +104,7 @@ export default {
         modifyUser: '修改账密',
         trojanShareLink: 'trojan链接',
         clashShareLink: 'clash链接',
+        universalShareLink: '通用订阅链接',
         importClash: '导到clash',
         meanUnlimit: '-1代表无流量限制',
         inputUsername: '输入用户名',

@@ -76,6 +76,87 @@
       </el-card>
     </div>
 
+    <!-- Row 2.5: Real-time SVG Trend Charts (Only for Admin) -->
+    <div v-if="isAdmin" class="charts-grid">
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <div class="chart-header">
+            <span class="chart-title">系统资源实时走势 (CPU / 内存)</span>
+            <div class="chart-legends">
+              <span class="legend-item"><span class="legend-dot cpu"></span>CPU: {{ cpu.percentage }}%</span>
+              <span class="legend-item"><span class="legend-dot mem"></span>内存: {{ memory.percentage }}%</span>
+            </div>
+          </div>
+        </template>
+        <div class="chart-body">
+          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+            <!-- 网格线 -->
+            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+            
+            <defs>
+              <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="memGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 渐变区域 -->
+            <path :d="cpuAreaPath" fill="url(#cpuGrad)" v-if="cpuAreaPath" />
+            <path :d="memAreaPath" fill="url(#memGrad)" v-if="memAreaPath" />
+
+            <!-- 折线 -->
+            <path :d="cpuLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="cpuLinePath" />
+            <path :d="memLinePath" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="memLinePath" />
+          </svg>
+        </div>
+      </el-card>
+
+      <el-card class="chart-card" shadow="never">
+        <template #header>
+          <div class="chart-header">
+            <span class="chart-title">实时网络速率走势</span>
+            <div class="chart-legends">
+              <span class="legend-item"><span class="legend-dot up"></span>上传: {{ netSpeed.up }}</span>
+              <span class="legend-item"><span class="legend-dot down"></span>下载: {{ netSpeed.down }}</span>
+            </div>
+          </div>
+        </template>
+        <div class="chart-body">
+          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+            <!-- 网格线 -->
+            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+
+            <defs>
+              <linearGradient id="upGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+              </linearGradient>
+              <linearGradient id="downGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.15"/>
+                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+
+            <!-- 渐变区域 -->
+            <path :d="upAreaPath" fill="url(#upGrad)" v-if="upAreaPath" />
+            <path :d="downAreaPath" fill="url(#downGrad)" v-if="downAreaPath" />
+
+            <!-- 折线 -->
+            <path :d="upLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="upLinePath" />
+            <path :d="downLinePath" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" v-if="downLinePath" />
+          </svg>
+        </div>
+      </el-card>
+    </div>
+
     <!-- Row 3: Server Information & Stats Grid -->
     <div class="info-grid">
       <el-card class="info-card" header="系统服务状态" shadow="never">
@@ -127,10 +208,11 @@
               <el-progress 
                 :percentage="serverUsePercent" 
                 :stroke-width="12" 
-                :text-inside="true"
+                :show-text="false"
                 :color="serverUsePercent >= 80 ? '#ef4444' : '#6366f1'"
                 class="mini-progress"
               />
+              <span class="progress-percent-text">{{ serverUsePercent }}%</span>
             </div>
             <div class="quota-details">
               <span>已用：{{ formatBytes(serverUsedTraffic) }}</span>
@@ -210,7 +292,14 @@ export default {
             netCount: '',
             serverTotalQuota: -1,
             serverUsedTraffic: 0,
-            top10Users: []
+            top10Users: [],
+            historyPoints: {
+                cpu: [],
+                memory: [],
+                upSpeed: [],
+                downSpeed: []
+            },
+            maxPoints: 20
         }
     },
     computed: {
@@ -221,6 +310,30 @@ export default {
             }
             const percent = (this.serverUsedTraffic / this.serverTotalQuota) * 100
             return parseFloat(percent.toFixed(2))
+        },
+        cpuLinePath() {
+            return this.generateSvgPath(this.historyPoints.cpu, 100, false)
+        },
+        cpuAreaPath() {
+            return this.generateSvgPath(this.historyPoints.cpu, 100, true)
+        },
+        memLinePath() {
+            return this.generateSvgPath(this.historyPoints.memory, 100, false)
+        },
+        memAreaPath() {
+            return this.generateSvgPath(this.historyPoints.memory, 100, true)
+        },
+        upLinePath() {
+            return this.generateSvgPath(this.historyPoints.upSpeed, 'dynamic', false)
+        },
+        upAreaPath() {
+            return this.generateSvgPath(this.historyPoints.upSpeed, 'dynamic', true)
+        },
+        downLinePath() {
+            return this.generateSvgPath(this.historyPoints.downSpeed, 'dynamic', false)
+        },
+        downAreaPath() {
+            return this.generateSvgPath(this.historyPoints.downSpeed, 'dynamic', true)
         }
     },
     created() {
@@ -281,6 +394,18 @@ export default {
                 this.serverTotalQuota = data.serverTotalQuota
                 this.serverUsedTraffic = data.serverUsedTraffic
                 this.top10Users = data.top10Users || []
+
+                const history = this.historyPoints
+                history.cpu.push(this.cpu.percentage)
+                history.memory.push(this.memory.percentage)
+                history.upSpeed.push(data.speed.Up)
+                history.downSpeed.push(data.speed.Down)
+                if (history.cpu.length > this.maxPoints) {
+                    history.cpu.shift()
+                    history.memory.shift()
+                    history.upSpeed.shift()
+                    history.downSpeed.shift()
+                }
             })
         },
         computePercent(data) {
@@ -351,6 +476,33 @@ export default {
         },
         formatTableBytes(row, column, cellValue) {
             return readablizeBytes(cellValue)
+        },
+        generateSvgPath(points, maxVal = 100, isArea = false) {
+            if (points.length < 2) return ''
+            let actualMax = maxVal
+            if (maxVal === 'dynamic') {
+                const maxInPoints = Math.max(...points)
+                actualMax = maxInPoints > 1024 ? maxInPoints : 1024
+            }
+            const stepX = 500 / (this.maxPoints - 1)
+            let path = ''
+            const startX = 500 - (points.length - 1) * stepX
+            points.forEach((val, index) => {
+                const x = startX + index * stepX
+                const ratio = val / actualMax
+                const y = 110 - (ratio > 1 ? 1 : ratio) * 100
+                if (index === 0) {
+                    path += `M ${x.toFixed(1)} ${y.toFixed(1)}`
+                } else {
+                    path += ` L ${x.toFixed(1)} ${y.toFixed(1)}`
+                }
+            })
+            if (isArea) {
+                const firstX = startX
+                const lastX = 500
+                path += ` L ${lastX.toFixed(1)} 120 L ${firstX.toFixed(1)} 120 Z`
+            }
+            return path
         }
     }
 }
@@ -599,6 +751,7 @@ export default {
 
   .quota-progress-wrapper {
     margin: 4px 0;
+    position: relative;
     
     .mini-progress {
       ::v-deep(.el-progress-bar__outer) {
@@ -608,14 +761,19 @@ export default {
       ::v-deep(.el-progress-bar__inner) {
         border-radius: 6px;
       }
-      ::v-deep(.el-progress-bar__innerText) {
-        font-size: 10px;
-        line-height: 12px;
-        vertical-align: middle;
-        display: inline-flex;
-        align-items: center;
-        height: 100%;
-      }
+    }
+
+    .progress-percent-text {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10px;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1;
+      pointer-events: none;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
   }
 
@@ -625,6 +783,77 @@ export default {
     font-size: 12px;
     color: #9ca3af;
     margin-top: 2px;
+  }
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  border-radius: 12px !important;
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+
+  ::v-deep(.el-card__header) {
+    border-bottom: 1px solid #1f2937 !important;
+    padding: 14px 20px !important;
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    
+    .chart-title {
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .chart-legends {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: #9ca3af;
+      
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        
+        .legend-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          display: inline-block;
+          
+          &.cpu { background-color: #10b981; }
+          &.mem { background-color: #3b82f6; }
+          &.up { background-color: #10b981; }
+          &.down { background-color: #8b5cf6; }
+        }
+      }
+    }
+  }
+
+  .chart-body {
+    padding: 10px 0;
+    
+    .trend-svg {
+      width: 100%;
+      height: 120px;
+      display: block;
+      overflow: visible;
+    }
   }
 }
 

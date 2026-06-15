@@ -1,10 +1,17 @@
 <template>
   <div :class="{'has-logo': true, 'is-collapsed': isCollapse}" class="sidebar-container-inner">
     <!-- 系统 Logo 与标题区域 -->
-    <div class="sidebar-logo-container">
-      <div class="logo-wrapper">
+    <div class="sidebar-logo-container" :class="{'is-collapsed': isCollapse}">
+      <div v-show="!isCollapse" class="logo-wrapper">
         <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
-        <span v-show="!isCollapse" class="logo-title">Trojan Web</span>
+        <span class="logo-title">{{ docTitle || 'Trojan Web' }}</span>
+      </div>
+      <div class="hamburger-btn" @click="toggleSideBar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
       </div>
     </div>
 
@@ -24,25 +31,15 @@
         <sidebar-item v-for="route in routes" :key="route.path" :item="route" :base-path="route.path" />
       </el-menu>
     </el-scrollbar>
-
-    <!-- 底部收起/展开按钮 -->
-    <div class="collapse-trigger" @click="toggleSideBar">
-      <el-icon class="trigger-icon">
-        <ArrowLeft v-if="!isCollapse" />
-        <ArrowRight v-else />
-      </el-icon>
-      <span v-show="!isCollapse" class="trigger-text">收起侧边栏</span>
-    </div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import SidebarItem from './SidebarItem'
-import { ArrowLeft, ArrowRight } from '@element-plus/icons-vue'
 
 export default {
-    components: { SidebarItem, ArrowLeft, ArrowRight },
+    components: { SidebarItem },
     computed: {
         ...mapGetters([
             'sidebar'
@@ -60,6 +57,9 @@ export default {
         },
         isCollapse() {
             return !this.sidebar.opened
+        },
+        docTitle() {
+            return this.$store.state.docTitle
         }
     },
     methods: {
@@ -82,9 +82,11 @@ export default {
   height: 51px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
   border-bottom: 1px solid #1f2937;
   overflow: hidden;
+  box-sizing: border-box;
   
   .logo-wrapper {
     display: flex;
@@ -107,60 +109,44 @@ export default {
     letter-spacing: 0.5px;
     white-space: nowrap;
   }
+
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: #ffffff;
+      background-color: #1a202c;
+    }
+  }
+
+  &.is-collapsed {
+    padding: 0;
+    justify-content: center;
+    
+    .hamburger-btn {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      color: #a0aec0;
+      
+      &:hover {
+        color: #ffffff;
+        background-color: #1a202c;
+      }
+    }
+  }
 }
 
 .scrollbar-wrapper {
   flex: 1;
 }
 
-.collapse-trigger {
-  height: 48px;
-  border-top: 1px solid #1f2937;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  cursor: pointer;
-  color: #a0aec0;
-  transition: all 0.3s;
-  background-color: #0d111a;
-  gap: 12px;
-  overflow: hidden;
-  white-space: nowrap;
-
-  &:hover {
-    color: #ffffff;
-    background-color: #1a202c;
-  }
-
-  .trigger-icon {
-    font-size: 16px;
-    transition: transform 0.3s;
-  }
-
-  .trigger-text {
-    font-size: 13px;
-    font-weight: 500;
-  }
-}
-
-.is-collapsed {
-  .sidebar-logo-container {
-    padding: 0;
-    justify-content: center;
-    .logo-wrapper {
-      justify-content: center;
-      
-      .logo-icon {
-        margin: 0 !important;
-      }
-    }
-  }
-  .collapse-trigger {
-    padding: 0;
-    justify-content: center;
-    .trigger-text {
-      display: none;
-    }
-  }
-}
 </style>
