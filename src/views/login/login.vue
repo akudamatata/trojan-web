@@ -133,7 +133,7 @@ $cursor: #fff;
 
     .el-input__wrapper {
       padding: 0;
-      box-shadow: none;
+      box-shadow: none !important;
       background: transparent !important;
     }
 
