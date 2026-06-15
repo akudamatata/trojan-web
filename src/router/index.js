@@ -82,6 +82,18 @@ export const constantRoutes = [
             }
         ]
     },
+    {
+        path: '/setting',
+        component: Layout,
+        children: [
+            {
+                path: '',
+                name: 'setting',
+                component: () => import('@/views/setting/index'),
+                meta: { title: 'setting', icon: 'nested', roles: ['admin'] }
+            }
+        ]
+    },
     // 404 page must be placed at the end !!!
     { path: '/:pathMatch(.*)*', redirect: '/404', hidden: true }
 ]

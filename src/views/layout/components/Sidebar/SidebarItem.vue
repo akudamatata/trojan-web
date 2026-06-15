@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!item.hidden">
+  <div v-if="!item.hidden && showRoute(item)">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
       <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path)">
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{'submenu-title-noDropdown':!isNest}">
@@ -80,6 +80,18 @@ export default {
                 return this.basePath
             }
             return `${this.basePath}/${routePath}`.replace('//', '/')
+        },
+        showRoute(item) {
+            if (item.meta && item.meta.roles && item.meta.roles.includes('admin')) {
+                return this.$store.state.isAdmin
+            }
+            if (item.children && item.children.length > 0) {
+                const child = item.children[0]
+                if (child.meta && child.meta.roles && child.meta.roles.includes('admin')) {
+                    return this.$store.state.isAdmin
+                }
+            }
+            return true
         }
     }
 }

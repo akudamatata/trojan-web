@@ -11,7 +11,8 @@ export default {
     route: {
         dashboard: 'Dashboard',
         trojan: 'Trojan',
-        user: 'User'
+        user: 'User',
+        setting: 'System Setting'
     },
     navbar: {
         version: 'System Version',

@@ -1,16 +1,33 @@
 <template>
   <div class="user-container">
-    <el-form :inline="true" label-width="80px" class="user-control-form">
-    <el-form-item>
-        <el-button-group>
-            <el-button type="primary" :icon="Refresh" @click="refresh()">{{ textShow($t('refresh')) }}</el-button>
-            <el-button type="primary" :icon="Plus" @click="commonType=2;userInfo.username='';userInfo.password='';userVisible=true" v-if="isAdmin">{{ textShow($t('add')) }}</el-button>
-            <el-button type="primary" :icon="RefreshLeft" @click="copySelection=multipleSelection;patchButton=true;commonType=1;confirmVisible=true" v-if="isAdmin">{{ textShow($t('user.reset')) }}</el-button>
-            <el-button type="primary" :icon="Scissor" @click="copySelection=multipleSelection;patchButton=true;quotaVisible=true" v-if="isAdmin">{{ textShow($t('user.limitData')) }}</el-button>
-            <el-button type="danger" :icon="Delete" @click="copySelection=multipleSelection;patchButton=true;commonType=0;confirmVisible=true" v-if="isAdmin">{{ textShow($t('delete')) }}</el-button>
-        </el-button-group>
-    </el-form-item>
-    </el-form>
+    <div class="user-action-bar">
+        <div class="left-actions">
+            <el-button type="primary" :icon="Plus" @click="commonType=2;userInfo.username='';userInfo.password='';userVisible=true" v-if="isAdmin">
+                {{ textShow($t('add')) }}
+            </el-button>
+            <el-button :icon="Refresh" @click="refresh()">
+                {{ textShow($t('refresh')) }}
+            </el-button>
+        </div>
+        <div class="right-actions" v-if="isAdmin">
+            <el-input
+                v-model="search"
+                :placeholder="$t('user.search')"
+                :prefix-icon="Search"
+                clearable
+                class="search-input"
+            />
+            <el-button type="warning" plain :icon="RefreshLeft" @click="copySelection=multipleSelection;patchButton=true;commonType=1;confirmVisible=true">
+                {{ textShow($t('user.reset')) }}
+            </el-button>
+            <el-button type="primary" plain :icon="Scissor" @click="copySelection=multipleSelection;patchButton=true;quotaVisible=true">
+                {{ textShow($t('user.limitData')) }}
+            </el-button>
+            <el-button type="danger" :icon="Delete" @click="copySelection=multipleSelection;patchButton=true;commonType=0;confirmVisible=true">
+                {{ textShow($t('delete')) }}
+            </el-button>
+        </div>
+    </div>
     <el-table
     :data="dataList.filter(data => !search || data.Username.toLowerCase().includes(search.toLowerCase()))" :height="clientHeight" @selection-change="handleSelectionChange" class="tableShow">
         <el-table-column
@@ -58,13 +75,8 @@
         </el-table-column>
         <el-table-column
         width="170"
-        align="center">
-        <template #header>
-            <el-input
-                v-model="search"
-                :placeholder="$t('user.search')" v-if="isAdmin"/>
-            <div v-if="!isAdmin">{{ $t('user.operate') }}</div>
-        </template>
+        align="center"
+        :label="$t('user.operate')">
         <template #default="scope">
             <el-dropdown v-if="isAdmin">
                 <el-button type="primary" link style="margin-top:2.6px">
@@ -171,7 +183,7 @@
 
 <script>
 import { userList, addUser, delUser, updateUser, setExpire, cancelExpire } from '@/api/user'
-import { Refresh, Plus, RefreshLeft, Scissor, Delete } from '@element-plus/icons-vue'
+import { Refresh, Plus, RefreshLeft, Scissor, Delete, Search } from '@element-plus/icons-vue'
 import { setQuota, cleanData } from '@/api/data'
 import { setDomain, restart } from '@/api/trojan'
 import { readablizeBytes, isValidIP, base64Encode, base64Decode } from '@/utils/common'
@@ -186,7 +198,8 @@ export default {
             Plus,
             RefreshLeft,
             Scissor,
-            Delete
+            Delete,
+            Search
         }
     },
     data() {
@@ -632,11 +645,27 @@ export default {
     background-color: var(--el-bg-color-page);
     min-height: calc(100vh - 50px);
 }
-.user-control-form {
+.user-action-bar {
     background: #111827;
-    padding: 16px 24px 0 24px;
+    padding: 16px 24px;
     border-radius: 12px;
     border: 1px solid #1f2937;
     margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .left-actions, .right-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        width: 200px;
+    }
 }
 </style>

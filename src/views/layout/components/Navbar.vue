@@ -11,45 +11,12 @@
                 <template #dropdown>
                     <el-dropdown-menu>
                         <el-dropdown-item @click="systemVersion(); versionVisible=true">{{ $t('navbar.version') }}</el-dropdown-item>
-                        <el-dropdown placement='right-start' class="el-dropdown-menu__item" v-if="isAdmin">
-                            <span>
-                                {{ $t('navbar.setting') }}
-                            </span>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item @click="getTitle(); loginVisible=true">{{ $t('navbar.title') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="dialogVisible=true">{{ $t('navbar.password') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="getRules(); rulesVisible=true">{{ $t('navbar.clashRules') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="importExportVisible=true">{{ $t('navbar.importExport') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="getResetDay(); resetDayVisible=true">{{ $t('navbar.resetDay') }}</el-dropdown-item>
-                                    <el-dropdown-item @click="getWebPortData(); webPortVisible=true">修改Web端口</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
-                        <el-dropdown-item @click="handleSetLanguage('zh')" divided>中文</el-dropdown-item>
+                        <el-dropdown-item @click="handleSetLanguage('zh')">中文</el-dropdown-item>
                         <el-dropdown-item @click="handleSetLanguage('en')">English</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
-            <el-dialog :modal="false" :title="$t('navbar.changeTitle')" v-model="loginVisible" :width="dialogWidth">
-                <el-input type="text" v-model="title" :placeholder="$t('navbar.inputTitle')" @keyup.enter="handleLoginInfo"/>
-                <template #footer>
-                    <span class="dialog-footer">
-                        <el-button @click="loginVisible = false">{{ $t('cancel') }}</el-button>
-                        <el-button type="primary" @click="handleLoginInfo()">{{ $t('ok') }}</el-button>
-                    </span>
-                </template>
-            </el-dialog>
-            <el-dialog class="ruleDialog" :modal="false" :title="$t('navbar.changeRules')" v-model="rulesVisible" :width="clashDialogWidth" :show-close="false">
-                <el-input type="textarea" v-model="rules" :rows="12" :placeholder="$t('navbar.inputTitle')"/>
-                <template #footer>
-                    <span class="dialog-footer">
-                        <el-button @click="rulesVisible = false">{{ $t('cancel') }}</el-button>
-                        <el-button @click="resetClashRules()">{{ $t('reset') }}</el-button>
-                        <el-button type="primary" @click="handleClashRules()">{{ $t('ok') }}</el-button>
-                    </span>
-                </template>
-            </el-dialog>
+            
             <el-dialog :modal="false" :title="$t('navbar.versionTitle')" v-model="versionVisible" :width="dialogWidth">
                 <p> version: {{ versionList.version }} </p>
                 <p> gitVersion: {{ versionList.gitVersion.slice(0,7) }} </p>
@@ -58,54 +25,6 @@
                 <template #footer>
                     <span class="dialog-footer">
                         <el-button type="primary" @click="versionVisible = false">{{ $t('ok') }}</el-button>
-                    </span>
-                </template>
-            </el-dialog>
-            <el-dialog :modal="false" :title="$t('navbar.resetTitle')" v-model="resetDayVisible" :width="dialogWidth">
-                <el-tooltip effect="dark" :content="$t('navbar.meanClose')" placement="top">
-                    <el-input-number size="small" v-model="resetDay" :min=0 :max=31></el-input-number>
-                </el-tooltip>
-                <template #footer>
-                    <span class="dialog-footer">
-                        <el-button @click="resetDayVisible = false">{{ $t('cancel') }}</el-button>
-                        <el-button type="primary" @click="handleResetDay()">{{ $t('ok') }}</el-button>
-                    </span>
-                </template>
-            </el-dialog>
-            <el-dialog :modal="false" :title="$t('navbar.importExport')" v-model="importExportVisible" :width="dialogWidth">
-                <el-tooltip effect="dark" :content="$t('navbar.exportTip')" placement="top">
-                    <el-button type="primary" @click="downloadCsv(); importExportVisible=false">{{ $t('navbar.exportCsv') }}</el-button>
-                </el-tooltip>
-                <el-tooltip effect="dark" :content="$t('navbar.importTip')" placement="top">
-                    <el-upload accept=".csv" :action="uploadUrl" :on-success="uploadSuccess">
-                        <el-button type="primary">{{ $t('navbar.importCsv') }}</el-button>
-                    </el-upload>
-                </el-tooltip>
-            </el-dialog>
-            <el-dialog :modal="false" title="修改Web端口" v-model="webPortVisible" :width="dialogWidth">
-                <el-tooltip effect="dark" content="修改端口后，Web面板将重启并使用新端口，请使用新端口重新连接" placement="top">
-                    <el-input-number size="small" v-model="webPort" :min=1 :max=65535></el-input-number>
-                </el-tooltip>
-                <template #footer>
-                    <span class="dialog-footer">
-                        <el-button @click="webPortVisible = false">{{ $t('cancel') }}</el-button>
-                        <el-button type="primary" @click="handleWebPort()">{{ $t('ok') }}</el-button>
-                    </span>
-                </template>
-            </el-dialog>
-            <el-dialog :modal="false" :title="$t('navbar.passwordTitle')" v-model="dialogVisible" :width="dialogWidth">
-                <el-form :model="form" :rules="registerRules" ref="form" label-position="left">
-                    <el-form-item prop="password1">
-                        <el-input name="password1" :type="pwdType" v-model="form.password1" :placeholder="$t('inputPass')" show-password/>
-                    </el-form-item>
-                    <el-form-item prop="password2">
-                        <el-input name="password2" :type="pwdType" v-model="form.password2" :placeholder="$t('inputPassAgain')" show-password/>
-                    </el-form-item>
-                </el-form>
-                <template #footer>
-                    <span class="dialog-footer">
-                        <el-button @click="dialogVisible = false">{{ $t('cancel') }}</el-button>
-                        <el-button type="primary" @click="dialogVisible = false; changePass()">{{ $t('ok') }}</el-button>
                     </span>
                 </template>
             </el-dialog>
@@ -136,13 +55,6 @@ export default {
         }
     },
     data() {
-        const validatePass = (rule, value, callback) => {
-            if (value.length < 5) {
-                callback(new Error(this.$t('passLessError')))
-            } else {
-                callback()
-            }
-        }
         return {
             versionList: {
                 version: '',
@@ -150,30 +62,7 @@ export default {
                 gitVersion: '',
                 goVersion: ''
             },
-            pwdType: 'password',
-            dialogVisible: false,
-            versionVisible: false,
-            resetDayVisible: false,
-            importExportVisible: false,
-            loginVisible: false,
-            rulesVisible: false,
-            webPortVisible: false,
-            title: '',
-            webPort: 80,
-            rules: '',
-            resetDay: 1,
-            form: {
-                password1: '',
-                password2: ''
-            },
-            registerRules: {
-                password1: [
-                    { required: true, trigger: 'blur', validator: validatePass }
-                ],
-                password2: [
-                    { required: true, trigger: 'blur', validator: validatePass }
-                ]
-            }
+            versionVisible: false
         }
     },
     components: {
@@ -187,20 +76,7 @@ export default {
         ...mapState(['docTitle', 'isAdmin', 'dialogWidth']),
         ...mapGetters([
             'sidebar'
-        ]),
-        clashDialogWidth: () => {
-            const clientWidth = document.body.clientWidth
-            let clashWidth = '42%'
-            if (clientWidth < 600) {
-                clashWidth = '95%'
-            } else if (clientWidth >= 600 && clientWidth < 1000) {
-                clashWidth = '80%'
-            }
-            return clashWidth
-        },
-        uploadUrl: () => {
-            return `${process.env.NODE_ENV === 'production' ? `${location.origin}` : 'api'}/trojan/import`
-        }
+        ])
     },
     methods: {
         handleSetLanguage(lang) {
@@ -214,141 +90,9 @@ export default {
         toggleSideBar() {
             this.$store.dispatch('app/toggleSideBar')
         },
-        downloadCsv() {
-            const prefix = process.env.NODE_ENV === 'production' ? `${location.origin}` : 'api'
-            const downloadUrl = `${prefix}/trojan/export?token=${this.$store.state.UserToken}`
-            window.open(downloadUrl)
-        },
-        uploadSuccess(res) {
-            if (res.Msg === 'success') {
-                ElMessage({
-                    message: this.$t('navbar.importSuccess'),
-                    type: 'success'
-                })
-            } else {
-                ElMessage.error(res.Msg)
-            }
-        },
-        async getTitle() {
-            const result = await check()
-            this.title = result.data.title
-        },
-        async getResetDay() {
-            const result = await getResetDay()
-            this.resetDay = result.Data.resetDay
-        },
-        async handleResetDay() {
-            const formData = new FormData()
-            formData.set('day', this.resetDay)
-            const result = await updateResetDay(formData)
-            if (result.Msg === 'success') {
-                if (this.resetDay === 0) {
-                    ElMessage({
-                        message: this.$t('navbar.closeResetSuccess'),
-                        type: 'success'
-                    })
-                } else {
-                    ElMessage({
-                        message: this.$t('navbar.changeDaySuccess'),
-                        type: 'success'
-                    })
-                }
-            } else {
-                ElMessage.error(result.Msg)
-            }
-            this.resetDayVisible = false
-        },
-        async handleLoginInfo() {
-            const formData = new FormData()
-            formData.set('title', this.title)
-            const result = await setLoginInfo(formData)
-            if (result.Msg === 'success') {
-                ElMessage({
-                    message: this.$t('navbar.changeTitleSuccess'),
-                    type: 'success'
-                })
-                document.title = this.title
-                this.$store.commit('SET_TITLE', this.title)
-            } else {
-                ElMessage.error(result.Msg)
-            }
-            this.loginVisible = false
-        },
-        async getRules() {
-            const result = await getClashRules()
-            this.rules = result.Data
-        },
-        async resetClashRules() {
-            const result = await resetClashRules()
-            if (result.Msg === 'success') {
-                ElMessage({
-                    message: this.$t('navbar.resetRulesSuccess'),
-                    type: 'success'
-                })
-                this.rules = result.Data
-            } else {
-                ElMessage.error(result.Msg)
-            }
-        },
-        async handleClashRules() {
-            const formData = new FormData()
-            formData.set('rules', this.rules)
-            const result = await setClashRules(formData)
-            if (result.Msg === 'success') {
-                ElMessage({
-                    message: this.$t('navbar.changeRulesSuccess'),
-                    type: 'success'
-                })
-            } else {
-                ElMessage.error(result.Msg)
-            }
-            this.rulesVisible = false
-        },
         async systemVersion() {
             const result = await version()
             this.versionList = result.Data
-        },
-        async getWebPortData() {
-            const result = await getWebPort()
-            this.webPort = result.Data.port
-        },
-        async handleWebPort() {
-            const formData = new FormData()
-            formData.set('port', this.webPort)
-            const result = await setWebPort(formData)
-            if (result.Msg === 'success') {
-                ElMessage({
-                    message: '修改Web端口成功，正在重启Web服务，请稍后使用新端口访问',
-                    type: 'success'
-                })
-                this.webPortVisible = false
-                await sleep(2000)
-                const newOrigin = location.protocol + '//' + location.hostname + ':' + this.webPort
-                location.href = newOrigin
-            } else {
-                ElMessage.error(result.Msg)
-            }
-        },
-        async changePass() {
-            const formData = new FormData()
-            if (this.form.password1 !== this.form.password2) {
-                ElMessage.error(this.$t('passDifferentError'))
-                return
-            } else {
-                formData.set('password', CryptoJS.SHA224(this.form.password1).toString())
-            }
-            try {
-                await resetPass(formData)
-                ElMessage({
-                    message: this.$t('navbar.resetSuccess'),
-                    type: 'success'
-                })
-                await sleep(1000 * 2)
-                this.$store.commit('LOGIN_OUT')
-                this.$router.replace('/login').catch()
-            } catch (e) {
-                console.log(e)
-            }
         },
         loginOut() {
             this.$store.commit('LOGIN_OUT')

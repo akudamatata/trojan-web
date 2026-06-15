@@ -32,7 +32,8 @@ export default {
     route: {
         dashboard: '首页',
         trojan: 'trojan管理',
-        user: '用户管理'
+        user: '用户管理',
+        setting: '系统设置'
     },
     navbar: {
         version: '系统版本',
