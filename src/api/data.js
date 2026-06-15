@@ -15,3 +15,11 @@ export function getResetDay() {
 export function updateResetDay(data) {
     return request.post('/trojan/data/resetDay', data)
 }
+
+export function getTotalQuota() {
+    return request.get('/trojan/data/totalQuota')
+}
+
+export function setTotalQuota(data) {
+    return request.post('/trojan/data/totalQuota', data)
+}

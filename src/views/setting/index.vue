@@ -41,6 +41,20 @@
               </div>
               <div class="item-tip warning-tip">注意：修改端口后Web面板将重启，并使用新端口访问，请注意防火墙放行。</div>
             </el-form-item>
+
+            <el-divider class="setting-divider" />
+
+            <el-form-item label="服务器总流量限制">
+              <div class="form-row">
+                <el-input-number v-model="serverTotalQuota" :min="-1" class="flex-input-number" />
+                <el-select v-model="serverQuotaUnit" placeholder="单位" style="width: 100px">
+                  <el-option label="GB" value="GB" />
+                  <el-option label="TB" value="TB" />
+                </el-select>
+                <el-button type="primary" @click="handleServerTotalQuota()">更新限制</el-button>
+              </div>
+              <div class="item-tip">设置服务器双向总流量限制（输入 -1 表示无限制）。用量到达 80% 会在首页进行红色预警。</div>
+            </el-form-item>
           </el-form>
         </el-card>
       </el-tab-pane>
@@ -129,7 +143,7 @@ import { mapState } from 'vuex'
 import { sleep } from '@/utils/common'
 import { resetPass, check } from '@/api/permission'
 import { setLoginInfo, getClashRules, setClashRules, resetClashRules, getWebPort, setWebPort } from '@/api/common'
-import { getResetDay, updateResetDay } from '@/api/data'
+import { getResetDay, updateResetDay, getTotalQuota, setTotalQuota } from '@/api/data'
 
 export default {
     name: 'Setting',
@@ -147,6 +161,8 @@ export default {
             webPort: 80,
             rules: '',
             resetDay: 1,
+            serverTotalQuota: -1,
+            serverQuotaUnit: 'GB',
             form: {
                 password1: '',
                 password2: ''
@@ -176,6 +192,7 @@ export default {
             await this.getResetDay()
             await this.getWebPortData()
             await this.getRules()
+            await this.getServerTotalQuota()
         },
         async getTitle() {
             const result = await check()
@@ -245,6 +262,48 @@ export default {
                     message: this.$t('navbar.changeRulesSuccess'),
                     type: 'success'
                 })
+            } else {
+                ElMessage.error(result.Msg)
+            }
+        },
+        async getServerTotalQuota() {
+            const result = await getTotalQuota()
+            const totalBytes = result.Data.totalQuota
+            if (totalBytes === -1) {
+                this.serverTotalQuota = -1
+                this.serverQuotaUnit = 'GB'
+            } else {
+                const GB = 1024 * 1024 * 1024
+                const TB = 1024 * 1024 * 1024 * 1024
+                if (totalBytes >= TB && totalBytes % TB === 0) {
+                    this.serverTotalQuota = totalBytes / TB
+                    this.serverQuotaUnit = 'TB'
+                } else {
+                    this.serverTotalQuota = totalBytes / GB
+                    this.serverQuotaUnit = 'GB'
+                }
+            }
+        },
+        async handleServerTotalQuota() {
+            let bytes = this.serverTotalQuota
+            if (bytes !== -1) {
+                const GB = 1024 * 1024 * 1024
+                const TB = 1024 * 1024 * 1024 * 1024
+                if (this.serverQuotaUnit === 'GB') {
+                    bytes = bytes * GB
+                } else if (this.serverQuotaUnit === 'TB') {
+                    bytes = bytes * TB
+                }
+            }
+            const formData = new FormData()
+            formData.set('quota', bytes)
+            const result = await setTotalQuota(formData)
+            if (result.Msg === 'success') {
+                ElMessage({
+                    message: '更新服务器总流量限制成功',
+                    type: 'success'
+                })
+                this.getServerTotalQuota()
             } else {
                 ElMessage.error(result.Msg)
             }

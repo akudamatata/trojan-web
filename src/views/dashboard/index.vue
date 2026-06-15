@@ -134,6 +134,57 @@
         </div>
       </el-card>
     </div>
+
+    <!-- 服务器总流量用量进度展示 -->
+    <div v-if="isAdmin" class="quota-progress-container">
+      <el-card class="quota-progress-card" shadow="never">
+        <div class="progress-header">
+          <span class="progress-title">服务器双向总流量限额进度</span>
+          <span v-if="serverTotalQuota !== -1" :class="{'progress-status': true, 'warning': serverUsePercent >= 80}">
+            {{ serverUsePercent >= 80 ? '⚠️ 服务器已用流量已达 80% 以上，请合理规划额度！' : '流量配额充足' }}
+          </span>
+          <span v-else class="progress-status normal">
+            流量无限制
+          </span>
+        </div>
+        <div class="progress-body">
+          <el-progress 
+            v-if="serverTotalQuota !== -1"
+            :percentage="serverUsePercent" 
+            :stroke-width="18" 
+            :text-inside="true"
+            :color="serverUsePercent >= 80 ? '#ef4444' : '#6366f1'"
+            class="custom-progress"
+          />
+          <div class="progress-info">
+            <span>已使用：{{ formatBytes(serverUsedTraffic) }}</span>
+            <span v-if="serverTotalQuota !== -1">总限额：{{ formatBytes(serverTotalQuota) }}</span>
+            <span v-else>总限额：无限制</span>
+          </div>
+        </div>
+      </el-card>
+    </div>
+
+    <!-- Top 10 流量使用用户排行榜 -->
+    <div v-if="isAdmin" class="top-users-container">
+      <el-card class="top-users-card" header="使用流量 Top 10 用户排行榜" shadow="never">
+        <el-table :data="top10Users" style="width: 100%" class="top-users-table">
+          <el-table-column type="index" label="排名" width="80" align="center">
+            <template #default="scope">
+              <span :class="'rank-badge rank-' + (scope.$index + 1)">{{ scope.$index + 1 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="Username" label="用户名" />
+          <el-table-column prop="Upload" label="已用上传" :formatter="formatTableBytes" />
+          <el-table-column prop="Download" label="已用下载" :formatter="formatTableBytes" />
+          <el-table-column label="总使用流量">
+            <template #default="scope">
+              <span>{{ formatBytes(scope.row.Upload + scope.row.Download) }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -161,11 +212,21 @@ export default {
             disk: { percentage: 0, used: 0, total: 0, color: '' },
             load: '',
             netSpeed: { up: '', down: '' },
-            netCount: ''
+            netCount: '',
+            serverTotalQuota: -1,
+            serverUsedTraffic: 0,
+            top10Users: []
         }
     },
     computed: {
-        ...mapState(['isAdmin'])
+        ...mapState(['isAdmin']),
+        serverUsePercent() {
+            if (this.serverTotalQuota <= 0) {
+                return 0
+            }
+            const percent = (this.serverUsedTraffic / this.serverTotalQuota) * 100
+            return parseFloat(percent.toFixed(2))
+        }
     },
     created() {
         this.$store.commit('SET_NPROGRESS', false)
@@ -222,6 +283,9 @@ export default {
                 this.netSpeed.down = readablizeBytes(data.speed.Down) + '/s'
                 this.netCount = data.netCount.tcp + ' / ' + data.netCount.udp
                 this.load = data.load.load1 + ', ' + data.load.load5 + ', ' + data.load.load15
+                this.serverTotalQuota = data.serverTotalQuota
+                this.serverUsedTraffic = data.serverUsedTraffic
+                this.top10Users = data.top10Users || []
             })
         },
         computePercent(data) {
@@ -286,6 +350,12 @@ export default {
                 }
             }
             return result
+        },
+        formatBytes(bytes) {
+            return readablizeBytes(bytes)
+        },
+        formatTableBytes(row, column, cellValue) {
+            return readablizeBytes(cellValue)
         }
     }
 }
@@ -492,6 +562,133 @@ export default {
         .up { color: #10b981; }
         .down { color: #3b82f6; }
       }
+    }
+  }
+}
+
+.quota-progress-container {
+  margin-bottom: 24px;
+}
+.quota-progress-card {
+  border-radius: 12px !important;
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 2px 4px;
+
+    .progress-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .progress-status {
+      font-size: 13px;
+      font-weight: 500;
+      
+      &.normal {
+        color: #9ca3af;
+      }
+      
+      &.warning {
+        color: #ef4444;
+        animation: warn-blink 1.5s infinite;
+      }
+    }
+  }
+
+  .custom-progress {
+    margin-bottom: 12px;
+    ::v-deep(.el-progress-bar__outer) {
+      background-color: #1a202c !important;
+      border-radius: 10px;
+    }
+    ::v-deep(.el-progress-bar__inner) {
+      border-radius: 10px;
+    }
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9ca3af;
+  }
+}
+
+@keyframes warn-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.top-users-container {
+  margin-top: 24px;
+}
+
+.top-users-card {
+  border-radius: 12px !important;
+  background: #111827 !important;
+  border: 1px solid #1f2937 !important;
+
+  ::v-deep(.el-card__header) {
+    border-bottom: 1px solid #1f2937 !important;
+    padding: 14px 20px !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 15px !important;
+  }
+
+  .top-users-table {
+    background-color: transparent !important;
+    
+    ::v-deep(tr) {
+      background-color: transparent !important;
+      &:hover > td {
+        background-color: #1a202c !important;
+      }
+    }
+
+    ::v-deep(th.el-table__cell) {
+      background-color: #0d111a !important;
+      color: #9ca3af !important;
+      border-bottom: 1px solid #1f2937 !important;
+    }
+
+    ::v-deep(td.el-table__cell) {
+      border-bottom: 1px solid #1f2937 !important;
+      color: #ffffff;
+    }
+  }
+
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #374151;
+
+    &.rank-1 {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+    }
+    &.rank-2 {
+      background: linear-gradient(135deg, #9ca3af 0%, #4b5563 100%);
+      box-shadow: 0 2px 8px rgba(156, 163, 175, 0.4);
+    }
+    &.rank-3 {
+      background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+      box-shadow: 0 2px 8px rgba(180, 83, 9, 0.4);
     }
   }
 }

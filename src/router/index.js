@@ -90,7 +90,7 @@ export const constantRoutes = [
                 path: '',
                 name: 'setting',
                 component: () => import('@/views/setting/index'),
-                meta: { title: 'setting', icon: 'nested', roles: ['admin'] }
+                meta: { title: 'setting', icon: 'setting', roles: ['admin'] }
             }
         ]
     },
