@@ -18,11 +18,9 @@
             <template #dropdown>
                 <el-dropdown-menu class="avatar-menu">
                     <el-dropdown-item @click="systemVersion(); versionVisible=true">
-                        <el-icon><InfoFilled /></el-icon>
                         {{ $t('navbar.version') }}
                     </el-dropdown-item>
                     <el-dropdown-item divided @click="loginOut">
-                        <el-icon><SwitchButton /></el-icon>
                         {{ $t('navbar.logout') }}
                     </el-dropdown-item>
                 </el-dropdown-menu>
