@@ -177,28 +177,26 @@
                         type="date"
                         :placeholder="$t('choice')"
                         value-format="YYYY-MM-DD"
-                        style="flex: 1; min-width: 150px;"
+                        style="width: 160px;"
                     />
+                    <el-button-group style="display: flex; flex-wrap: wrap;">
+                        <el-button 
+                            v-for="item in expiryDateOptions" 
+                            :key="item.value"
+                            size="default"
+                            :type="useDays === item.value ? 'primary' : 'default'"
+                            @click="useDays = item.value"
+                        >
+                            {{ item.label }}
+                        </el-button>
+                    </el-button-group>
+                    <span style="font-size: 14px; margin-left: 4px; color: #9ca3af;">{{ $t('user.customDays') || '自定义(天):' }}</span>
                     <el-input-number 
                         v-model="useDays" 
                         :min="0" 
                         controls-position="right"
-                        style="width: 120px;"
+                        style="width: 100px;"
                     />
-                </div>
-            </el-form-item>
-            <el-form-item :label="$t('user.preset')">
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <el-button 
-                        v-for="item in expiryDateOptions" 
-                        :key="item.value"
-                        size="small"
-                        type="primary"
-                        plain
-                        @click="useDays = item.value"
-                    >
-                        {{ item.label }}
-                    </el-button>
                 </div>
             </el-form-item>
         </el-form>

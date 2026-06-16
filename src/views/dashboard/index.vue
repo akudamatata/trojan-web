@@ -568,11 +568,12 @@ export default {
         },
         async getVersion() {
             const result = await version()
-            const data = result.Data
-            this.trojanVersion = data.trojanVersion
-            this.trojanUptime = this.parseUptime(data.trojanUptime)
+            const data = result.Data || {}
+            this.trojanVersion = data.TrojanVersion || data.trojanVersion || ''
+            this.trojanUptime = this.parseUptime(data.TrojanUptime || data.trojanUptime || '')
         },
         parseUptime(uptime) {
+            if (!uptime) return ''
             let result = ''
             if (uptime.indexOf('-') !== -1) {
                 const splitInfo = uptime.split('-')
@@ -746,9 +747,13 @@ export default {
 
 .traffic-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
   margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .traffic-card {
@@ -814,8 +819,16 @@ export default {
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .info-card {
@@ -976,7 +989,7 @@ export default {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-bottom: 24px;
 
