@@ -303,7 +303,8 @@ export default {
                 }
             } catch (e) {
                 this.certLoading = false
-                ElMessage.error('证书申请请求出错: ' + e.message)
+                const errMsg = e && e.message ? e.message : '请求连接断开（服务已成功部署证书并正在重启，请稍后刷新页面）'
+                ElMessage.error('证书申请请求出错: ' + errMsg)
             }
         },
         async handleCamouflageDomain() {
