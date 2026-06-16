@@ -23,6 +23,9 @@
             <el-button :icon="Scissor" @click="copySelection=multipleSelection;patchButton=true;quotaVisible=true">
                 {{ textShow($t('user.limitData')) }}
             </el-button>
+            <el-button :icon="Calendar" @click="copySelection=multipleSelection;patchButton=true;handleBatchExpire()">
+                {{ textShow($t('user.setExpire')) }}
+            </el-button>
             <el-button type="danger" :icon="Delete" @click="copySelection=multipleSelection;patchButton=true;commonType=0;confirmVisible=true">
                 {{ textShow($t('delete')) }}
             </el-button>
@@ -160,33 +163,49 @@
         <p class="qrcodeCenter"> {{ shareLink }} </p>
     </el-dialog>
     <el-dialog :title="expiryShow" v-model="expiryVisible" :width="dialogWidth">
+        <div v-if="patchButton" style="margin-bottom: 15px; font-size: 14px;">
+            <span>{{ $t('user.patchLimitUser') }}</span>
+            <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; max-height: 100px; overflow-y: auto; padding: 8px; border: 1px solid var(--el-border-color); border-radius: 4px; background-color: rgba(255,255,255,0.02);">
+                <el-tag v-for="item in copySelection" :key="item.ID" type="info" size="small">{{ item.Username }}</el-tag>
+            </div>
+        </div>
         <el-form label-position="top">
+            <el-form-item :label="$t('user.expiryDate')">
+                <div style="display: flex; gap: 10px; width: 100%; align-items: center; flex-wrap: wrap;">
+                    <el-date-picker
+                        v-model="expireDate"
+                        type="date"
+                        :placeholder="$t('choice')"
+                        value-format="YYYY-MM-DD"
+                        style="flex: 1; min-width: 150px;"
+                    />
+                    <el-input-number 
+                        v-model="useDays" 
+                        :min="0" 
+                        controls-position="right"
+                        style="width: 120px;"
+                    />
+                </div>
+            </el-form-item>
             <el-form-item :label="$t('user.preset')">
-                <el-select v-model="useDays" :placeholder="$t('choice')" filterable style="width: 100%;">
-                    <el-option
-                        v-for="item in expiryDateOptions"
-                        :key="item.label"
-                        :label="item.label"
-                        :value="item.value">
-                    </el-option>
-                </el-select>
-            </el-form-item>
-            <el-form-item :label="$t('user.days')">
-                <el-input-number v-model="useDays" :min="0" style="width: 100%;"></el-input-number>
-            </el-form-item>
-            <el-form-item label="直接指定到期日期 (年月日)">
-                <el-date-picker
-                    v-model="expireDate"
-                    type="date"
-                    placeholder="选择到期日期"
-                    value-format="YYYY-MM-DD"
-                    style="width: 100%;"
-                />
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <el-button 
+                        v-for="item in expiryDateOptions" 
+                        :key="item.value"
+                        size="small"
+                        type="primary"
+                        plain
+                        @click="useDays = item.value"
+                    >
+                        {{ item.label }}
+                    </el-button>
+                </div>
             </el-form-item>
         </el-form>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="expiryVisible = false">{{ $root.$t('cancel') }}</el-button>
+                <el-button v-if="patchButton || (userItem && userItem.ExpiryDate !== '')" type="danger" @click="cancelUserExpire()">{{ $t('user.cancelExpire') }}</el-button>
                 <el-button type="primary" @click="expiryVisible=false; setUserExpire()">{{ $root.$t('ok') }}</el-button>
             </span>
         </template>
@@ -196,7 +215,7 @@
 
 <script>
 import { userList, addUser, delUser, updateUser, setExpire, cancelExpire } from '@/api/user'
-import { Refresh, Plus, RefreshLeft, Scissor, Delete, Search } from '@element-plus/icons-vue'
+import { Refresh, Plus, RefreshLeft, Scissor, Delete, Search, Calendar } from '@element-plus/icons-vue'
 import { setQuota, cleanData } from '@/api/data'
 import { setDomain, restart } from '@/api/trojan'
 import { readablizeBytes, isValidIP, base64Encode, base64Decode } from '@/utils/common'
@@ -212,7 +231,8 @@ export default {
             RefreshLeft,
             Scissor,
             Delete,
-            Search
+            Search,
+            Calendar
         }
     },
     data() {
@@ -436,33 +456,74 @@ export default {
         calculateDay(day) {
             return dayjs(day).diff(dayjs(dayjs().format('YYYY-MM-DD')), 'day')
         },
+        handleBatchExpire() {
+            if (this.multipleSelection.length === 0) {
+                this.$message({
+                    message: '请选择用户!',
+                    type: 'warning'
+                })
+                return
+            }
+            this.useDays = 7
+            this.expireDate = dayjs().add(7, 'day').format('YYYY-MM-DD')
+            this.expiryShow = this.$t('user.setExpire')
+            this.expiryVisible = true
+        },
         async setUserExpire() {
-            const formData = new FormData()
-            formData.set('id', this.userItem.ID)
-            formData.set('useDays', this.useDays)
-            const result = await setExpire(formData)
-            if (result.Msg === 'success') {
+            if (this.patchButton) {
+                for (let i = 0; i < this.copySelection.length; i++) {
+                    const formData = new FormData()
+                    formData.set('id', this.copySelection[i].ID)
+                    formData.set('useDays', this.useDays)
+                    await setExpire(formData)
+                }
                 this.$message({
                     message: `${this.$t('user.setExpireSuccess')}`,
                     type: 'success'
                 })
             } else {
-                this.$message.error(result.Msg)
+                const formData = new FormData()
+                formData.set('id', this.userItem.ID)
+                formData.set('useDays', this.useDays)
+                const result = await setExpire(formData)
+                if (result.Msg === 'success') {
+                    this.$message({
+                        message: `${this.$t('user.setExpireSuccess')}`,
+                        type: 'success'
+                    })
+                } else {
+                    this.$message.error(result.Msg)
+                    this.userItem = null
+                    this.refresh()
+                    return
+                }
             }
             this.userItem = null
+            this.expiryVisible = false
             this.refresh()
         },
         async cancelUserExpire() {
-            const result = await cancelExpire(this.userItem.ID)
-            if (result.Msg === 'success') {
+            if (this.patchButton) {
+                for (let i = 0; i < this.copySelection.length; i++) {
+                    await cancelExpire(this.copySelection[i].ID)
+                }
                 this.$message({
                     message: `${this.$t('user.cancelExpireSuccess')}`,
                     type: 'success'
                 })
             } else {
-                this.$message.error(result.Msg)
+                const result = await cancelExpire(this.userItem.ID)
+                if (result.Msg === 'success') {
+                    this.$message({
+                        message: `${this.$t('user.cancelExpireSuccess')}`,
+                        type: 'success'
+                    })
+                } else {
+                    this.$message.error(result.Msg)
+                }
             }
             this.userItem = null
+            this.expiryVisible = false
             this.refresh()
         },
         async requestQuota() {

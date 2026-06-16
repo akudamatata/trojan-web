@@ -115,12 +115,12 @@ export default {
         totalUsedTraffic: 'Total Bandwidth Used'
     },
     trojan: {
-        restartSuccess: 'restart trojan success!',
-        startSuccess: 'start trojan success!',
-        stopSuccess: 'stop trojan success!',
-        updateSuccess: 'update trojan success!',
+        restartSuccess: 'restart Trojan success!',
+        startSuccess: 'start Trojan success!',
+        stopSuccess: 'stop Trojan success!',
+        updateSuccess: 'update Trojan success!',
         loglevelSuccess: 'set loglevel success!',
-        switchSuccess: 'switch trojan type success!'
+        switchSuccess: 'switch Trojan type success!'
     },
     user: {
         upload: 'upload',
@@ -144,7 +144,7 @@ export default {
         inputUsername: 'username',
         inputPassword: 'password',
         operate: 'operate',
-        addUser: 'add trojan user',
+        addUser: 'add Trojan user',
         patchLimitUser: 'patch limit user',
         patchDelUser: 'patch delete user?',
         modifyUser2: 'modify user ',

@@ -53,7 +53,7 @@ export default {
         resetRulesSuccess: '重置clash规则成功!',
         changeDaySuccess: '修改流量重置日成功!',
         closeResetSuccess: '关闭流量重置成功',
-        versionTitle: 'trojan管理程序版本',
+        versionTitle: 'Trojan 管理程序版本',
         passwordTitle: '变更管理员密码',
         resetSuccess: '重置密码成功!',
         meanClose: '0代表关闭流量重置',
@@ -66,9 +66,9 @@ export default {
     dashboard: {
         memory: '内存',
         disk: '硬盘',
-        trojanVersion: 'trojan 版本',
-        trojanUser: 'trojan 用户数',
-        trojanUptime: 'trojan 已运行',
+        trojanVersion: 'Trojan 版本',
+        trojanUser: 'Trojan 用户数',
+        trojanUptime: 'Trojan 已运行',
         netSpeed: '网速',
         netCount: '连接数',
         load: '服务器负载',
@@ -115,12 +115,12 @@ export default {
         totalUsedTraffic: '总使用流量'
     },
     trojan: {
-        restartSuccess: '重启trojan成功!',
-        startSuccess: '启动trojan成功!',
-        stopSuccess: '停止trojan成功!',
-        updateSuccess: '更新trojan成功!',
+        restartSuccess: '重启 Trojan 成功!',
+        startSuccess: '启动 Trojan 成功!',
+        stopSuccess: '停止 Trojan 成功!',
+        updateSuccess: '更新 Trojan 成功!',
         loglevelSuccess: '设置日志等级成功!',
-        switchSuccess: '切换trojan类型成功!'
+        switchSuccess: '切换 Trojan 类型成功!'
     },
     user: {
         upload: '上传流量',
@@ -144,7 +144,7 @@ export default {
         inputUsername: '输入用户名',
         inputPassword: '输入密码',
         operate: '操作',
-        addUser: '新增trojan用户',
+        addUser: '新增 Trojan 用户',
         patchLimitUser: '限制以下用户流量',
         patchDelUser: '确定批量删除以下用户?',
         modifyUser2: '修改用户 ',

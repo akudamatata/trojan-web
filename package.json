@@ -19,15 +19,15 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.3.4",
-    "@vue/compiler-sfc": "^3.3.4",
+    "@vitejs/plugin-vue": "^4.6.2",
+    "@vue/compiler-sfc": "^3.5.38",
     "babel-eslint": "^10.1.0",
-    "eslint": "^8.50.0",
-    "eslint-plugin-vue": "^9.17.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^9.33.0",
     "rollup-plugin-external-globals": "^0.8.0",
-    "sass": "^1.68.0",
-    "terser": "^5.20.0",
-    "vite": "^4.4.9",
+    "sass": "^1.101.0",
+    "terser": "^5.48.0",
+    "vite": "^4.5.14",
     "vite-plugin-svg-icons": "^1.1.0"
   }
 }

@@ -46,18 +46,18 @@
           </div>
         </template>
         <div class="chart-body">
+          <div class="y-axis-labels">
+            <span class="y-label" style="top: 6px;">100%</span>
+            <span class="y-label" style="top: 24px;">80%</span>
+            <span class="y-label" style="top: 54px;">50%</span>
+            <span class="y-label" style="top: 84px;">20%</span>
+            <span class="y-label" style="top: 104px;">0%</span>
+          </div>
           <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
             <!-- 网格线 -->
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
-
-            <!-- Y轴刻度文字 -->
-            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">100%</text>
-            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">80%</text>
-            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">50%</text>
-            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">20%</text>
-            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0%</text>
             
             <defs>
               <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
@@ -92,18 +92,18 @@
           </div>
         </template>
         <div class="chart-body">
+          <div class="y-axis-labels">
+            <span class="y-label" style="top: 6px;">100%</span>
+            <span class="y-label" style="top: 24px;">80%</span>
+            <span class="y-label" style="top: 54px;">50%</span>
+            <span class="y-label" style="top: 84px;">20%</span>
+            <span class="y-label" style="top: 104px;">0%</span>
+          </div>
           <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
             <!-- 网格线 -->
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
-
-            <!-- Y轴刻度文字 -->
-            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">100%</text>
-            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">80%</text>
-            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">50%</text>
-            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">20%</text>
-            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0%</text>
             
             <defs>
               <linearGradient id="diskGrad" x1="0" y1="0" x2="0" y2="1">
@@ -138,18 +138,18 @@
           </div>
         </template>
         <div class="chart-body">
+          <div class="y-axis-labels">
+            <span class="y-label" style="top: 6px;">{{ getNetSpeedYLabel(1.0) }}</span>
+            <span class="y-label" style="top: 24px;">{{ getNetSpeedYLabel(0.8) }}</span>
+            <span class="y-label" style="top: 54px;">{{ getNetSpeedYLabel(0.5) }}</span>
+            <span class="y-label" style="top: 84px;">{{ getNetSpeedYLabel(0.2) }}</span>
+            <span class="y-label" style="top: 104px;">0 B/s</span>
+          </div>
           <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
             <!-- 网格线 -->
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
-
-            <!-- Y轴刻度文字 -->
-            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(1.0) }}</text>
-            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(0.8) }}</text>
-            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(0.5) }}</text>
-            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(0.2) }}</text>
-            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0 B/s</text>
 
             <defs>
               <linearGradient id="upGrad" x1="0" y1="0" x2="0" y2="1">
@@ -190,18 +190,18 @@
           </div>
         </template>
         <div class="chart-body">
+          <div class="y-axis-labels">
+            <span class="y-label" style="top: 6px;">{{ getTrafficHistoryYLabel(1.0) }}</span>
+            <span class="y-label" style="top: 24px;">{{ getTrafficHistoryYLabel(0.8) }}</span>
+            <span class="y-label" style="top: 54px;">{{ getTrafficHistoryYLabel(0.5) }}</span>
+            <span class="y-label" style="top: 84px;">{{ getTrafficHistoryYLabel(0.2) }}</span>
+            <span class="y-label" style="top: 104px;">0 B</span>
+          </div>
           <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
             <!-- 网格线 -->
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
-
-            <!-- Y轴刻度文字 -->
-            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(1.0) }}</text>
-            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(0.8) }}</text>
-            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(0.5) }}</text>
-            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(0.2) }}</text>
-            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0 B</text>
 
             <defs>
               <linearGradient id="histUpGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1029,7 +1029,35 @@ export default {
 
   .chart-body {
     padding: 10px 0;
-    
+    position: relative;
+
+    .y-axis-labels {
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      left: 8px;
+      width: auto;
+      pointer-events: none;
+      z-index: 5;
+
+      .y-label {
+        position: absolute;
+        left: 0;
+        font-size: 9px;
+        font-family: monospace;
+        color: rgba(255, 255, 255, 0.18);
+        white-space: nowrap;
+        line-height: 1;
+
+        &:first-child {
+          color: rgba(255, 255, 255, 0.35);
+        }
+        &:last-child {
+          color: rgba(255, 255, 255, 0.35);
+        }
+      }
+    }
+
     .trend-svg {
       width: 100%;
       height: 120px;
