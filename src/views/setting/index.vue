@@ -65,6 +65,24 @@
               </div>
               <div class="item-tip">设置服务器双向总流量限制（输入 -1 表示无限制）。用量到达 80% 会在首页进行红色预警。</div>
             </el-form-item>
+
+            <el-divider class="setting-divider" />
+
+            <el-form-item label="SSL/TLS 证书状态与申请">
+              <div class="cert-status-box" v-if="certInfo">
+                <p><b>当前证书域名 (Common Name):</b> <span class="cert-value">{{ certInfo.subject || '未载入' }}</span></p>
+                <p><b>过期时间 (Expiry Date):</b> <span class="cert-value">{{ certInfo.expireTime || '未载入' }}</span> 
+                  <el-tag size="small" :type="certInfo.leftDays > 15 ? 'success' : 'danger'" style="margin-left: 8px">
+                    剩余 {{ certInfo.leftDays }} 天
+                  </el-tag>
+                </p>
+                <p><b>证书物理路径 (Cert Path):</b> <span class="cert-value cert-path">{{ certInfo.certPath || '未载入' }}</span></p>
+              </div>
+              <div class="form-row" style="margin-top: 15px">
+                <el-button type="warning" :loading="certLoading" @click="handleApplyCert()">自动申请/更新证书</el-button>
+              </div>
+              <div class="item-tip warning-tip">注意：点击申请后，系统会自动检测主域名和伪装域名，并临时停用 Nginx（释放 80 端口占用），调用 acme.sh 自动为您申请双域名证书并自动恢复分流配置。申请大约需要 1-2 分钟。</div>
+            </el-form-item>
           </el-form>
         </el-card>
       </el-tab-pane>
@@ -143,6 +161,18 @@
         </el-card>
       </el-tab-pane>
     </el-tabs>
+
+    <!-- 证书申请日志弹窗 -->
+    <el-dialog title="证书申请详细日志" v-model="logVisible" width="60%">
+      <div class="cert-log-console">
+        <pre>{{ applyLog }}</pre>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="logVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -152,7 +182,7 @@ import CryptoJS from 'crypto-js'
 import { mapState } from 'vuex'
 import { sleep } from '@/utils/common'
 import { resetPass, check } from '@/api/permission'
-import { setLoginInfo, getClashRules, setClashRules, resetClashRules, getWebPort, setWebPort, getCamouflageDomain, setCamouflageDomain } from '@/api/common'
+import { setLoginInfo, getClashRules, setClashRules, resetClashRules, getWebPort, setWebPort, getCamouflageDomain, setCamouflageDomain, getCertInfo, applyCert } from '@/api/common'
 import { getResetDay, updateResetDay, getTotalQuota, setTotalQuota } from '@/api/data'
 
 export default {
@@ -169,6 +199,10 @@ export default {
             activeTab: 'general',
             title: '',
             camouflageDomain: '',
+            certInfo: null,
+            certLoading: false,
+            logVisible: false,
+            applyLog: '',
             webPort: 80,
             rules: '',
             resetDay: 1,
@@ -201,6 +235,7 @@ export default {
         async initData() {
             await this.getTitle()
             await this.getCamouflageDomain()
+            await this.getCertInfo()
             await this.getResetDay()
             await this.getWebPortData()
             await this.getRules()
@@ -213,6 +248,49 @@ export default {
         async getCamouflageDomain() {
             const result = await getCamouflageDomain()
             this.camouflageDomain = result.Data || ''
+        },
+        async getCertInfo() {
+            try {
+                const result = await getCertInfo()
+                if (result.Msg === 'success') {
+                    this.certInfo = result.Data
+                } else {
+                    this.certInfo = null
+                    console.warn(result.Msg)
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        },
+        async handleApplyCert() {
+            this.certLoading = true
+            ElMessage({
+                message: '开始申请证书，正在解除 80 端口占用并调用 acme.sh，请耐心等待 1-2 分钟...',
+                type: 'warning',
+                duration: 5000
+            })
+            try {
+                const result = await applyCert()
+                this.certLoading = false
+                if (result.Msg === 'success') {
+                    this.applyLog = result.Data.log
+                    this.logVisible = true
+                    if (result.Data.success) {
+                        ElMessage({
+                            message: '证书申请并部署成功！正在重启相关服务...',
+                            type: 'success'
+                        })
+                        await this.getCertInfo()
+                    } else {
+                        ElMessage.error('证书申请失败，请查看日志详情')
+                    }
+                } else {
+                    ElMessage.error(result.Msg)
+                }
+            } catch (e) {
+                this.certLoading = false
+                ElMessage.error('证书申请请求出错: ' + e.message)
+            }
         },
         async handleCamouflageDomain() {
             const formData = new FormData()
@@ -552,6 +630,50 @@ export default {
       font-size: 13px;
       color: var(--el-text-color-secondary);
       margin: 0;
+    }
+  }
+}
+
+.cert-log-console {
+  background-color: #0d1117;
+  color: #39c5bb;
+  padding: 15px;
+  border-radius: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.cert-status-box {
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--el-border-color);
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  max-width: 600px;
+  
+  p {
+    margin: 8px 0;
+    font-size: 13px;
+    color: var(--el-text-color-regular);
+    
+    b {
+      color: var(--el-text-color-primary);
+      width: 200px;
+      display: inline-block;
+    }
+    
+    .cert-value {
+      color: #10b981;
+      font-weight: 500;
+      
+      &.cert-path {
+        color: var(--el-text-color-secondary);
+        font-family: monospace;
+      }
     }
   }
 }

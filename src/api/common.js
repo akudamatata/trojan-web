@@ -44,3 +44,11 @@ export function setCamouflageDomain(data) {
     return request.post('/common/camouflageDomain', data)
 }
 
+export function getCertInfo() {
+    return request.get('/common/certInfo')
+}
+
+export function applyCert() {
+    return request.post('/common/applyCert')
+}
+
