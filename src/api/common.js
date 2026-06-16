@@ -49,6 +49,6 @@ export function getCertInfo() {
 }
 
 export function applyCert() {
-    return request.post('/common/applyCert')
+    return request.post('/common/applyCert', null, { timeout: 180000 })
 }
 
