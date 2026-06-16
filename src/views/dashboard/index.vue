@@ -51,6 +51,13 @@
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+
+            <!-- Y轴刻度文字 -->
+            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">100%</text>
+            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">80%</text>
+            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">50%</text>
+            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">20%</text>
+            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0%</text>
             
             <defs>
               <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
@@ -90,6 +97,13 @@
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+
+            <!-- Y轴刻度文字 -->
+            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">100%</text>
+            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">80%</text>
+            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">50%</text>
+            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">20%</text>
+            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0%</text>
             
             <defs>
               <linearGradient id="diskGrad" x1="0" y1="0" x2="0" y2="1">
@@ -129,6 +143,13 @@
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+
+            <!-- Y轴刻度文字 -->
+            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(1.0) }}</text>
+            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(0.8) }}</text>
+            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(0.5) }}</text>
+            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getNetSpeedYLabel(0.2) }}</text>
+            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0 B/s</text>
 
             <defs>
               <linearGradient id="upGrad" x1="0" y1="0" x2="0" y2="1">
@@ -174,6 +195,13 @@
             <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
             <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+
+            <!-- Y轴刻度文字 -->
+            <text x="8" y="16" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(1.0) }}</text>
+            <text x="8" y="34" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(0.8) }}</text>
+            <text x="8" y="64" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(0.5) }}</text>
+            <text x="8" y="94" fill="rgba(255,255,255,0.18)" font-size="9" font-family="monospace">{{ getTrafficHistoryYLabel(0.2) }}</text>
+            <text x="8" y="114" fill="rgba(255,255,255,0.35)" font-size="9" font-family="monospace">0 B</text>
 
             <defs>
               <linearGradient id="histUpGrad" x1="0" y1="0" x2="0" y2="1">
@@ -627,6 +655,20 @@ export default {
                 path += ` L 500 120 L 0 120 Z`
             }
             return path
+        },
+        getNetSpeedYLabel(ratio) {
+            const points = this.historyPoints.upSpeed.concat(this.historyPoints.downSpeed)
+            if (points.length === 0) return '0 B/s'
+            const maxInPoints = Math.max(...points)
+            const actualMax = maxInPoints > 1024 ? maxInPoints : 1024
+            return readablizeBytes(actualMax * ratio) + '/s'
+        },
+        getTrafficHistoryYLabel(ratio) {
+            const points = this.historyTrafficUpPoints.concat(this.historyTrafficDownPoints)
+            if (points.length === 0) return '0 B'
+            const maxVal = Math.max(...points)
+            const actualMax = maxVal > 0 ? maxVal : 1024
+            return readablizeBytes(actualMax * ratio)
         }
     }
 }
