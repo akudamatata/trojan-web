@@ -45,7 +45,7 @@
         </el-form-item>
       </el-tooltip>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.prevent="handleLogin">{{ $t('login') }}</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;height:48px;border-radius:10px;font-size:16px;font-weight:600;margin-bottom:30px;background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);border: none;" @click.prevent="handleLogin">{{ $t('login') }}</el-button>
     </el-form>
   </div>
 </template>

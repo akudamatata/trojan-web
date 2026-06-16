@@ -91,17 +91,19 @@ export default {
   .fixed-header {
     position: fixed;
     top: 0;
+    left: $sideBarWidth;
     right: 0;
     z-index: 9;
-    width: calc(100% - #{$sideBarWidth});
-    transition: width 0.28s;
+    transition: left 0.28s;
   }
 
   .hideSidebar .fixed-header {
-    width: calc(100% - 54px)
+    left: 54px;
   }
 
   .mobile .fixed-header {
     width: 100%;
+    left: 0;
+    right: 0;
   }
 </style>

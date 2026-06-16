@@ -38,10 +38,10 @@
       <el-card class="chart-card" shadow="never">
         <template #header>
           <div class="chart-header">
-            <span class="chart-title">系统资源实时走势 (CPU / 内存)</span>
+            <span class="chart-title">{{ $t('dashboard.sysResourceTrend') }}</span>
             <div class="chart-legends">
               <span class="legend-item"><span class="legend-dot cpu"></span>CPU: {{ cpu.percentage }}%</span>
-              <span class="legend-item"><span class="legend-dot mem"></span>内存: {{ memory.percentage }}%</span>
+              <span class="legend-item"><span class="legend-dot mem"></span>{{ $t('dashboard.memory') }}: {{ memory.percentage }}%</span>
             </div>
           </div>
         </template>
@@ -77,9 +77,9 @@
       <el-card class="chart-card" shadow="never">
         <template #header>
           <div class="chart-header">
-            <span class="chart-title">存储资源实时走势 (硬盘 / Swap)</span>
+            <span class="chart-title">{{ $t('dashboard.storageResourceTrend') }}</span>
             <div class="chart-legends">
-              <span class="legend-item"><span class="legend-dot disk"></span>硬盘: {{ disk.percentage }}%</span>
+              <span class="legend-item"><span class="legend-dot disk"></span>{{ $t('dashboard.disk') }}: {{ disk.percentage }}%</span>
               <span class="legend-item"><span class="legend-dot swap"></span>Swap: {{ swap.percentage }}%</span>
             </div>
           </div>
@@ -116,10 +116,10 @@
       <el-card class="chart-card" shadow="never">
         <template #header>
           <div class="chart-header">
-            <span class="chart-title">实时网络速率走势</span>
+            <span class="chart-title">{{ $t('dashboard.netSpeedTrend') }}</span>
             <div class="chart-legends">
-              <span class="legend-item"><span class="legend-dot up"></span>上传: {{ netSpeed.up }}</span>
-              <span class="legend-item"><span class="legend-dot down"></span>下载: {{ netSpeed.down }}</span>
+              <span class="legend-item"><span class="legend-dot up"></span>{{ $t('dashboard.upload') }}: {{ netSpeed.up }}</span>
+              <span class="legend-item"><span class="legend-dot down"></span>{{ $t('dashboard.download') }}: {{ netSpeed.down }}</span>
             </div>
           </div>
         </template>
@@ -155,15 +155,15 @@
       <el-card class="chart-card" shadow="never">
         <template #header>
           <div class="chart-header">
-            <span class="chart-title">历史流量走势 ({{ historyTrafficType === 'day' ? '日维度' : '周维度' }})</span>
+            <span class="chart-title">{{ $t('dashboard.trafficTrend') }} ({{ historyTrafficType === 'day' ? $t('dashboard.dayDimension') : $t('dashboard.weekDimension') }})</span>
             <div style="display: flex; align-items: center; gap: 12px;">
               <el-radio-group v-model="historyTrafficType" size="small" @change="fetchTrafficHistory" class="mini-radio-group">
-                <el-radio-button label="day">日</el-radio-button>
-                <el-radio-button label="week">周</el-radio-button>
+                <el-radio-button label="day">{{ $t('dashboard.dayUnit') }}</el-radio-button>
+                <el-radio-button label="week">{{ $t('dashboard.weekUnit') }}</el-radio-button>
               </el-radio-group>
               <div class="chart-legends" style="margin-left: 4px;">
-                <span class="legend-item"><span class="legend-dot up"></span>上传</span>
-                <span class="legend-item"><span class="legend-dot down"></span>下载</span>
+                <span class="legend-item"><span class="legend-dot up"></span>{{ $t('dashboard.upload') }}</span>
+                <span class="legend-item"><span class="legend-dot down"></span>{{ $t('dashboard.download') }}</span>
               </div>
             </div>
           </div>
@@ -203,42 +203,42 @@
 
     <!-- Row 3: Server Information & Stats Grid -->
     <div class="info-grid">
-      <el-card class="info-card" header="系统服务状态" shadow="never">
+      <el-card class="info-card" :header="$t('dashboard.sysServiceStatus')" shadow="never">
         <div class="card-content">
           <div class="info-item">
-            <span class="info-label">Trojan 版本</span>
+            <span class="info-label">{{ $t('dashboard.trojanVer') }}</span>
             <span class="info-value text-glow">{{ trojanVersion || '1.16.0' }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">已运行时间</span>
+            <span class="info-label">{{ $t('dashboard.runTime') }}</span>
             <span class="info-value">{{ trojanUptime }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">服务类型</span>
+            <span class="info-label">{{ $t('dashboard.serviceType') }}</span>
             <span class="info-value status-badge">{{ $store.state.trojanType || 'trojan' }}</span>
           </div>
         </div>
       </el-card>
 
-      <el-card class="info-card" header="网络连接与负载" shadow="never" v-if="isAdmin">
+      <el-card class="info-card" :header="$t('dashboard.netConnectLoad')" shadow="never" v-if="isAdmin">
         <div class="card-content">
           <div class="info-item">
-            <span class="info-label">系统负载 (Load)</span>
+            <span class="info-label">{{ $t('dashboard.sysLoad') }}</span>
             <span class="info-value">{{ load }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">网络并发连接数 (TCP/UDP)</span>
+            <span class="info-label">{{ $t('dashboard.netConnectCount') }}</span>
             <span class="info-value">{{ netCount }}</span>
           </div>
           
           
           <div class="info-item traffic-quota-item">
             <div class="quota-meta">
-              <span class="info-label">服务器总流量限额</span>
+              <span class="info-label">{{ $t('dashboard.serverQuota') }}</span>
               <span v-if="serverTotalQuota !== -1" :class="{'quota-warning-text': true, 'warning': serverUsePercent >= 80}">
-                {{ serverUsePercent >= 80 ? '⚠️ 已超 80%！' : '限额充足' }}
+                {{ serverUsePercent >= 80 ? $t('dashboard.quotaExceed') : $t('dashboard.quotaEnough') }}
               </span>
-              <span v-else class="quota-warning-text normal">无限制</span>
+              <span v-else class="quota-warning-text normal">{{ $t('dashboard.noLimit') }}</span>
             </div>
             <div class="quota-progress-wrapper" v-if="serverTotalQuota !== -1">
               <el-progress 
@@ -251,28 +251,28 @@
               <span class="progress-percent-text">{{ serverUsePercent }}%</span>
             </div>
             <div class="quota-details">
-              <span>已用：{{ formatBytes(serverUsedTraffic) }}</span>
-              <span>限额：{{ serverTotalQuota !== -1 ? formatBytes(serverTotalQuota) : '无限制' }}</span>
+              <span>{{ $t('dashboard.usedTraffic') }}：{{ formatBytes(serverUsedTraffic) }}</span>
+              <span>{{ $t('dashboard.quotaLimit') }}：{{ serverTotalQuota !== -1 ? formatBytes(serverTotalQuota) : $t('dashboard.noLimit') }}</span>
             </div>
           </div>
         </div>
       </el-card>
 
-      <el-card class="info-card" header="用户与控制台" shadow="never">
+      <el-card class="info-card" :header="$t('dashboard.userConsole')" shadow="never">
         <div class="card-content">
           <div class="info-item">
-            <span class="info-label">总注册用户数</span>
+            <span class="info-label">{{ $t('dashboard.totalUsers') }}</span>
             <span class="info-value link-value" @click="navigate('/user')">
-              {{ userList.length }} 个用户 ➔
+              {{ userList.length }}{{ $t('dashboard.userUnit') }}
             </span>
           </div>
           <div class="info-item" v-if="isAdmin">
-            <span class="info-label">运行状态</span>
-            <span class="info-value status-online">● 运行中</span>
+            <span class="info-label">{{ $t('dashboard.runStatus') }}</span>
+            <span class="info-value status-online">{{ $t('dashboard.running') }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">安全状况</span>
-            <span class="info-value status-safe">未发现安全问题</span>
+            <span class="info-label">{{ $t('dashboard.securityStatus') }}</span>
+            <span class="info-value status-safe">{{ $t('dashboard.safeStatus') }}</span>
           </div>
         </div>
       </el-card>
@@ -280,17 +280,17 @@
 
     <!-- Top 10 流量使用用户排行榜 -->
     <div v-if="isAdmin" class="top-users-container">
-      <el-card class="top-users-card" header="使用流量 Top 10 用户排行榜" shadow="never">
+      <el-card class="top-users-card" :header="$t('dashboard.topUsersTitle')" shadow="never">
         <el-table :data="top10Users" style="width: 100%" class="top-users-table">
-          <el-table-column type="index" label="排名" width="80" align="center">
+          <el-table-column type="index" :label="$t('dashboard.rank')" width="80" align="center">
             <template #default="scope">
               <span :class="'rank-badge rank-' + (scope.$index + 1)">{{ scope.$index + 1 }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="Username" label="用户名" />
-          <el-table-column prop="Upload" label="已用上传" :formatter="formatTableBytes" />
-          <el-table-column prop="Download" label="已用下载" :formatter="formatTableBytes" />
-          <el-table-column label="总使用流量">
+          <el-table-column prop="Username" :label="$t('dashboard.username')" />
+          <el-table-column prop="Upload" :label="$t('dashboard.usedUpload')" :formatter="formatTableBytes" />
+          <el-table-column prop="Download" :label="$t('dashboard.usedDownload')" :formatter="formatTableBytes" />
+          <el-table-column :label="$t('dashboard.totalUsedTraffic')">
             <template #default="scope">
               <span :class="{'quota-warning-text': isUserQuotaWarning(scope.row)}">{{ formatBytes(scope.row.Upload + scope.row.Download) }}</span>
             </template>

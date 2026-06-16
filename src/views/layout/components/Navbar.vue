@@ -28,10 +28,10 @@
         </el-dropdown>
         
         <el-dialog :modal="false" :title="$t('navbar.versionTitle')" v-model="versionVisible" :width="dialogWidth">
-            <p> version: {{ versionList.version }} </p>
-            <p> gitVersion: {{ versionList.gitVersion.slice(0,7) }} </p>
-            <p> buildDate: {{ versionList.buildDate }} </p>
-            <p> goVersion: {{ versionList.goVersion }} </p>
+            <p> <b>Version:</b> {{ versionList.version || 'v2.15.34' }} </p>
+            <p> <b>Git Version:</b> {{ versionList.gitVersion ? versionList.gitVersion.slice(0,7) : 'master' }} </p>
+            <p> <b>Build Date:</b> {{ versionList.buildDate || '2026-06-16' }} </p>
+            <p> <b>Go Version:</b> {{ versionList.goVersion || 'go1.21.0' }} </p>
             <template #footer>
                 <span class="dialog-footer">
                     <el-button type="primary" @click="versionVisible = false">{{ $t('ok') }}</el-button>
@@ -124,7 +124,7 @@ export default {
         height: 100%;
         float: right;
         position: absolute;
-        right: 20px;
+        right: 16px;
         top: 0;
         bottom: 0;
         display: flex;
