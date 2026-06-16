@@ -24,16 +24,6 @@
 
             <el-divider class="setting-divider" />
 
-            <el-form-item label="分享链接伪装域名 (Camouflage Domain)">
-              <div class="form-row">
-                <el-input v-model="camouflageDomain" placeholder="例如: a.com" class="flex-input" />
-                <el-button type="primary" @click="handleCamouflageDomain()">保存域名</el-button>
-              </div>
-              <div class="item-tip">用于生成各种分享链接时的服务器域名。若为空，生成链接时默认使用管理面板的访问域名（B.com），且不带 SNI 参数。</div>
-            </el-form-item>
-
-            <el-divider class="setting-divider" />
-
             <el-form-item :label="$t('navbar.resetTitle')">
               <div class="form-row">
                 <el-input-number v-model="resetDay" :min="0" :max="31" class="flex-input-number" />
@@ -65,12 +55,36 @@
               </div>
               <div class="item-tip">设置服务器双向总流量限制（输入 -1 表示无限制）。用量到达 80% 会在首页进行红色预警。</div>
             </el-form-item>
+          </el-form>
+        </el-card>
+      </el-tab-pane>
+
+      <!-- 域名与证书 -->
+      <el-tab-pane label="域名与证书" name="domain">
+        <el-card class="setting-card">
+          <template #header>
+            <div class="card-title">域名绑定与 SSL 证书管理</div>
+          </template>
+          
+          <el-form label-position="top" class="setting-form">
+            <el-form-item label="分享链接伪装域名 (Camouflage Domain)">
+              <div class="form-row">
+                <el-input v-model="camouflageDomain" placeholder="例如: a.com" class="flex-input" />
+                <el-button type="primary" @click="handleCamouflageDomain()">保存域名</el-button>
+              </div>
+              <div class="item-tip">用于生成各种分享链接时的服务器域名。若为空，生成链接时默认使用管理面板的访问域名（B.com），且不带 SNI 参数。</div>
+            </el-form-item>
 
             <el-divider class="setting-divider" />
 
             <el-form-item label="SSL/TLS 证书状态与申请">
               <div class="cert-status-box" v-if="certInfo">
-                <p><b>当前证书域名 (Common Name):</b> <span class="cert-value">{{ certInfo.subject || '未载入' }}</span></p>
+                <p><b>证书包含域名 (DNS Names):</b> 
+                  <span class="cert-value" v-if="certInfo.dnsNames && certInfo.dnsNames.length > 0">
+                    {{ certInfo.dnsNames.join(', ') }}
+                  </span>
+                  <span class="cert-value" v-else>{{ certInfo.subject || '未载入' }}</span>
+                </p>
                 <p><b>过期时间 (Expiry Date):</b> <span class="cert-value">{{ certInfo.expireTime || '未载入' }}</span> 
                   <el-tag size="small" :type="certInfo.leftDays > 15 ? 'success' : 'danger'" style="margin-left: 8px">
                     剩余 {{ certInfo.leftDays }} 天
@@ -81,7 +95,7 @@
               <div class="form-row" style="margin-top: 15px">
                 <el-button type="warning" :loading="certLoading" @click="handleApplyCert()">自动申请/更新证书</el-button>
               </div>
-              <div class="item-tip warning-tip">注意：点击申请后，系统会自动检测主域名和伪装域名，并临时停用 Nginx（释放 80 端口占用），调用 acme.sh 自动为您申请双域名证书并自动恢复分流配置。申请大约需要 1-2 分钟。</div>
+              <div class="item-tip warning-tip">注意：点击申请后，系统会自动检测主域名 and 伪装域名，并临时停用 Nginx（释放 80 端口占用），调用 acme.sh 自动为您申请双域名证书并自动恢复分流配置。申请大约需要 1-2 分钟。</div>
             </el-form-item>
           </el-form>
         </el-card>
