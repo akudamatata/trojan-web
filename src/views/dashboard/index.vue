@@ -53,7 +53,7 @@
             <span class="y-label">20%</span>
             <span class="y-label">0%</span>
           </div>
-          <div class="chart-main-wrap">
+          <div class="chart-main-wrap" style="padding-right: 38px;">
             <div class="trend-svg-wrap">
               <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
                 <!-- 网格线 -->
@@ -103,7 +103,7 @@
             <span class="y-label">20%</span>
             <span class="y-label">0%</span>
           </div>
-          <div class="chart-main-wrap">
+          <div class="chart-main-wrap" style="padding-right: 38px;">
             <div class="trend-svg-wrap">
               <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
                 <!-- 网格线 -->
@@ -153,7 +153,7 @@
             <span class="y-label">{{ getNetSpeedYLabel(0.2) }}</span>
             <span class="y-label">0 B/s</span>
           </div>
-          <div class="chart-main-wrap">
+          <div class="chart-main-wrap" style="padding-right: 78px;">
             <div class="trend-svg-wrap">
               <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
                 <!-- 网格线 -->
@@ -209,7 +209,7 @@
             <span class="y-label">{{ getTrafficHistoryYLabel(0.2) }}</span>
             <span class="y-label">0 B</span>
           </div>
-          <div class="chart-main-wrap">
+          <div class="chart-main-wrap" style="padding-right: 48px;">
             <div class="trend-svg-wrap">
               <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
                 <!-- 网格线 -->
