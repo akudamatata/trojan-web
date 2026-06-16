@@ -47,37 +47,39 @@
         </template>
         <div class="chart-body">
           <div class="y-axis-labels">
-            <span class="y-label" style="top: 6px;">100%</span>
-            <span class="y-label" style="top: 24px;">80%</span>
-            <span class="y-label" style="top: 54px;">50%</span>
-            <span class="y-label" style="top: 84px;">20%</span>
-            <span class="y-label" style="top: 104px;">0%</span>
+            <span class="y-label">100%</span>
+            <span class="y-label">80%</span>
+            <span class="y-label">50%</span>
+            <span class="y-label">20%</span>
+            <span class="y-label">0%</span>
           </div>
-          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
-            <!-- 网格线 -->
-            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
-            
-            <defs>
-              <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
-              </linearGradient>
-              <linearGradient id="memGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
+          <div class="trend-svg-wrap">
+            <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+              <!-- 网格线 -->
+              <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+              
+              <defs>
+                <linearGradient id="cpuGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="memGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
 
-            <!-- 渐变区域 -->
-            <path :d="cpuAreaPath" fill="url(#cpuGrad)" v-if="cpuAreaPath" />
-            <path :d="memAreaPath" fill="url(#memGrad)" v-if="memAreaPath" />
+              <!-- 渐变区域 -->
+              <path :d="cpuAreaPath" fill="url(#cpuGrad)" v-if="cpuAreaPath" />
+              <path :d="memAreaPath" fill="url(#memGrad)" v-if="memAreaPath" />
 
-            <!-- 折线 -->
-            <path :d="cpuLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="cpuLinePath" />
-            <path :d="memLinePath" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="memLinePath" />
-          </svg>
+              <!-- 折线 -->
+              <path :d="cpuLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="cpuLinePath" />
+              <path :d="memLinePath" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="memLinePath" />
+            </svg>
+          </div>
         </div>
       </el-card>
 
@@ -93,37 +95,39 @@
         </template>
         <div class="chart-body">
           <div class="y-axis-labels">
-            <span class="y-label" style="top: 6px;">100%</span>
-            <span class="y-label" style="top: 24px;">80%</span>
-            <span class="y-label" style="top: 54px;">50%</span>
-            <span class="y-label" style="top: 84px;">20%</span>
-            <span class="y-label" style="top: 104px;">0%</span>
+            <span class="y-label">100%</span>
+            <span class="y-label">80%</span>
+            <span class="y-label">50%</span>
+            <span class="y-label">20%</span>
+            <span class="y-label">0%</span>
           </div>
-          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
-            <!-- 网格线 -->
-            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
-            
-            <defs>
-              <linearGradient id="diskGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
-              </linearGradient>
-              <linearGradient id="swapGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
+          <div class="trend-svg-wrap">
+            <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+              <!-- 网格线 -->
+              <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+              
+              <defs>
+                <linearGradient id="diskGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="swapGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
 
-            <!-- 渐变区域 -->
-            <path :d="diskAreaPath" fill="url(#diskGrad)" v-if="diskAreaPath" />
-            <path :d="swapAreaPath" fill="url(#swapGrad)" v-if="swapAreaPath" />
+              <!-- 渐变区域 -->
+              <path :d="diskAreaPath" fill="url(#diskGrad)" v-if="diskAreaPath" />
+              <path :d="swapAreaPath" fill="url(#swapGrad)" v-if="swapAreaPath" />
 
-            <!-- 折线 -->
-            <path :d="diskLinePath" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" v-if="diskLinePath" />
-            <path :d="swapLinePath" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" v-if="swapLinePath" />
-          </svg>
+              <!-- 折线 -->
+              <path :d="diskLinePath" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" v-if="diskLinePath" />
+              <path :d="swapLinePath" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" v-if="swapLinePath" />
+            </svg>
+          </div>
         </div>
       </el-card>
 
@@ -139,37 +143,39 @@
         </template>
         <div class="chart-body">
           <div class="y-axis-labels">
-            <span class="y-label" style="top: 6px;">{{ getNetSpeedYLabel(1.0) }}</span>
-            <span class="y-label" style="top: 24px;">{{ getNetSpeedYLabel(0.8) }}</span>
-            <span class="y-label" style="top: 54px;">{{ getNetSpeedYLabel(0.5) }}</span>
-            <span class="y-label" style="top: 84px;">{{ getNetSpeedYLabel(0.2) }}</span>
-            <span class="y-label" style="top: 104px;">0 B/s</span>
+            <span class="y-label">{{ getNetSpeedYLabel(1.0) }}</span>
+            <span class="y-label">{{ getNetSpeedYLabel(0.8) }}</span>
+            <span class="y-label">{{ getNetSpeedYLabel(0.5) }}</span>
+            <span class="y-label">{{ getNetSpeedYLabel(0.2) }}</span>
+            <span class="y-label">0 B/s</span>
           </div>
-          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
-            <!-- 网格线 -->
-            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+          <div class="trend-svg-wrap">
+            <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+              <!-- 网格线 -->
+              <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
 
-            <defs>
-              <linearGradient id="upGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
-              </linearGradient>
-              <linearGradient id="downGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
+              <defs>
+                <linearGradient id="upGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="downGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
 
-            <!-- 渐变区域 -->
-            <path :d="upAreaPath" fill="url(#upGrad)" v-if="upAreaPath" />
-            <path :d="downAreaPath" fill="url(#downGrad)" v-if="downAreaPath" />
+              <!-- 渐变区域 -->
+              <path :d="upAreaPath" fill="url(#upGrad)" v-if="upAreaPath" />
+              <path :d="downAreaPath" fill="url(#downGrad)" v-if="downAreaPath" />
 
-            <!-- 折线 -->
-            <path :d="upLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="upLinePath" />
-            <path :d="downLinePath" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="downLinePath" />
-          </svg>
+              <!-- 折线 -->
+              <path :d="upLinePath" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="upLinePath" />
+              <path :d="downLinePath" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="downLinePath" />
+            </svg>
+          </div>
         </div>
       </el-card>
 
@@ -191,37 +197,39 @@
         </template>
         <div class="chart-body">
           <div class="y-axis-labels">
-            <span class="y-label" style="top: 6px;">{{ getTrafficHistoryYLabel(1.0) }}</span>
-            <span class="y-label" style="top: 24px;">{{ getTrafficHistoryYLabel(0.8) }}</span>
-            <span class="y-label" style="top: 54px;">{{ getTrafficHistoryYLabel(0.5) }}</span>
-            <span class="y-label" style="top: 84px;">{{ getTrafficHistoryYLabel(0.2) }}</span>
-            <span class="y-label" style="top: 104px;">0 B</span>
+            <span class="y-label">{{ getTrafficHistoryYLabel(1.0) }}</span>
+            <span class="y-label">{{ getTrafficHistoryYLabel(0.8) }}</span>
+            <span class="y-label">{{ getTrafficHistoryYLabel(0.5) }}</span>
+            <span class="y-label">{{ getTrafficHistoryYLabel(0.2) }}</span>
+            <span class="y-label">0 B</span>
           </div>
-          <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
-            <!-- 网格线 -->
-            <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
-            <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
+          <div class="trend-svg-wrap">
+            <svg class="trend-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+              <!-- 网格线 -->
+              <line x1="0" y1="30" x2="500" y2="30" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="60" x2="500" y2="60" stroke="rgba(255,255,255,0.03)" />
+              <line x1="0" y1="90" x2="500" y2="90" stroke="rgba(255,255,255,0.03)" />
 
-            <defs>
-              <linearGradient id="histUpGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
-              </linearGradient>
-              <linearGradient id="histDownGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
-                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
-              </linearGradient>
-            </defs>
+              <defs>
+                <linearGradient id="histUpGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                </linearGradient>
+                <linearGradient id="histDownGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
 
-            <!-- 渐变区域 -->
-            <path :d="historyTrafficUpArea" fill="url(#histUpGrad)" v-if="historyTrafficUpArea" />
-            <path :d="historyTrafficDownArea" fill="url(#histDownGrad)" v-if="historyTrafficDownArea" />
+              <!-- 渐变区域 -->
+              <path :d="historyTrafficUpArea" fill="url(#histUpGrad)" v-if="historyTrafficUpArea" />
+              <path :d="historyTrafficDownArea" fill="url(#histDownGrad)" v-if="historyTrafficDownArea" />
 
-            <!-- 折线 -->
-            <path :d="historyTrafficUpLine" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="historyTrafficUpLine" />
-            <path :d="historyTrafficDownLine" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="historyTrafficDownLine" />
-          </svg>
+              <!-- 折线 -->
+              <path :d="historyTrafficUpLine" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" v-if="historyTrafficUpLine" />
+              <path :d="historyTrafficDownLine" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" v-if="historyTrafficDownLine" />
+            </svg>
+          </div>
           <div class="x-axis-labels" style="display: flex; justify-content: space-between; padding: 6px 10px 0 10px; font-size: 10px; color: #6b7280; font-family: monospace;">
             <span v-for="item in historyTrafficList" :key="item.label">{{ item.label }}</span>
           </div>
@@ -1029,20 +1037,23 @@ export default {
 
   .chart-body {
     padding: 10px 0;
-    position: relative;
+    display: flex;
+    align-items: stretch;
+    height: 140px;
+    box-sizing: border-box;
 
     .y-axis-labels {
-      position: absolute;
-      top: 10px;
-      bottom: 10px;
-      left: 8px;
-      width: auto;
+      width: 70px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-right: 8px;
       pointer-events: none;
-      z-index: 5;
+      box-sizing: border-box;
 
       .y-label {
-        position: absolute;
-        left: 0;
         font-size: 9px;
         font-family: monospace;
         color: rgba(255, 255, 255, 0.18);
@@ -1058,11 +1069,21 @@ export default {
       }
     }
 
-    .trend-svg {
-      width: 100%;
+    .trend-svg-wrap {
+      flex: 1;
+      min-width: 0;
       height: 120px;
-      display: block;
-      overflow: visible;
+
+      .trend-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+      }
+    }
+
+    .x-axis-labels {
+      margin-left: 70px;
     }
   }
 }
