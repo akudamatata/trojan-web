@@ -24,6 +24,16 @@
 
             <el-divider class="setting-divider" />
 
+            <el-form-item label="分享链接伪装域名 (Camouflage Domain)">
+              <div class="form-row">
+                <el-input v-model="camouflageDomain" placeholder="例如: a.com" class="flex-input" />
+                <el-button type="primary" @click="handleCamouflageDomain()">保存域名</el-button>
+              </div>
+              <div class="item-tip">用于生成各种分享链接时的服务器域名。若为空，生成链接时默认使用管理面板的访问域名（B.com），且不带 SNI 参数。</div>
+            </el-form-item>
+
+            <el-divider class="setting-divider" />
+
             <el-form-item :label="$t('navbar.resetTitle')">
               <div class="form-row">
                 <el-input-number v-model="resetDay" :min="0" :max="31" class="flex-input-number" />
@@ -142,7 +152,7 @@ import CryptoJS from 'crypto-js'
 import { mapState } from 'vuex'
 import { sleep } from '@/utils/common'
 import { resetPass, check } from '@/api/permission'
-import { setLoginInfo, getClashRules, setClashRules, resetClashRules, getWebPort, setWebPort } from '@/api/common'
+import { setLoginInfo, getClashRules, setClashRules, resetClashRules, getWebPort, setWebPort, getCamouflageDomain, setCamouflageDomain } from '@/api/common'
 import { getResetDay, updateResetDay, getTotalQuota, setTotalQuota } from '@/api/data'
 
 export default {
@@ -158,6 +168,7 @@ export default {
         return {
             activeTab: 'general',
             title: '',
+            camouflageDomain: '',
             webPort: 80,
             rules: '',
             resetDay: 1,
@@ -189,6 +200,7 @@ export default {
     methods: {
         async initData() {
             await this.getTitle()
+            await this.getCamouflageDomain()
             await this.getResetDay()
             await this.getWebPortData()
             await this.getRules()
@@ -197,6 +209,23 @@ export default {
         async getTitle() {
             const result = await check()
             this.title = result.data.title
+        },
+        async getCamouflageDomain() {
+            const result = await getCamouflageDomain()
+            this.camouflageDomain = result.Data || ''
+        },
+        async handleCamouflageDomain() {
+            const formData = new FormData()
+            formData.set('domain', this.camouflageDomain)
+            const result = await setCamouflageDomain(formData)
+            if (result.Msg === 'success') {
+                ElMessage({
+                    message: '保存伪装域名成功',
+                    type: 'success'
+                })
+            } else {
+                ElMessage.error(result.Msg)
+            }
         },
         async getResetDay() {
             const result = await getResetDay()

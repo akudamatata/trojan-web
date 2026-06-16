@@ -36,3 +36,11 @@ export function setWebPort(data) {
     return request.post('/trojan/webport', data)
 }
 
+export function getCamouflageDomain() {
+    return request.get('/common/camouflageDomain')
+}
+
+export function setCamouflageDomain(data) {
+    return request.post('/common/camouflageDomain', data)
+}
+
