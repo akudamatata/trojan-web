@@ -291,10 +291,16 @@ export default {
                     this.logVisible = true
                     if (result.Data.success) {
                         ElMessage({
-                            message: '证书申请并部署成功！正在重启相关服务...',
+                            message: '证书申请并部署成功！正在重启相关服务，请稍后刷新...',
                             type: 'success'
                         })
-                        await this.getCertInfo()
+                        setTimeout(async () => {
+                            try {
+                                await this.getCertInfo()
+                            } catch (err) {
+                                console.warn('获取最新证书信息失败（可能服务正在重启）:', err)
+                            }
+                        }, 5000)
                     } else {
                         ElMessage.error('证书申请失败，请查看日志详情')
                     }
@@ -303,8 +309,12 @@ export default {
                 }
             } catch (e) {
                 this.certLoading = false
-                const errMsg = e && e.message ? e.message : '请求连接断开（服务已成功部署证书并正在重启，请稍后刷新页面）'
-                ElMessage.error('证书申请请求出错: ' + errMsg)
+                const errMsg = e && e.message ? e.message : '连接已断开，服务可能正在重载以部署新证书，请在 5-10 秒后刷新页面确认状态。'
+                ElMessage({
+                    message: errMsg,
+                    type: 'warning',
+                    duration: 10000
+                })
             }
         },
         async handleCamouflageDomain() {
