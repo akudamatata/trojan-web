@@ -179,80 +179,6 @@
               </div>
             </el-tab-pane>
 
-            <!-- Tab 2: 流量趋势 (30-Day Daily Traffic Chart) -->
-            <el-tab-pane label="流量趋势" name="traffic">
-              <div class="traffic-tab-wrap">
-                <div class="metrics-cards-row">
-                  <div class="metric-card-mini">
-                    <span class="mini-label">30日日均消耗</span>
-                    <span class="mini-val">{{ formatBytes(trafficMetrics.avg) }}</span>
-                  </div>
-                  <div class="metric-card-mini">
-                    <span class="mini-label">日消耗峰值</span>
-                    <span class="mini-val">{{ formatBytes(trafficMetrics.peak) }}</span>
-                  </div>
-                  <div class="metric-card-mini" :class="{ 'warning-forecast': trafficMetrics.remainingDays <= 5 }">
-                    <span class="mini-label">流量智能预测</span>
-                    <span class="mini-val">{{ trafficMetrics.remainingDays === -1 ? '配额无限制' : (trafficMetrics.remainingDays === 0 ? '配额已耗尽' : '预计可用 ' + trafficMetrics.remainingDays + ' 天') }}</span>
-                  </div>
-                </div>
-                <!-- ECharts Container -->
-                <div ref="trafficChart" class="echarts-container traffic-chart-box"></div>
-              </div>
-            </el-tab-pane>
-
-            <!-- Tab 3: 订阅历史 (UA Donut Chart & Timeline Pull logs) -->
-            <el-tab-pane label="订阅历史" name="subscribe">
-              <!-- Sharing alert banner -->
-              <el-alert
-                v-if="subAuditData.suspectAlert"
-                :title="'疑似账号共享警告: 24小时内有 ' + subAuditData.suspectCount + ' 个不同 IP 访问了该用户的订阅配置！'"
-                type="warning"
-                show-icon
-                class="sub-abuse-alert"
-                :closable="false"
-              />
-              <div class="tab-content-split sub-audit-split">
-                <!-- Left: Donut Chart -->
-                <div class="split-left donut-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">常用客户端占比 (最近100次)</span>
-                  </div>
-                  <div ref="clientChart" class="echarts-container donut-chart-box"></div>
-                </div>
-                <!-- Right: Timeline Pull logs -->
-                <div class="split-right timeline-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">订阅拉取记录 (最近15次)</span>
-                  </div>
-                  <div class="timeline-scroll-wrap">
-                    <el-timeline v-if="subAuditData.logs && subAuditData.logs.length > 0">
-                      <el-timeline-item
-                        v-for="log in subAuditData.logs"
-                        :key="log.id"
-                        :timestamp="log.accessed_at"
-                        placement="top"
-                        type="primary"
-                        size="normal"
-                      >
-                        <div class="timeline-log-card">
-                          <div class="log-ip-row">
-                            <span class="log-ip">{{ log.client_ip }}</span>
-                            <el-tag size="small" type="info" effect="plain" class="log-geo">{{ log.country }} {{ log.region }}</el-tag>
-                          </div>
-                          <div class="log-ua-row" :title="log.user_agent">
-                            <span class="ua-label">客户端:</span>
-                            <span class="ua-val">{{ parseUAString(log.user_agent) }}</span>
-                          </div>
-                        </div>
-                      </el-timeline-item>
-                    </el-timeline>
-                    <el-empty v-else description="暂无订阅拉取记录" :image-size="60" style="padding: 20px 0;" />
-                  </div>
-                </div>
-              </div>
-            </el-tab-pane>
-
             <!-- Tab 4: 合规与偏好 (Radar, Gauge, and Top 10 Domains) -->
             <el-tab-pane label="合规与偏好" name="compliance">
               <div class="tab-content-split compliance-split">
@@ -467,7 +393,7 @@
 
 <script>
 import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning } from '@element-plus/icons-vue'
-import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, activeConnections, killConnection, trafficHistory, subLogs, domainStats } from '@/api/user'
+import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, activeConnections, killConnection, domainStats } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
 import * as echarts from 'echarts'
 import { restart } from '@/api/trojan'
@@ -541,12 +467,7 @@ export default {
       },
       activeTab: 'audit',
       activeConns: [],
-      trafficHistoryData: [],
-      trafficMetrics: { avg: 0, peak: 0, remainingDays: -1 },
-      subAuditData: { logs: [], clientStats: {}, suspectAlert: false, suspectCount: 0 },
       complianceData: { categories: {}, score: 100 },
-      trafficChartInstance: null,
-      clientChartInstance: null,
       radarChartInstance: null,
       gaugeChartInstance: null
     }
@@ -966,8 +887,6 @@ export default {
     }
   },
   unmounted() {
-    if (this.trafficChartInstance) this.trafficChartInstance.dispose()
-    if (this.clientChartInstance) this.clientChartInstance.dispose()
     if (this.radarChartInstance) this.radarChartInstance.dispose()
     if (this.gaugeChartInstance) this.gaugeChartInstance.dispose()
   },
@@ -976,10 +895,6 @@ export default {
       this.$nextTick(() => {
         if (tabName === 'audit') {
           this.fetchActiveConnections()
-        } else if (tabName === 'traffic') {
-          this.renderTrafficChart()
-        } else if (tabName === 'subscribe') {
-          this.renderClientChart()
         } else if (tabName === 'compliance') {
           this.renderComplianceCharts()
         }
@@ -1011,27 +926,6 @@ export default {
         this.$message.error(err.message)
       }
     },
-    async fetchTrafficHistory() {
-      try {
-        const res = await trafficHistory(this.username)
-        if (res.Msg === 'success') {
-          this.trafficHistoryData = res.Data || []
-          this.calculateTrafficMetrics()
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    },
-    async fetchSubLogs() {
-      try {
-        const res = await subLogs(this.username)
-        if (res.Msg === 'success') {
-          this.subAuditData = res.Data || { logs: [], clientStats: {}, suspectAlert: false, suspectCount: 0 }
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    },
     async fetchDomainStats() {
       try {
         const res = await domainStats(this.username)
@@ -1041,181 +935,6 @@ export default {
       } catch (err) {
         console.error(err)
       }
-    },
-    calculateTrafficMetrics() {
-      if (this.trafficHistoryData.length === 0) {
-        this.trafficMetrics = { avg: 0, peak: 0, remainingDays: -1 }
-        return
-      }
-
-      let totalUpload = 0
-      let totalDownload = 0
-      let maxDaily = 0
-
-      this.trafficHistoryData.forEach(item => {
-        const dailySum = item.upload + item.download
-        totalUpload += item.upload
-        totalDownload += item.download
-        if (dailySum > maxDaily) {
-          maxDaily = dailySum
-        }
-      })
-
-      const daysCount = this.trafficHistoryData.length
-      const avgDaily = (totalUpload + totalDownload) / daysCount
-
-      let remainingDays = -1
-      if (this.detailData.quota > 0) {
-        const used = this.detailData.upload + this.detailData.download
-        if (used >= this.detailData.quota) {
-          remainingDays = 0
-        } else {
-          const remainingQuota = this.detailData.quota - used
-          const activeAvg = avgDaily > 0 ? avgDaily : 100 * 1024 * 1024
-          remainingDays = Math.ceil(remainingQuota / activeAvg)
-        }
-      }
-
-      this.trafficMetrics = {
-        avg: avgDaily,
-        peak: maxDaily,
-        remainingDays: remainingDays
-      }
-    },
-    async renderTrafficChart() {
-      await this.fetchTrafficHistory()
-
-      this.$nextTick(() => {
-        const chartEl = this.$refs.trafficChart
-        if (!chartEl) return
-        
-        if (!this.trafficChartInstance) {
-          this.trafficChartInstance = echarts.init(chartEl, 'dark', { backgroundColor: 'transparent' })
-        }
-
-        const dates = this.trafficHistoryData.map(item => item.date)
-        const uploadData = this.trafficHistoryData.map(item => parseFloat((item.upload / (1024 * 1024 * 1024)).toFixed(2)))
-        const downloadData = this.trafficHistoryData.map(item => parseFloat((item.download / (1024 * 1024 * 1024)).toFixed(2)))
-
-        const option = {
-          tooltip: {
-            trigger: 'axis',
-            axisPointer: { type: 'cross' }
-          },
-          grid: {
-            top: '12%',
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-          },
-          legend: {
-            data: ['上传流量', '下载流量'],
-            textStyle: { color: '#9ca3af' }
-          },
-          xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: dates,
-            axisLine: { lineStyle: { color: '#374151' } },
-            axisLabel: { color: '#9ca3af' }
-          },
-          yAxis: {
-            type: 'value',
-            name: '流量 (GB)',
-            axisLine: { lineStyle: { color: '#374151' } },
-            axisLabel: { color: '#9ca3af' },
-            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.03)' } }
-          },
-          series: [
-            {
-              name: '上传流量',
-              type: 'line',
-              smooth: true,
-              data: uploadData,
-              itemStyle: { color: '#10b981' },
-              areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: 'rgba(16, 185, 129, 0.2)' },
-                  { offset: 1, color: 'rgba(16, 185, 129, 0)' }
-                ])
-              }
-            },
-            {
-              name: '下载流量',
-              type: 'line',
-              smooth: true,
-              data: downloadData,
-              itemStyle: { color: '#3b82f6' },
-              areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: 'rgba(59, 130, 246, 0.2)' },
-                  { offset: 1, color: 'rgba(59, 130, 246, 0)' }
-                ])
-              }
-            }
-          ]
-        }
-
-        this.trafficChartInstance.setOption(option)
-        this.trafficChartInstance.resize()
-      })
-    },
-    async renderClientChart() {
-      await this.fetchSubLogs()
-
-      this.$nextTick(() => {
-        const chartEl = this.$refs.clientChart
-        if (!chartEl) return
-
-        if (!this.clientChartInstance) {
-          this.clientChartInstance = echarts.init(chartEl, 'dark', { backgroundColor: 'transparent' })
-        }
-
-        const data = []
-        for (const [key, val] of Object.entries(this.subAuditData.clientStats)) {
-          data.push({ name: key, value: val })
-        }
-
-        const option = {
-          tooltip: { trigger: 'item' },
-          legend: {
-            orient: 'vertical',
-            left: 'left',
-            textStyle: { color: '#9ca3af' }
-          },
-          series: [
-            {
-              name: '客户端占比',
-              type: 'pie',
-              radius: ['40%', '70%'],
-              avoidLabelOverlap: false,
-              itemStyle: {
-                borderRadius: 8,
-                borderColor: '#1f2937',
-                borderWidth: 2
-              },
-              label: {
-                show: false,
-                position: 'center'
-              },
-              emphasis: {
-                label: {
-                  show: true,
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                  color: '#ffffff'
-                }
-              },
-              labelLine: { show: false },
-              data: data.length > 0 ? data : [{ name: '暂无数据', value: 0 }]
-            }
-          ]
-        }
-
-        this.clientChartInstance.setOption(option)
-        this.clientChartInstance.resize()
-      })
     },
     async renderComplianceCharts() {
       await this.fetchDomainStats()
@@ -2013,139 +1732,11 @@ export default {
 }
 
 /* Traffic Trend Tab */
-.traffic-tab-wrap {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  flex: 1;
-}
-
-.metrics-cards-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
-  
-  .metric-card-mini {
-    flex: 1;
-    background: linear-gradient(135deg, rgba(55, 65, 81, 0.3) 0%, rgba(31, 41, 55, 0.5) 100%);
-    border: 1px solid var(--el-border-color-lighter);
-    padding: 12px 16px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    
-    .mini-label {
-      font-size: 11px;
-      color: var(--el-text-color-secondary);
-      font-weight: 500;
-    }
-    
-    .mini-val {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--el-text-color-primary);
-    }
-    
-    &.warning-forecast {
-      border-color: rgba(245, 158, 11, 0.4);
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.03) 100%);
-      
-      .mini-val {
-        color: var(--el-color-warning);
-      }
-    }
-  }
-}
 
 .echarts-container {
   flex: 1;
   width: 100%;
   min-height: 280px;
-}
-
-/* Subscription logs */
-.sub-abuse-alert {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  font-weight: 600;
-}
-
-.sub-audit-split {
-  .donut-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  
-  .timeline-section {
-    flex: 1.2;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    
-    .timeline-scroll-wrap {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 8px;
-      margin-top: 8px;
-      
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: var(--el-border-color-lighter);
-        border-radius: 3px;
-      }
-    }
-  }
-}
-
-.timeline-log-card {
-  background: linear-gradient(135deg, rgba(55, 65, 81, 0.2) 0%, rgba(31, 41, 55, 0.3) 100%);
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  
-  .log-ip-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    .log-ip {
-      font-family: var(--el-font-family-monospace);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-    }
-    
-    .log-geo {
-      font-weight: 600;
-    }
-  }
-  
-  .log-ua-row {
-    font-size: 11px;
-    display: flex;
-    gap: 4px;
-    color: var(--el-text-color-secondary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    
-    .ua-label {
-      font-weight: 500;
-    }
-    
-    .ua-val {
-      font-weight: 600;
-      color: var(--el-text-color-regular);
-    }
-  }
 }
 
 /* Compliance split */
