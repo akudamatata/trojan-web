@@ -33,6 +33,7 @@ export default {
         dashboard: '首页',
         trojan: 'Trojan管理',
         user: '用户管理',
+        userDetail: '用户详情',
         setting: '系统设置'
     },
     navbar: {

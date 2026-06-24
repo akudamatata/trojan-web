@@ -33,6 +33,7 @@ export default {
         dashboard: 'Dashboard',
         trojan: 'Trojan',
         user: 'User',
+        userDetail: 'User Detail',
         setting: 'System Setting'
     },
     navbar: {
