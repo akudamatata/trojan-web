@@ -83,22 +83,6 @@
     <el-row :gutter="24" class="content-row">
       <!-- Left Column: Top 10 Domains & IP list -->
       <el-col :xs="24" :sm="24" :md="16" class="col-left">
-        <!-- Progress bar for data usage -->
-        <el-card class="stat-card usage-progress-card">
-          <div class="progress-section">
-            <div class="progress-labels">
-              <span class="progress-title">{{ $t('detail.usedPercent') }}</span>
-              <span class="progress-num">{{ percentUsed }}%</span>
-            </div>
-            <el-progress 
-              :percentage="percentUsed" 
-              :status="percentUsed >= 90 ? 'exception' : (percentUsed >= 70 ? 'warning' : 'success')" 
-              :stroke-width="12"
-              class="custom-progress"
-            />
-          </div>
-        </el-card>
-
         <!-- Connected IP list -->
         <el-card class="stat-card ip-card">
           <template #header>
@@ -184,6 +168,22 @@
 
       <!-- Right Column: Sub card & Quick action card -->
       <el-col :xs="24" :sm="24" :md="8" class="col-right">
+        <!-- Progress bar for data usage -->
+        <el-card class="stat-card usage-progress-card">
+          <div class="progress-section">
+            <div class="progress-labels">
+              <span class="progress-title">{{ $t('detail.usedPercent') }}</span>
+              <span class="progress-num">{{ percentUsed }}%</span>
+            </div>
+            <el-progress 
+              :percentage="percentUsed" 
+              :status="percentUsed >= 90 ? 'exception' : (percentUsed >= 70 ? 'warning' : 'success')" 
+              :stroke-width="12"
+              class="custom-progress"
+            />
+          </div>
+        </el-card>
+
         <!-- Sub Card -->
         <el-card class="stat-card sub-card">
           <template #header>
