@@ -620,6 +620,7 @@ export default {
         justify-content: center;
         width: 20px;
         height: 20px;
+        flex-shrink: 0;
         border-radius: 50%;
         font-size: 11px;
         font-weight: 600;
