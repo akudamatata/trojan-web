@@ -144,9 +144,9 @@ export default {
     },
     mounted() {
         this.$store.commit('SET_NOERROR', true)
-        this.mainStyle.height = (document.body.clientHeight - 85) + 'px'
+        this.mainStyle.height = (window.innerHeight - 85) + 'px'
         window.onresize = () => {
-            this.mainStyle.height = (document.body.clientHeight - 85) + 'px'
+            this.mainStyle.height = (window.innerHeight - 85) + 'px'
         }
         const textarea = document.getElementById('logshow')
         // 监听这个dom的scroll事件

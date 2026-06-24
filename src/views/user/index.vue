@@ -370,11 +370,11 @@ export default {
     },
     created() {
         this.refresh()
-        this.clientHeight = document.body.clientHeight - 240
+        this.clientHeight = window.innerHeight - 240
     },
     mounted() {
         window.onresize = () => {
-            this.clientHeight = document.body.clientHeight - 240
+            this.clientHeight = window.innerHeight - 240
         }
     },
     methods: {
@@ -757,7 +757,8 @@ export default {
 .user-container {
     padding: 24px;
     background-color: var(--el-bg-color-page);
-    min-height: calc(100vh - 50px);
+    min-height: calc(100vh - 115px);
+    box-sizing: border-box;
 }
 .user-action-bar {
     background: #111827;
