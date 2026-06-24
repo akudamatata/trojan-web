@@ -39,8 +39,12 @@
         </el-table-column>
         <el-table-column
         :label="$t('username')"
-        prop="Username"
         >
+          <template #default="scope">
+            <el-button type="primary" link @click="gotoDetail(scope.row.Username)">
+              {{ scope.row.Username }}
+            </el-button>
+          </template>
         </el-table-column>
         <el-table-column
         :label="$t('password')"
@@ -720,6 +724,12 @@ export default {
             } else {
                 this.$message.error(result.Msg)
             }
+        },
+        gotoDetail(username) {
+            this.$router.push({
+                name: 'userDetail',
+                query: { username }
+            })
         }
     }
 }

@@ -23,3 +23,7 @@ export function setExpire(data) {
 export function cancelExpire(id) {
     return request.delete(`/trojan/user/expire?id=${id}`)
 }
+
+export function userDetail(username) {
+    return request.get(`/trojan/user/detail?username=${username}`)
+}

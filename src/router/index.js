@@ -79,6 +79,13 @@ export const constantRoutes = [
                 name: 'user',
                 component: () => import('@/views/user/index'),
                 meta: { title: 'user', icon: 'user' }
+            },
+            {
+                path: 'detail',
+                name: 'userDetail',
+                component: () => import('@/views/user/detail'),
+                hidden: true,
+                meta: { title: 'userDetail', activeMenu: '/user' }
             }
         ]
     },
