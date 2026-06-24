@@ -3,7 +3,11 @@
     <!-- Back Button & Header -->
     <div class="header-section">
       <el-button :icon="ArrowLeft" @click="goBack" class="back-btn">{{ $t('detail.back') }}</el-button>
-      <h2 class="page-title">{{ $t('detail.title') }}: <span class="username-highlight">{{ username }}</span></h2>
+      <div class="breadcrumb-nav">
+        <span class="bc-item">首页</span>
+        <span class="bc-separator">/</span>
+        <span class="bc-item active">用户详情</span>
+      </div>
     </div>
 
     <!-- P2P/BT Alert Warning -->
@@ -13,179 +17,90 @@
       type="error"
       effect="dark"
       show-icon
-      style="margin-bottom: 24px; border-radius: 8px;"
+      class="abuse-alert-banner"
     />
 
-    <!-- Row 1: Account Info, Quick Actions, Subscription Generator -->
-    <el-row :gutter="20" class="info-row">
-      <!-- Card 1: Account Info -->
-      <el-col :xs="24" :sm="24" :md="isAdmin ? 8 : 12">
-        <el-card class="stat-card account-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ $t('detail.accountStatus') }}</span>
-              <el-tag :type="accountStatusType">{{ accountStatusText }}</el-tag>
-            </div>
-          </template>
-          <div class="card-body">
-            <div class="info-item">
-              <span class="info-label">{{ $t('detail.expiryDate') }}:</span>
-              <span class="info-value">{{ detailData.expiryDate || $t('detail.forever') }}</span>
-            </div>
-            <div class="info-item" v-if="detailData.useDays > 0">
-              <span class="info-label">{{ $t('detail.limitDays') }}:</span>
-              <span class="info-value">{{ detailData.useDays }} {{ $t('user.days') || '天' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">{{ $t('detail.abuseDetect') }}:</span>
-              <span class="info-value">
-                <el-tag :type="hasAbuseBehavior ? 'danger' : 'success'" size="small" effect="dark">
-                  {{ hasAbuseBehavior ? $t('detail.abuseInfo', { n: abuseDomainsCount }) : $t('detail.noAbuse') }}
-                </el-tag>
-              </span>
-            </div>
-            
-            <el-divider style="margin: 12px 0;" />
-            
-            <div class="progress-section">
-              <div class="progress-labels">
-                <span>{{ $t('detail.usedPercent') }}:</span>
-                <span>{{ percentUsed }}%</span>
-              </div>
-              <el-progress 
-                :percentage="percentUsed" 
-                :status="percentUsed >= 90 ? 'exception' : (percentUsed >= 70 ? 'warning' : 'success')" 
-                :stroke-width="12"
-              />
-              <div class="traffic-desc">
-                {{ $t('detail.used') }}: <span class="highlight-text">{{ formatBytes(detailData.upload + detailData.download) }}</span> / {{ $t('detail.totalQuota') }}: {{ formatBytes(detailData.quota) }}
-              </div>
-            </div>
+    <!-- Header Hero Profile Card -->
+    <div class="profile-hero-card">
+      <div class="hero-left">
+        <div class="user-avatar-glowing">
+          {{ username.substring(0, 2).toUpperCase() }}
+        </div>
+        <div class="user-meta-info">
+          <div class="user-title-row">
+            <h1 class="user-name">{{ username }}</h1>
+            <el-tag :type="accountStatusType" size="small" effect="dark" class="status-tag">
+              {{ accountStatusText }}
+            </el-tag>
+          </div>
+          <div class="user-sub-details">
+            <span class="sub-info-item">
+              <el-icon><Calendar /></el-icon>
+              {{ $t('detail.expiryDate') }}: <span class="highlight">{{ detailData.expiryDate || $t('detail.forever') }}</span>
+            </span>
+            <span class="sub-info-item" v-if="detailData.useDays > 0">
+              <el-icon><Clock /></el-icon>
+              {{ $t('detail.limitDays') }}: <span class="highlight">{{ detailData.useDays }} {{ $t('user.days') || '天' }}</span>
+            </span>
+            <span class="sub-info-item">
+              <el-tag :type="hasAbuseBehavior ? 'danger' : 'success'" size="small" effect="plain" class="abuse-badge">
+                {{ $t('detail.abuseDetect') }}: {{ hasAbuseBehavior ? $t('detail.abuseInfo', { n: abuseDomainsCount }) : $t('detail.noAbuse') }}
+              </el-tag>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="metric-item">
+          <span class="metric-label">{{ $t('detail.used') }}</span>
+          <span class="metric-value">{{ formatBytes(detailData.upload + detailData.download) }}</span>
+        </div>
+        <el-divider direction="vertical" class="metric-divider" />
+        <div class="metric-item">
+          <span class="metric-label">{{ $t('detail.totalQuota') }}</span>
+          <span class="metric-value">{{ formatBytes(detailData.quota) }}</span>
+        </div>
+        <el-divider direction="vertical" class="metric-divider" />
+        <div class="metric-item">
+          <span class="metric-label">{{ $t('detail.upload') }} / {{ $t('detail.download') }}</span>
+          <span class="metric-sub-value">
+            <span class="up-val">↑ {{ formatBytes(detailData.upload) }}</span>
+            <span class="down-val">↓ {{ formatBytes(detailData.download) }}</span>
+          </span>
+        </div>
+      </div>
+    </div>
 
-            <div class="traffic-direction">
-              <div class="dir-item">
-                <span class="dir-title">↑ {{ $t('detail.upload') }}</span>
-                <span class="dir-value">{{ formatBytes(detailData.upload) }}</span>
-              </div>
-              <div class="dir-item">
-                <span class="dir-title">↓ {{ $t('detail.download') }}</span>
-                <span class="dir-value">{{ formatBytes(detailData.download) }}</span>
-              </div>
+    <!-- Main Content Area -->
+    <el-row :gutter="24" class="content-row">
+      <!-- Left Column: Top 10 Domains & IP list -->
+      <el-col :xs="24" :sm="24" :md="16" class="col-left">
+        <!-- Progress bar for data usage -->
+        <el-card class="stat-card usage-progress-card">
+          <div class="progress-section">
+            <div class="progress-labels">
+              <span class="progress-title">{{ $t('detail.usedPercent') }}</span>
+              <span class="progress-num">{{ percentUsed }}%</span>
             </div>
+            <el-progress 
+              :percentage="percentUsed" 
+              :status="percentUsed >= 90 ? 'exception' : (percentUsed >= 70 ? 'warning' : 'success')" 
+              :stroke-width="12"
+              class="custom-progress"
+            />
           </div>
         </el-card>
-      </el-col>
 
-      <!-- Card 2: Quick Actions (Only for Admin) -->
-      <el-col :xs="24" :sm="24" :md="8" v-if="isAdmin">
-        <el-card class="stat-card action-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ $t('detail.accountOps') }}</span>
-            </div>
-          </template>
-          <div class="card-body action-buttons-grid">
-            <el-button type="primary" :icon="Tools" @click="handleLimitData">{{ $t('detail.limitQuota') }}</el-button>
-            <el-button type="warning" :icon="RefreshRight" @click="handleResetData">{{ $t('detail.resetTraffic') }}</el-button>
-            <el-button type="success" :icon="Edit" @click="handleModifyUser">{{ $t('detail.editUser') }}</el-button>
-            <el-button type="info" :icon="Calendar" @click="handleSetExpire">{{ $t('detail.setExpire') }}</el-button>
-            <el-button type="info" v-if="detailData.expiryDate" @click="handleCancelExpire">{{ $t('detail.cancelExpire') }}</el-button>
-            <el-button type="danger" :icon="Delete" @click="handleDeleteUser">{{ $t('detail.delUser') }}</el-button>
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- Card 3: Subscription Generator -->
-      <el-col :xs="24" :sm="24" :md="isAdmin ? 8 : 12">
-        <el-card class="stat-card sub-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ $t('detail.quickManage') }}</span>
-            </div>
-          </template>
-          <div class="card-body">
-            <el-radio-group v-model="subType" size="small" style="margin-bottom: 15px; display: flex; width: 100%;">
-              <el-radio-button label="trojan">{{ $t('user.trojanShareLink') || 'Trojan节点' }}</el-radio-button>
-              <el-radio-button label="clash">{{ $t('user.clashShareLink') || 'Clash订阅' }}</el-radio-button>
-              <el-radio-button label="shadowrocket">{{ $t('user.universalShareLink') || '小火箭订阅' }}</el-radio-button>
-            </el-radio-group>
-
-            <el-input 
-              v-model="shareLink" 
-              readonly 
-              placeholder="..." 
-              size="small"
-              class="sub-input"
-            >
-              <template #append>
-                <el-button @click="copyLink">{{ $t('share') || '复制' }}</el-button>
-              </template>
-            </el-input>
-
-            <div class="sub-actions" style="margin-top: 15px; display: flex; gap: 10px;">
-              <el-button v-if="subType === 'clash'" type="primary" size="small" style="flex: 1;" @click="importToClash">
-                {{ $t('user.importClash') || '一键导入 Clash' }}
-              </el-button>
-              <el-button type="success" size="small" style="flex: 1;" @click="showQRCode">
-                {{ $t('share') || '二维码分享' }}
-              </el-button>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <!-- Row 2: Top 10 Domains Visited & IP Connection List -->
-    <el-row :gutter="20" class="info-row">
-      <!-- Top 10 Domains Visited -->
-      <el-col :xs="24" :sm="24" :md="10">
-        <el-card class="stat-card domain-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ $t('detail.topDomains') }}</span>
-              <el-tag type="info">{{ $t('detail.recentMonth') }}</el-tag>
-            </div>
-          </template>
-          <div class="card-body">
-            <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
-              <el-empty :description="$t('detail.noDomains')" :image-size="80" />
-            </div>
-            <div v-else class="domain-list">
-              <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item">
-                <div class="domain-rank-info">
-                  <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
-                  <span class="domain-name" :title="item.domain">
-                    {{ item.domain }}
-                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 6px;">P2P/BT</el-tag>
-                  </span>
-                </div>
-                <div class="domain-bar-section">
-                  <el-progress 
-                    :percentage="getDomainPercentage(item.visit_count)" 
-                    :show-text="false" 
-                    color="#409eff"
-                    :stroke-width="8"
-                    class="domain-progress-bar"
-                  />
-                </div>
-                <span class="visit-count">{{ item.visit_count }} {{ $t('detail.visit') }}</span>
-              </div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- Connection IP List -->
-      <el-col :xs="24" :sm="24" :md="14">
+        <!-- Connected IP list -->
         <el-card class="stat-card ip-card">
           <template #header>
             <div class="card-header">
               <span>{{ $t('detail.recentIps') }}</span>
-              <el-tag type="success">{{ $t('detail.ipAudit') }}</el-tag>
+              <el-tag type="success" size="small" effect="plain">{{ $t('detail.ipAudit') }}</el-tag>
             </div>
           </template>
-          <div class="card-body" style="padding: 0;">
-            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="340">
+          <div class="card-body-table">
+            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
               <el-table-column label="#" type="index" width="50" align="center" />
               <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
                 <template #default="scope">
@@ -219,6 +134,139 @@
                 </template>
               </el-table-column>
             </el-table>
+          </div>
+        </el-card>
+
+        <!-- Top 10 Domains Visited -->
+        <el-card class="stat-card domain-card">
+          <template #header>
+            <div class="card-header">
+              <span>{{ $t('detail.topDomains') }}</span>
+              <el-tag type="info" size="small" effect="plain">{{ $t('detail.recentMonth') }}</el-tag>
+            </div>
+          </template>
+          <div class="card-body">
+            <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
+              <el-empty :description="$t('detail.noDomains')" :image-size="60" />
+            </div>
+            <div v-else class="domain-list">
+              <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item">
+                <div class="domain-rank-info">
+                  <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
+                  <span class="domain-name" :title="item.domain">
+                    {{ item.domain }}
+                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 6px;">P2P/BT</el-tag>
+                  </span>
+                </div>
+                <div class="domain-bar-section">
+                  <el-progress 
+                    :percentage="getDomainPercentage(item.visit_count)" 
+                    :show-text="false" 
+                    color="#409eff"
+                    :stroke-width="6"
+                    class="domain-progress-bar"
+                  />
+                </div>
+                <span class="visit-count">{{ item.visit_count }} {{ $t('detail.visit') }}</span>
+              </div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+
+      <!-- Right Column: Sub card & Quick action card -->
+      <el-col :xs="24" :sm="24" :md="8" class="col-right">
+        <!-- Sub Card -->
+        <el-card class="stat-card sub-card">
+          <template #header>
+            <div class="card-header">
+              <span>{{ $t('detail.quickManage') }}</span>
+            </div>
+          </template>
+          <div class="card-body">
+            <el-radio-group v-model="subType" size="small" class="sub-radio-group">
+              <el-radio-button label="trojan">{{ $t('user.trojanShareLink') || 'Trojan' }}</el-radio-button>
+              <el-radio-button label="clash">{{ $t('user.clashShareLink') || 'Clash' }}</el-radio-button>
+              <el-radio-button label="shadowrocket">{{ $t('user.universalShareLink') || 'Rocket' }}</el-radio-button>
+            </el-radio-group>
+
+            <div class="sub-input-container">
+              <el-input 
+                v-model="shareLink" 
+                readonly 
+                placeholder="..." 
+                size="small"
+                class="sub-input"
+              >
+                <template #append>
+                  <el-button @click="copyLink" class="copy-btn-inner">{{ $t('share') || '复制' }}</el-button>
+                </template>
+              </el-input>
+            </div>
+
+            <div class="sub-actions">
+              <el-button v-if="subType === 'clash'" type="primary" size="small" class="clash-btn" @click="importToClash">
+                {{ $t('user.importClash') || '导入 Clash' }}
+              </el-button>
+              <el-button type="success" size="small" class="qr-btn" @click="showQRCode">
+                二维码分享
+              </el-button>
+            </div>
+          </div>
+        </el-card>
+
+        <!-- Quick Actions Card (Admin only) -->
+        <el-card class="stat-card action-card" v-if="isAdmin">
+          <template #header>
+            <div class="card-header">
+              <span>{{ $t('detail.accountOps') }}</span>
+            </div>
+          </template>
+          <div class="card-body-actions">
+            <div class="action-list">
+              <div class="action-item">
+                <div class="action-info">
+                  <span class="action-name">{{ $t('detail.limitQuota') }}</span>
+                  <span class="action-desc">设定用户可用流量配额</span>
+                </div>
+                <el-button type="primary" plain size="small" :icon="Tools" @click="handleLimitData">配置</el-button>
+              </div>
+              <div class="action-item">
+                <div class="action-info">
+                  <span class="action-name">{{ $t('detail.resetTraffic') }}</span>
+                  <span class="action-desc">重置已使用上传与下载流量</span>
+                </div>
+                <el-button type="warning" plain size="small" :icon="RefreshRight" @click="handleResetData">重置</el-button>
+              </div>
+              <div class="action-item">
+                <div class="action-info">
+                  <span class="action-name">{{ $t('detail.editUser') }}</span>
+                  <span class="action-desc">修改该用户的用户名及密码</span>
+                </div>
+                <el-button type="success" plain size="small" :icon="Edit" @click="handleModifyUser">修改</el-button>
+              </div>
+              <div class="action-item">
+                <div class="action-info">
+                  <span class="action-name">{{ $t('detail.setExpire') }}</span>
+                  <span class="action-desc">设置该账户的有效使用期限</span>
+                </div>
+                <el-button type="info" plain size="small" :icon="Calendar" @click="handleSetExpire">设置</el-button>
+              </div>
+              <div class="action-item" v-if="detailData.expiryDate">
+                <div class="action-info">
+                  <span class="action-name">{{ $t('detail.cancelExpire') }}</span>
+                  <span class="action-desc">恢复该账户为永久有效状态</span>
+                </div>
+                <el-button type="info" plain size="small" @click="handleCancelExpire">取消</el-button>
+              </div>
+              <div class="action-item danger-item">
+                <div class="action-info">
+                  <span class="action-name">{{ $t('detail.delUser') }}</span>
+                  <span class="action-desc">从系统中彻底移除该用户账户</span>
+                </div>
+                <el-button type="danger" plain size="small" :icon="Delete" @click="handleDeleteUser">删除</el-button>
+              </div>
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -300,7 +348,7 @@
 </template>
 
 <script>
-import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar } from '@element-plus/icons-vue'
+import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock } from '@element-plus/icons-vue'
 import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
 import { restart } from '@/api/trojan'
@@ -319,6 +367,7 @@ export default {
       Delete,
       RefreshRight,
       Calendar,
+      Clock,
       username: '',
       detailData: {
         id: 0,
@@ -790,9 +839,9 @@ export default {
 
 .qrcode-box {
   background-color: #ffffff;
-  padding: 10px;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   display: inline-block;
   
   canvas, img {
@@ -800,105 +849,237 @@ export default {
   }
 }
 
-.sub-card {
-  .card-body {
-    padding: 16px;
-  }
-}
-
 .header-section {
   display: flex;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   
   .back-btn {
     margin-right: 16px;
+    font-weight: 500;
   }
   
-  .page-title {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--el-text-color-primary);
-  }
-  
-  .username-highlight {
-    color: var(--el-color-primary);
-    font-weight: 700;
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--el-text-color-secondary);
+    
+    .bc-item {
+      &.active {
+        color: var(--el-text-color-primary);
+        font-weight: 600;
+      }
+    }
+    
+    .bc-separator {
+      color: var(--el-text-color-placeholder);
+    }
   }
 }
 
-.info-row {
-  margin-bottom: 20px;
+.abuse-alert-banner {
+  margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+}
+
+/* Profile Hero Card Design */
+.profile-hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--el-box-shadow-light);
+  flex-wrap: wrap;
+  gap: 24px;
+  
+  .hero-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    
+    .user-avatar-glowing {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .user-meta-info {
+      .user-title-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+        
+        .user-name {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: var(--el-text-color-primary);
+          letter-spacing: -0.5px;
+        }
+        
+        .status-tag {
+          font-weight: 600;
+          letter-spacing: 0.5px;
+        }
+      }
+      
+      .user-sub-details {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        
+        .sub-info-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          color: var(--el-text-color-secondary);
+          
+          .highlight {
+            color: var(--el-text-color-primary);
+            font-weight: 600;
+          }
+          
+          .el-icon {
+            font-size: 14px;
+          }
+        }
+        
+        .abuse-badge {
+          border-radius: 4px;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+  
+  .hero-right {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      
+      .metric-label {
+        font-size: 12px;
+        color: var(--el-text-color-secondary);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .metric-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--el-text-color-primary);
+      }
+      
+      .metric-sub-value {
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        
+        .up-val {
+          color: var(--el-color-primary);
+        }
+        .down-val {
+          color: var(--el-color-success);
+        }
+      }
+    }
+    
+    .metric-divider {
+      height: 40px;
+      margin: 0;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+  }
+}
+
+.content-row {
+  margin-bottom: 24px;
 }
 
 .stat-card {
-  margin-bottom: 20px;
-  border-radius: 12px;
+  margin-bottom: 24px;
+  border-radius: 16px;
   border: 1px solid var(--el-border-color-light);
   box-shadow: var(--el-box-shadow-light);
   background-color: var(--el-bg-color-overlay);
+  overflow: hidden;
   
   .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-weight: 600;
+    font-weight: 700;
     font-size: 15px;
     color: var(--el-text-color-primary);
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--el-border-color-light);
   }
   
   .card-body {
-    padding: 16px;
-  }
-}
-
-.action-card {
-  .action-buttons-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    
-    .el-button {
-      margin: 0 !important;
-      width: 100%;
-      height: 36px;
-      font-weight: 600;
-    }
-  }
-}
-
-.account-card {
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    font-size: 14px;
-    
-    .info-label {
-      color: var(--el-text-color-secondary);
-    }
-    
-    .info-value {
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-    }
+    padding: 20px;
   }
   
+  .card-body-table {
+    padding: 0;
+  }
+}
+
+/* Usage progress card */
+.usage-progress-card {
   .progress-section {
-    margin-bottom: 20px;
+    padding: 20px;
     
     .progress-labels {
       display: flex;
       justify-content: space-between;
+      margin-bottom: 10px;
+      
+      .progress-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--el-text-color-primary);
+      }
+      
+      .progress-num {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--el-text-color-primary);
+      }
+    }
+    
+    .custom-progress {
       margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 600;
     }
     
     .traffic-desc {
-      margin-top: 8px;
       font-size: 12px;
       color: var(--el-text-color-secondary);
       
@@ -908,41 +1089,121 @@ export default {
       }
     }
   }
+}
 
-  .traffic-direction {
+/* Sub card design */
+.sub-card {
+  .sub-radio-group {
     display: flex;
-    border-top: 1px solid var(--el-border-color-lighter);
-    margin-top: 16px;
+    width: 100%;
+    margin-bottom: 16px;
     
-    .dir-item {
+    .el-radio-button {
       flex: 1;
       text-align: center;
-      padding: 12px 0 0 0;
       
-      &:first-child {
-        border-right: 1px solid var(--el-border-color-lighter);
-      }
-      
-      .dir-title {
-        display: block;
+      :deep(.el-radio-button__inner) {
+        width: 100%;
         font-size: 12px;
-        color: var(--el-text-color-secondary);
-        margin-bottom: 4px;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .sub-input-container {
+    margin-bottom: 16px;
+    
+    .sub-input {
+      :deep(.el-input-group__append) {
+        padding: 0;
+        
+        .el-button {
+          margin: 0;
+          border: none;
+          background: transparent;
+          font-weight: 600;
+          color: var(--el-color-primary);
+          height: 100%;
+          padding: 0 16px;
+          border-radius: 0;
+          
+          &:hover {
+            background-color: var(--el-fill-color-light);
+          }
+        }
+      }
+    }
+  }
+  
+  .sub-actions {
+    display: flex;
+    gap: 12px;
+    
+    .clash-btn, .qr-btn {
+      flex: 1;
+      height: 36px;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Quick Actions Card Design */
+.action-card {
+  .card-body-actions {
+    padding: 8px 0;
+  }
+  
+  .action-list {
+    display: flex;
+    flex-direction: column;
+    
+    .action-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--el-border-color-lighter);
+      transition: background-color 0.2s ease;
+      
+      &:last-child {
+        border-bottom: none;
       }
       
-      .dir-value {
-        font-size: 14px;
+      &:hover {
+        background-color: var(--el-fill-color-blank);
+      }
+      
+      .action-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        flex: 1;
+        padding-right: 12px;
+        
+        .action-name {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--el-text-color-primary);
+        }
+        
+        .action-desc {
+          font-size: 12px;
+          color: var(--el-text-color-secondary);
+        }
+      }
+      
+      .el-button {
+        width: 64px;
         font-weight: 600;
-        color: var(--el-text-color-primary);
       }
     }
   }
 }
 
+/* Top 10 Domains Visited Design */
 .domain-card {
   .card-body {
-    height: 340px;
-    overflow-y: auto;
+    padding: 20px;
   }
   
   .empty-state {
@@ -950,13 +1211,12 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
   }
   
   .domain-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
   }
   
   .domain-item {
@@ -967,40 +1227,40 @@ export default {
     .domain-rank-info {
       display: flex;
       align-items: center;
-      width: 180px;
+      width: 220px;
       overflow: hidden;
       
       .rank-badge {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         flex-shrink: 0;
         border-radius: 50%;
-        font-size: 10px;
-        font-weight: 600;
-        margin-right: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-right: 12px;
         background-color: var(--el-fill-color-darker);
         color: var(--el-text-color-secondary);
         
-        &.rank-1 { background-color: #f56c6c; color: white; }
-        &.rank-2 { background-color: #e6a23c; color: white; }
-        &.rank-3 { background-color: #409eff; color: white; }
+        &.rank-1 { background-color: #ef4444; color: white; }
+        &.rank-2 { background-color: #f59e0b; color: white; }
+        &.rank-3 { background-color: #3b82f6; color: white; }
       }
       
       .domain-name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--el-text-color-primary);
       }
     }
     
     .domain-bar-section {
       flex: 1;
-      padding: 0 12px;
+      padding: 0 16px;
       
       .domain-progress-bar {
         margin: 0;
@@ -1008,7 +1268,7 @@ export default {
     }
     
     .visit-count {
-      width: 50px;
+      width: 60px;
       text-align: right;
       font-size: 12px;
       color: var(--el-text-color-secondary);
@@ -1017,13 +1277,14 @@ export default {
   }
 }
 
+/* IP Card Design */
 .ip-card {
   .ip-table {
     margin: 0;
   }
   
   .ip-address-text {
-    font-family: monospace;
+    font-family: var(--el-font-family-monospace);
     font-size: 13px;
     font-weight: 600;
     color: var(--el-text-color-primary);
@@ -1033,7 +1294,7 @@ export default {
     color: var(--el-color-primary);
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     font-size: 12px;
   }
   
@@ -1045,12 +1306,12 @@ export default {
   .geoip-info-cell {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     
     .country-badge {
       background-color: var(--el-color-primary-light-9);
       color: var(--el-color-primary);
-      padding: 1px 4px;
+      padding: 1px 6px;
       border-radius: 4px;
       font-size: 11px;
       font-weight: 600;
@@ -1074,6 +1335,27 @@ export default {
     white-space: nowrap;
     display: block;
     max-width: 100%;
+  }
+}
+
+/* Responsive Scaling */
+@media (max-width: 768px) {
+  .profile-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    
+    .hero-right {
+      width: 100%;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 16px;
+      gap: 12px;
+      
+      .metric-divider {
+        display: none;
+      }
+    }
   }
 }
 </style>
