@@ -2,14 +2,14 @@
   <div class="user-detail-container">
     <!-- Back Button & Header -->
     <div class="header-section">
-      <el-button :icon="ArrowLeft" @click="goBack" class="back-btn">返回列表</el-button>
-      <h2 class="page-title">用户详情面板: <span class="username-highlight">{{ username }}</span></h2>
+      <el-button :icon="ArrowLeft" @click="goBack" class="back-btn">{{ $t('detail.back') }}</el-button>
+      <h2 class="page-title">{{ $t('detail.title') }}: <span class="username-highlight">{{ username }}</span></h2>
     </div>
 
     <!-- P2P/BT Alert Warning -->
     <el-alert
       v-if="hasAbuseBehavior"
-      title="警告：检测到该用户最近 30 天内存在 P2P/BT 下载或版权滥用域名访问记录，请及时排查与限制，以防 VPS 收到版权方投诉！"
+      :title="$t('detail.abuseWarning')"
       type="error"
       effect="dark"
       show-icon
@@ -23,24 +23,24 @@
         <el-card class="stat-card account-card">
           <template #header>
             <div class="card-header">
-              <span>账户基本状态</span>
-              <el-tag :type="accountStatusType">{{ accountStatus }}</el-tag>
+              <span>{{ $t('detail.accountStatus') }}</span>
+              <el-tag :type="accountStatusType">{{ accountStatusText }}</el-tag>
             </div>
           </template>
           <div class="card-body">
             <div class="info-item">
-              <span class="info-label">到期时间:</span>
-              <span class="info-value">{{ detailData.expiryDate || '永久有效' }}</span>
+              <span class="info-label">{{ $t('detail.expiryDate') }}:</span>
+              <span class="info-value">{{ detailData.expiryDate || $t('detail.forever') }}</span>
             </div>
             <div class="info-item" v-if="detailData.useDays > 0">
-              <span class="info-label">限制使用天数:</span>
-              <span class="info-value">{{ detailData.useDays }} 天</span>
+              <span class="info-label">{{ $t('detail.limitDays') }}:</span>
+              <span class="info-value">{{ detailData.useDays }} {{ $t('user.days') || '天' }}</span>
             </div>
             <div class="info-item">
-              <span class="info-label">滥用检测 (P2P/BT):</span>
+              <span class="info-label">{{ $t('detail.abuseDetect') }}:</span>
               <span class="info-value">
                 <el-tag :type="hasAbuseBehavior ? 'danger' : 'success'" size="small" effect="dark">
-                  {{ hasAbuseBehavior ? `检出 ${abuseDomainsCount} 个异常域名` : '无异常' }}
+                  {{ hasAbuseBehavior ? $t('detail.abuseInfo', { n: abuseDomainsCount }) : $t('detail.noAbuse') }}
                 </el-tag>
               </span>
             </div>
@@ -49,7 +49,7 @@
             
             <div class="progress-section">
               <div class="progress-labels">
-                <span>流量额度已使用:</span>
+                <span>{{ $t('detail.usedPercent') }}:</span>
                 <span>{{ percentUsed }}%</span>
               </div>
               <el-progress 
@@ -58,17 +58,17 @@
                 :stroke-width="12"
               />
               <div class="traffic-desc">
-                已使用: <span class="highlight-text">{{ formatBytes(detailData.upload + detailData.download) }}</span> / 总配额: {{ formatBytes(detailData.quota) }}
+                {{ $t('detail.used') }}: <span class="highlight-text">{{ formatBytes(detailData.upload + detailData.download) }}</span> / {{ $t('detail.totalQuota') }}: {{ formatBytes(detailData.quota) }}
               </div>
             </div>
 
             <div class="traffic-direction">
               <div class="dir-item">
-                <span class="dir-title">↑ 上行流量</span>
+                <span class="dir-title">↑ {{ $t('detail.upload') }}</span>
                 <span class="dir-value">{{ formatBytes(detailData.upload) }}</span>
               </div>
               <div class="dir-item">
-                <span class="dir-title">↓ 下行流量</span>
+                <span class="dir-title">↓ {{ $t('detail.download') }}</span>
                 <span class="dir-value">{{ formatBytes(detailData.download) }}</span>
               </div>
             </div>
@@ -81,16 +81,16 @@
         <el-card class="stat-card action-card">
           <template #header>
             <div class="card-header">
-              <span>⚙️ 账户管理操作</span>
+              <span>{{ $t('detail.accountOps') }}</span>
             </div>
           </template>
           <div class="card-body action-buttons-grid">
-            <el-button type="primary" :icon="Tools" @click="handleLimitData">限制流量</el-button>
-            <el-button type="warning" :icon="RefreshRight" @click="handleResetData">清空流量</el-button>
-            <el-button type="success" :icon="Edit" @click="handleModifyUser">修改用户</el-button>
-            <el-button type="info" :icon="Calendar" @click="handleSetExpire">设置到期</el-button>
-            <el-button type="info" v-if="detailData.expiryDate" @click="handleCancelExpire">取消到期</el-button>
-            <el-button type="danger" :icon="Delete" @click="handleDeleteUser">删除用户</el-button>
+            <el-button type="primary" :icon="Tools" @click="handleLimitData">{{ $t('detail.limitQuota') }}</el-button>
+            <el-button type="warning" :icon="RefreshRight" @click="handleResetData">{{ $t('detail.resetTraffic') }}</el-button>
+            <el-button type="success" :icon="Edit" @click="handleModifyUser">{{ $t('detail.editUser') }}</el-button>
+            <el-button type="info" :icon="Calendar" @click="handleSetExpire">{{ $t('detail.setExpire') }}</el-button>
+            <el-button type="info" v-if="detailData.expiryDate" @click="handleCancelExpire">{{ $t('detail.cancelExpire') }}</el-button>
+            <el-button type="danger" :icon="Delete" @click="handleDeleteUser">{{ $t('detail.delUser') }}</el-button>
           </div>
         </el-card>
       </el-col>
@@ -100,34 +100,34 @@
         <el-card class="stat-card sub-card">
           <template #header>
             <div class="card-header">
-              <span>⚡ 快捷管理与订阅生成器</span>
+              <span>{{ $t('detail.quickManage') }}</span>
             </div>
           </template>
           <div class="card-body">
             <el-radio-group v-model="subType" size="small" style="margin-bottom: 15px; display: flex; width: 100%;">
-              <el-radio-button label="trojan">Trojan节点</el-radio-button>
-              <el-radio-button label="clash">Clash订阅</el-radio-button>
-              <el-radio-button label="shadowrocket">小火箭订阅</el-radio-button>
+              <el-radio-button label="trojan">{{ $t('user.trojanShareLink') || 'Trojan节点' }}</el-radio-button>
+              <el-radio-button label="clash">{{ $t('user.clashShareLink') || 'Clash订阅' }}</el-radio-button>
+              <el-radio-button label="shadowrocket">{{ $t('user.universalShareLink') || '小火箭订阅' }}</el-radio-button>
             </el-radio-group>
 
             <el-input 
               v-model="shareLink" 
               readonly 
-              placeholder="生成链接中..." 
+              placeholder="..." 
               size="small"
               class="sub-input"
             >
               <template #append>
-                <el-button @click="copyLink">复制</el-button>
+                <el-button @click="copyLink">{{ $t('share') || '复制' }}</el-button>
               </template>
             </el-input>
 
             <div class="sub-actions" style="margin-top: 15px; display: flex; gap: 10px;">
               <el-button v-if="subType === 'clash'" type="primary" size="small" style="flex: 1;" @click="importToClash">
-                一键导入 Clash
+                {{ $t('user.importClash') || '一键导入 Clash' }}
               </el-button>
               <el-button type="success" size="small" style="flex: 1;" @click="showQRCode">
-                二维码分享
+                {{ $t('share') || '二维码分享' }}
               </el-button>
             </div>
           </div>
@@ -142,13 +142,13 @@
         <el-card class="stat-card domain-card">
           <template #header>
             <div class="card-header">
-              <span>用户访问频率最高网站 (Top 10)</span>
-              <el-tag type="info">最近30天</el-tag>
+              <span>{{ $t('detail.topDomains') }}</span>
+              <el-tag type="info">{{ $t('detail.recentMonth') }}</el-tag>
             </div>
           </template>
           <div class="card-body">
             <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
-              <el-empty description="暂无访问网站数据记录" :image-size="80" />
+              <el-empty :description="$t('detail.noDomains')" :image-size="80" />
             </div>
             <div v-else class="domain-list">
               <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item">
@@ -156,7 +156,7 @@
                   <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
                   <span class="domain-name" :title="item.domain">
                     {{ item.domain }}
-                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 6px;">P2P/BT下载</el-tag>
+                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 6px;">P2P/BT</el-tag>
                   </span>
                 </div>
                 <div class="domain-bar-section">
@@ -168,7 +168,7 @@
                     class="domain-progress-bar"
                   />
                 </div>
-                <span class="visit-count">{{ item.visit_count }} 次</span>
+                <span class="visit-count">{{ item.visit_count }} {{ $t('detail.visit') }}</span>
               </div>
             </div>
           </div>
@@ -180,30 +180,30 @@
         <el-card class="stat-card ip-card">
           <template #header>
             <div class="card-header">
-              <span>最近一个月连接过的 IP 列表</span>
-              <el-tag type="success">活跃 IP 归属审计</el-tag>
+              <span>{{ $t('detail.recentIps') }}</span>
+              <el-tag type="success">{{ $t('detail.ipAudit') }}</el-tag>
             </div>
           </template>
           <div class="card-body" style="padding: 0;">
-            <el-table :data="ipTableData" style="width: 100%" class="ip-table" empty-text="最近一个月无登录 IP 记录" height="340">
-              <el-table-column label="序号" type="index" width="60" align="center" />
-              <el-table-column prop="ip" label="连入 IP" width="160">
+            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="340">
+              <el-table-column label="#" type="index" width="50" align="center" />
+              <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
                 <template #default="scope">
                   <span class="ip-address-text">{{ scope.row.ip }}</span>
                   <div style="margin-top: 4px;">
                     <el-tag :type="scope.row.isActive ? 'success' : 'info'" size="small">
-                      {{ scope.row.isActive ? '当前在线' : '离线' }}
+                      {{ scope.row.isActive ? $t('detail.online') : $t('detail.offline') }}
                     </el-tag>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="归属地" width="180">
+              <el-table-column :label="$t('detail.location')" width="180">
                 <template #default="scope">
                   <div v-if="scope.row.loading" class="geoip-loading">
-                    <el-icon class="is-loading"><Loading /></el-icon> 查询中...
+                    <el-icon class="is-loading"><Loading /></el-icon> {{ $t('detail.querying') }}
                   </div>
                   <div v-else-if="scope.row.error" class="geoip-error">
-                    <span class="text-muted">未知/查询失败</span>
+                    <span class="text-muted">{{ $t('detail.queryFailed') }}</span>
                   </div>
                   <div v-else class="geoip-info-cell">
                     <span class="country-badge">{{ scope.row.country }}</span>
@@ -211,11 +211,11 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="运营商 (ISP)">
+              <el-table-column :label="$t('detail.isp')">
                 <template #default="scope">
                   <span v-if="scope.row.loading">-</span>
-                  <span v-else-if="scope.row.error" class="text-muted">未知</span>
-                  <span v-else class="isp-text" :title="scope.row.isp">{{ scope.row.isp || '未知' }}</span>
+                  <span v-else-if="scope.row.error" class="text-muted">unknown</span>
+                  <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -225,7 +225,7 @@
     </el-row>
 
     <!-- Dialog for QR Code -->
-    <el-dialog title="分享二维码" v-model="qrcodeVisible" width="300px" @close="clearQRCode">
+    <el-dialog :title="$t('share')" v-model="qrcodeVisible" width="300px" @close="clearQRCode">
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
         <div ref="qrcode" class="qrcode-box" style="margin-bottom: 10px;"></div>
         <p style="margin-top: 10px; font-size: 12px; color: var(--el-text-color-secondary); word-break: break-all; text-align: center; width: 100%;">
@@ -235,53 +235,53 @@
     </el-dialog>
 
     <!-- Dialog for Set Quota -->
-    <el-dialog :title="'限制流量: ' + username" v-model="quotaVisible" :width="dialogWidth">
-      <el-tooltip effect="dark" content="-1 代表无限流量" placement="top">
+    <el-dialog :title="$t('detail.limitQuota') + ': ' + username" v-model="quotaVisible" :width="dialogWidth">
+      <el-tooltip effect="dark" :content="$t('user.meanUnlimit')" placement="top">
         <el-input-number v-model="quota" :min="-1" :precision="0"></el-input-number>
       </el-tooltip>
-      <el-select v-model="quotaUnit" placeholder="请选择" style="margin-left: 10px; width:100px">
+      <el-select v-model="quotaUnit" :placeholder="$t('choice')" style="margin-left: 10px; width:100px">
         <el-option v-for="item in quotaOptions" :key="item.value" :label="item.value" :value="item.value" />
       </el-select>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="quotaVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitQuota">确定</el-button>
+          <el-button @click="quotaVisible = false">{{ $t('cancel') }}</el-button>
+          <el-button type="primary" @click="submitQuota">{{ $t('ok') }}</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- Dialog for Set Expiry -->
-    <el-dialog :title="'设置到期时间: ' + username" v-model="expiryVisible" :width="dialogWidth">
+    <el-dialog :title="$t('detail.setExpire') + ': ' + username" v-model="expiryVisible" :width="dialogWidth">
       <el-form label-position="top">
-        <el-form-item label="选择过期时间:">
+        <el-form-item :label="$t('user.expiryDate') + ':'">
           <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%;">
-            <el-date-picker v-model="expireDate" type="date" placeholder="请选择日期" value-format="YYYY-MM-DD" style="width: 160px;" />
+            <el-date-picker v-model="expireDate" type="date" :placeholder="$t('choice')" value-format="YYYY-MM-DD" style="width: 160px;" />
             <el-button-group style="display: flex; flex-wrap: wrap;">
               <el-button v-for="item in expiryDateOptions" :key="item.value" size="default" :type="useDays === item.value ? 'primary' : 'default'" @click="useDays = item.value">
                 {{ item.label }}
               </el-button>
             </el-button-group>
-            <span style="font-size: 14px; margin-left: 4px; color: #9ca3af;">自定义(天):</span>
+            <span style="font-size: 14px; margin-left: 4px; color: #9ca3af;">{{ $t('user.customDays') || '自定义(天):' }}</span>
             <el-input-number v-model="useDays" :min="0" :precision="0" style="width: 100px;"></el-input-number>
           </div>
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="expiryVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitExpire">确定</el-button>
+          <el-button @click="expiryVisible = false">{{ $t('cancel') }}</el-button>
+          <el-button type="primary" @click="submitExpire">{{ $t('ok') }}</el-button>
         </span>
       </template>
     </el-dialog>
 
     <!-- Dialog for Modify User -->
-    <el-dialog :title="'修改用户: ' + username" v-model="userVisible" :width="dialogWidth">
-      <el-input type="text" v-model="userInfo.username" placeholder="请输入用户名" style="margin-bottom: 15px;" />
-      <el-input type="text" v-model="userInfo.password" placeholder="请输入密码" />
+    <el-dialog :title="$t('detail.editUser') + ': ' + username" v-model="userVisible" :width="dialogWidth">
+      <el-input type="text" v-model="userInfo.username" :placeholder="$root.$t('user.inputUsername')" style="margin-bottom: 15px;" />
+      <el-input type="text" v-model="userInfo.password" :placeholder="$root.$t('user.inputPassword')" />
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="userVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitModifyUser">确定</el-button>
+          <el-button @click="userVisible = false">{{ $t('cancel') }}</el-button>
+          <el-button type="primary" @click="submitModifyUser">{{ $t('ok') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -291,8 +291,8 @@
       <p style="font-size: 14px; color: var(--el-text-color-regular);">{{ confirmText }}</p>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="confirmVisible = false">取消</el-button>
-          <el-button type="primary" @click="confirmType === 0 ? submitDeleteUser() : submitResetData()">确定</el-button>
+          <el-button @click="confirmVisible = false">{{ $t('cancel') }}</el-button>
+          <el-button type="primary" @click="confirmType === 0 ? submitDeleteUser() : submitResetData()">{{ $t('ok') }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -356,11 +356,11 @@ export default {
       useDays: 7,
       expireDate: dayjs().add(7, 'day').format('YYYY-MM-DD'),
       expiryDateOptions: [
-        { label: '单周', value: 7 },
-        { label: '单月', value: 30 },
-        { label: '单季', value: 90 },
-        { label: '半年', value: 183 },
-        { label: '一年', value: 365 }
+        { label: this.$t('user.week') || '单周', value: 7 },
+        { label: this.$t('user.month') || '单月', value: 30 },
+        { label: this.$t('user.season') || '单季', value: 90 },
+        { label: this.$t('user.halfYear') || '半年', value: 183 },
+        { label: this.$t('user.year') || '一年', value: 365 }
       ],
       userInfo: {
         username: '',
@@ -374,18 +374,24 @@ export default {
       if (this.detailData.expiryDate) {
         const expiry = new Date(this.detailData.expiryDate.replace(/-/g, '/'))
         if (expiry < new Date()) {
-          return '已过期'
+          return 'Expired'
         }
       }
       if (this.detailData.quota > 0 && (this.detailData.upload + this.detailData.download) >= this.detailData.quota) {
-        return '流量超额'
+        return 'Exceeded'
       }
-      return '正常可用'
+      return 'Active'
+    },
+    accountStatusText() {
+      const status = this.accountStatus
+      if (status === 'Active') return this.$t('detail.noAbuse') || '正常可用'
+      if (status === 'Expired') return this.$t('detail.offline') || '已过期'
+      return this.$t('user.quota') || '流量超额'
     },
     accountStatusType() {
       const status = this.accountStatus
-      if (status === '正常可用') return 'success'
-      if (status === '已过期') return 'danger'
+      if (status === 'Active') return 'success'
+      if (status === 'Expired') return 'danger'
       return 'warning'
     },
     percentUsed() {
@@ -446,7 +452,7 @@ export default {
     if (this.username) {
       this.fetchDetail()
     } else {
-      this.$message.error('参数错误: 用户名不能为空')
+      this.$message.error('Username param error')
       this.goBack()
     }
   },
@@ -455,7 +461,7 @@ export default {
       this.$router.push({ name: 'user' })
     },
     formatBytes(bytes) {
-      if (bytes === -1) return '无限流量'
+      if (bytes === -1) return this.$t('user.unlimit') || '无限流量'
       return readablizeBytes(bytes)
     },
     getDomainPercentage(visitCount) {
@@ -494,10 +500,10 @@ export default {
             this.fetchGeoIPs()
           }
         } else {
-          this.$message.error('获取详情失败: ' + res.Msg)
+          this.$message.error('Get details failed: ' + res.Msg)
         }
       } catch (err) {
-        this.$message.error('获取详情错误: ' + err.message)
+        this.$message.error('Get details error: ' + err.message)
       }
     },
     // 串行查询未缓存 of IP 物理属地 (ipapi.co)，查询完成后回写服务器缓存
@@ -512,10 +518,10 @@ export default {
           if (response.ok) {
             const data = await response.json()
             if (data && !data.error) {
-              row.country = data.country_name || '未知'
+              row.country = data.country_name || 'unknown'
               row.region = data.region || ''
               row.city = data.city || ''
-              row.isp = data.org || data.asn || '未知'
+              row.isp = data.org || data.asn || 'unknown'
               row.loading = false
             } else {
               row.error = true
@@ -526,10 +532,10 @@ export default {
             if (backupResponse && backupResponse.ok) {
               const data = await backupResponse.json()
               if (data && data.status === 'success') {
-                row.country = data.country || '未知'
+                row.country = data.country || 'unknown'
                 row.region = data.regionName || ''
                 row.city = data.city || ''
-                row.isp = data.isp || '未知'
+                row.isp = data.isp || 'unknown'
                 row.loading = false
               } else {
                 row.error = true
@@ -573,7 +579,7 @@ export default {
       const text = this.shareLink
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
-          this.$message.success('已复制到剪贴板')
+          this.$message.success('Success')
         }).catch(() => {
           this.fallbackCopyText(text)
         })
@@ -590,9 +596,9 @@ export default {
       textArea.select()
       try {
         document.execCommand('copy')
-        this.$message.success('已复制到剪贴板')
+        this.$message.success('Success')
       } catch (err) {
-        this.$message.error('复制失败，请手动选择复制')
+        this.$message.error('Copy failed')
       }
       document.body.removeChild(textArea)
     },
@@ -650,7 +656,7 @@ export default {
       formData.set('quota', quotaBytes)
       const result = await setQuota(formData)
       if (result.Msg === 'success') {
-        this.$message.success('限制流量成功!')
+        this.$message.success('Success')
         this.quotaVisible = false
         this.fetchDetail()
       } else {
@@ -658,15 +664,15 @@ export default {
       }
     },
     handleResetData() {
-      this.confirmTitle = '重置流量'
-      this.confirmText = `确定要清空用户 ${this.username} 的上传和下载流量数据吗？`
+      this.confirmTitle = this.$t('detail.resetTraffic')
+      this.confirmText = this.$t('detail.resetConfirm', { username: this.username })
       this.confirmType = 1
       this.confirmVisible = true
     },
     async submitResetData() {
       const result = await cleanData(this.detailData.id)
       if (result.Msg === 'success') {
-        this.$message.success('已重置流量数据!')
+        this.$message.success('Success')
         this.confirmVisible = false
         this.fetchDetail()
       } else {
@@ -680,11 +686,11 @@ export default {
     },
     async submitModifyUser() {
       if (this.userInfo.username === '' || this.userInfo.password === '') {
-        this.$message.error('用户名或密码不能为空!')
+        this.$message.error('Field cannot be null')
         return
       }
       if (this.userInfo.username === 'admin') {
-        this.$message.error('不能修改为admin用户名!')
+        this.$message.error("can't create username is admin")
         return
       }
       const formData = new FormData()
@@ -693,13 +699,13 @@ export default {
       try {
         formData.set('password', base64Encode(this.userInfo.password))
       } catch (e) {
-        this.$message.error('密码不能包含中文!')
+        this.$message.error("password doesn't support chinese!")
         return
       }
       const result = await updateUser(formData)
       this.userVisible = false
       if (result.Msg === 'success') {
-        this.$message.success('修改账密成功!')
+        this.$message.success('Success')
         if (this.userInfo.username !== this.username) {
           this.username = this.userInfo.username
           this.$router.replace({
@@ -731,7 +737,7 @@ export default {
       formData.set('useDays', this.useDays)
       const result = await setExpire(formData)
       if (result.Msg === 'success') {
-        this.$message.success('设置用户期限成功!')
+        this.$message.success('Success')
         this.expiryVisible = false
         this.fetchDetail()
       } else {
@@ -741,15 +747,15 @@ export default {
     async handleCancelExpire() {
       const result = await cancelExpire(this.detailData.id)
       if (result.Msg === 'success') {
-        this.$message.success('已取消用户期限!')
+        this.$message.success('Success')
         this.fetchDetail()
       } else {
         this.$message.error(result.Msg)
       }
     },
     handleDeleteUser() {
-      this.confirmTitle = '删除用户'
-      this.confirmText = `确定要删除用户 ${this.username} 吗？此操作不可逆！`
+      this.confirmTitle = this.$t('detail.delUser')
+      this.confirmText = this.$t('detail.delConfirm', { username: this.username })
       this.confirmType = 0
       this.confirmVisible = true
     },
@@ -764,7 +770,7 @@ export default {
         this.$store.commit('SET_NOERROR', false)
       }
       if (result.Msg === 'success') {
-        this.$message.success(`已删除用户 ${this.username}!`)
+        this.$message.success(`Deleted ${this.username} successfully`)
         this.confirmVisible = false
         this.goBack()
       } else {
