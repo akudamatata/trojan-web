@@ -7,6 +7,7 @@ export default {
     log: '日志',
     edit: '编辑',
     share: '分享',
+    copy: '复制',
     terminal: '终端',
     refresh: '刷新',
     restart: '重启',

@@ -184,6 +184,11 @@
             </div>
           </template>
           <div class="card-body">
+            <!-- Inline QR Code Display -->
+            <div class="qr-container-inline">
+              <div ref="qrcodeInline" class="qrcode-inline-box"></div>
+            </div>
+
             <el-radio-group v-model="subType" size="small" class="sub-radio-group">
               <el-radio-button label="trojan">{{ $t('user.trojanShareLink') || 'Trojan' }}</el-radio-button>
               <el-radio-button label="clash">{{ $t('user.clashShareLink') || 'Clash' }}</el-radio-button>
@@ -199,17 +204,14 @@
                 class="sub-input"
               >
                 <template #append>
-                  <el-button @click="copyLink" class="copy-btn-inner">{{ $t('share') || '复制' }}</el-button>
+                  <el-button @click="copyLink" class="copy-btn-inner">{{ $t('copy') || '复制' }}</el-button>
                 </template>
               </el-input>
             </div>
 
-            <div class="sub-actions">
-              <el-button v-if="subType === 'clash'" type="primary" size="small" class="clash-btn" @click="importToClash">
+            <div class="sub-actions" v-if="subType === 'clash'">
+              <el-button type="primary" size="small" class="clash-btn" @click="importToClash">
                 {{ $t('user.importClash') || '导入 Clash' }}
-              </el-button>
-              <el-button type="success" size="small" class="qr-btn" @click="showQRCode">
-                二维码分享
               </el-button>
             </div>
           </div>
@@ -271,16 +273,6 @@
         </el-card>
       </el-col>
     </el-row>
-
-    <!-- Dialog for QR Code -->
-    <el-dialog :title="$t('share')" v-model="qrcodeVisible" width="300px" @close="clearQRCode">
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
-        <div ref="qrcode" class="qrcode-box" style="margin-bottom: 10px;"></div>
-        <p style="margin-top: 10px; font-size: 12px; color: var(--el-text-color-secondary); word-break: break-all; text-align: center; width: 100%;">
-          {{ shareLink }}
-        </p>
-      </div>
-    </el-dialog>
 
     <!-- Dialog for Set Quota -->
     <el-dialog :title="$t('detail.limitQuota') + ': ' + username" v-model="quotaVisible" :width="dialogWidth">
@@ -384,7 +376,6 @@ export default {
       ipTableData: [],
       maxVisitCount: 1,
       subType: 'trojan',
-      qrcodeVisible: false,
       domain: '',
       port: 0,
       
@@ -494,6 +485,9 @@ export default {
       if (this.expireDate !== computedDate) {
         this.expireDate = computedDate
       }
+    },
+    shareLink(newVal) {
+      this.updateInlineQRCode(newVal)
     }
   },
   created() {
@@ -548,6 +542,11 @@ export default {
             // 只对没有缓存的 IP 查询归属地
             this.fetchGeoIPs()
           }
+
+          // Generate initial inline QR code
+          this.$nextTick(() => {
+            this.updateInlineQRCode(this.shareLink)
+          })
         } else {
           this.$message.error('Get details failed: ' + res.Msg)
         }
@@ -655,25 +654,20 @@ export default {
       const url = `clash://install-config?url=${encodeURIComponent(this.shareLink)}`
       window.location.href = url
     },
-    showQRCode() {
-      this.qrcodeVisible = true
+    updateInlineQRCode(text) {
       this.$nextTick(() => {
-        const qrEl = this.$refs.qrcode
+        const qrEl = this.$refs.qrcodeInline
         if (qrEl) {
           qrEl.innerHTML = ''
-          new QRCode(qrEl, {
-            width: 200,
-            height: 200,
-            text: this.shareLink
-          })
+          if (text) {
+            new QRCode(qrEl, {
+              width: 120,
+              height: 120,
+              text: text
+            })
+          }
         }
       })
-    },
-    clearQRCode() {
-      const qrEl = this.$refs.qrcode
-      if (qrEl) {
-        qrEl.innerHTML = ''
-      }
     },
 
     // Action handlers
@@ -835,18 +829,6 @@ export default {
   padding: 24px;
   background-color: var(--el-bg-color-page);
   min-height: calc(100vh - 50px);
-}
-
-.qrcode-box {
-  background-color: #ffffff;
-  padding: 12px;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  display: inline-block;
-  
-  canvas, img {
-    display: block;
-  }
 }
 
 .header-section {
@@ -1093,6 +1075,25 @@ export default {
 
 /* Sub card design */
 .sub-card {
+  .qr-container-inline {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    .qrcode-inline-box {
+      background-color: #ffffff;
+      padding: 8px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: inline-block;
+      
+      canvas, img {
+        display: block;
+      }
+    }
+  }
+
   .sub-radio-group {
     display: flex;
     width: 100%;
@@ -1139,7 +1140,7 @@ export default {
     display: flex;
     gap: 12px;
     
-    .clash-btn, .qr-btn {
+    .clash-btn {
       flex: 1;
       height: 36px;
       font-weight: 600;

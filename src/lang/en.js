@@ -7,6 +7,7 @@ export default {
     log: 'Log',
     edit: 'Edit',
     share: 'Share',
+    copy: 'Copy',
     terminal: 'Terminal',
     refresh: 'Refresh',
     restart: 'Restart',
