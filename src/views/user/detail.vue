@@ -81,93 +81,8 @@
 
     <!-- Main Content Area -->
     <el-row :gutter="24" class="content-row">
-      <!-- Left Column: Top 10 Domains & IP list -->
+      <!-- Left Column: Usage progress & unified dashboard -->
       <el-col :xs="24" :sm="24" :md="16" class="col-left">
-        <!-- Connected IP list -->
-        <el-card class="stat-card ip-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ $t('detail.recentIps') }}</span>
-              <el-tag type="success" size="small" effect="plain">{{ $t('detail.ipAudit') }}</el-tag>
-            </div>
-          </template>
-          <div class="card-body-table">
-            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
-              <el-table-column label="#" type="index" width="50" align="center" />
-              <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
-                <template #default="scope">
-                  <span class="ip-address-text">{{ scope.row.ip }}</span>
-                  <div style="margin-top: 4px;">
-                    <el-tag :type="scope.row.isActive ? 'success' : 'info'" size="small">
-                      {{ scope.row.isActive ? $t('detail.online') : $t('detail.offline') }}
-                    </el-tag>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column :label="$t('detail.location')" width="180">
-                <template #default="scope">
-                  <div v-if="scope.row.loading" class="geoip-loading">
-                    <el-icon class="is-loading"><Loading /></el-icon> {{ $t('detail.querying') }}
-                  </div>
-                  <div v-else-if="scope.row.error" class="geoip-error">
-                    <span class="text-muted">{{ $t('detail.queryFailed') }}</span>
-                  </div>
-                  <div v-else class="geoip-info-cell">
-                    <span class="country-badge">{{ scope.row.country }}</span>
-                    <div class="city-text">{{ scope.row.region }} {{ scope.row.city }}</div>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column :label="$t('detail.isp')">
-                <template #default="scope">
-                  <span v-if="scope.row.loading">-</span>
-                  <span v-else-if="scope.row.error" class="text-muted">unknown</span>
-                  <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
-        </el-card>
-
-        <!-- Top 10 Domains Visited -->
-        <el-card class="stat-card domain-card">
-          <template #header>
-            <div class="card-header">
-              <span>{{ $t('detail.topDomains') }}</span>
-              <el-tag type="info" size="small" effect="plain">{{ $t('detail.recentMonth') }}</el-tag>
-            </div>
-          </template>
-          <div class="card-body">
-            <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
-              <el-empty :description="$t('detail.noDomains')" :image-size="60" />
-            </div>
-            <div v-else class="domain-list">
-              <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item">
-                <div class="domain-rank-info">
-                  <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
-                  <span class="domain-name" :title="item.domain">
-                    {{ item.domain }}
-                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 6px;">P2P/BT</el-tag>
-                  </span>
-                </div>
-                <div class="domain-bar-section">
-                  <el-progress 
-                    :percentage="getDomainPercentage(item.visit_count)" 
-                    :show-text="false" 
-                    color="#409eff"
-                    :stroke-width="6"
-                    class="domain-progress-bar"
-                  />
-                </div>
-                <span class="visit-count">{{ item.visit_count }} {{ $t('detail.visit') }}</span>
-              </div>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-
-      <!-- Right Column: Sub card & Quick action card -->
-      <el-col :xs="24" :sm="24" :md="8" class="col-right">
         <!-- Progress bar for data usage -->
         <el-card class="stat-card usage-progress-card">
           <div class="progress-section">
@@ -184,6 +99,209 @@
           </div>
         </el-card>
 
+        <!-- Unified Tabs Dashboard -->
+        <el-card class="stat-card dashboard-tabs-card">
+          <el-tabs v-model="activeTab" class="dashboard-tabs" @tab-change="handleTabChange">
+            <!-- Tab 1: 网络审计 (Recent IPs & Active Connections) -->
+            <el-tab-pane label="网络审计" name="audit">
+              <div class="tab-content-split">
+                <!-- Active connections table -->
+                <div class="split-section active-conns-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">当前活跃会话</span>
+                    <el-tag :type="activeConns.length > 0 ? 'success' : 'info'" size="small" effect="plain" class="pulsating-tag">
+                      <span class="pulse-dot" v-if="activeConns.length > 0"></span>
+                      {{ activeConns.length > 0 ? '在线' : '离线' }} ({{ activeConns.length }}个会话)
+                    </el-tag>
+                  </div>
+                  <el-table :data="activeConns" style="width: 100%" class="active-conns-table" height="280" :empty-text="'暂无活跃会话'">
+                    <el-table-column label="#" type="index" width="50" align="center" />
+                    <el-table-column prop="client_ip" label="来源地址" width="160">
+                      <template #default="scope">
+                        <span class="ip-address-text">{{ scope.row.client_ip }}</span>
+                        <div class="port-sub-text">端口: {{ scope.row.client_port }}</div>
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="target_host" label="访问目标" show-overflow-tooltip />
+                    <el-table-column label="连接时间" width="100" align="center">
+                      <template #default="scope">
+                        <span class="conn-time-badge">{{ formatConnTime(scope.row.connected_at) }}</span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="80" align="center">
+                      <template #default="scope">
+                        <el-button type="danger" size="small" :icon="Delete" circle @click="killConn(scope.row.client_ip, scope.row.client_port)" />
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+
+                <!-- Recent Connected IPs -->
+                <div class="split-section recent-ips-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">最近连入记录 (近30天)</span>
+                  </div>
+                  <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
+                    <el-table-column label="#" type="index" width="50" align="center" />
+                    <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
+                      <template #default="scope">
+                        <span class="ip-address-text">{{ scope.row.ip }}</span>
+                        <div style="margin-top: 4px;">
+                          <el-tag :type="scope.row.isActive ? 'success' : 'info'" size="small">
+                            {{ scope.row.isActive ? $t('detail.online') : $t('detail.offline') }}
+                          </el-tag>
+                        </div>
+                      </template>
+                    </el-table-column>
+                    <el-table-column :label="$t('detail.location')" width="180">
+                      <template #default="scope">
+                        <div v-if="scope.row.loading" class="geoip-loading">
+                          <el-icon class="is-loading"><Loading /></el-icon> {{ $t('detail.querying') }}
+                        </div>
+                        <div v-else-if="scope.row.error" class="geoip-error">
+                          <span class="text-muted">{{ $t('detail.queryFailed') }}</span>
+                        </div>
+                        <div v-else class="geoip-info-cell">
+                          <span class="country-badge">{{ scope.row.country }}</span>
+                          <div class="city-text">{{ scope.row.region }} {{ scope.row.city }}</div>
+                        </div>
+                      </template>
+                    </el-table-column>
+                    <el-table-column :label="$t('detail.isp')">
+                      <template #default="scope">
+                        <span v-if="scope.row.loading">-</span>
+                        <span v-else-if="scope.row.error" class="text-muted">unknown</span>
+                        <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+              </div>
+            </el-tab-pane>
+
+            <!-- Tab 2: 流量趋势 (30-Day Daily Traffic Chart) -->
+            <el-tab-pane label="流量趋势" name="traffic">
+              <div class="traffic-tab-wrap">
+                <div class="metrics-cards-row">
+                  <div class="metric-card-mini">
+                    <span class="mini-label">30日日均消耗</span>
+                    <span class="mini-val">{{ formatBytes(trafficMetrics.avg) }}</span>
+                  </div>
+                  <div class="metric-card-mini">
+                    <span class="mini-label">日消耗峰值</span>
+                    <span class="mini-val">{{ formatBytes(trafficMetrics.peak) }}</span>
+                  </div>
+                  <div class="metric-card-mini" :class="{ 'warning-forecast': trafficMetrics.remainingDays <= 5 }">
+                    <span class="mini-label">流量智能预测</span>
+                    <span class="mini-val">{{ trafficMetrics.remainingDays === -1 ? '配额无限制' : (trafficMetrics.remainingDays === 0 ? '配额已耗尽' : '预计可用 ' + trafficMetrics.remainingDays + ' 天') }}</span>
+                  </div>
+                </div>
+                <!-- ECharts Container -->
+                <div ref="trafficChart" class="echarts-container traffic-chart-box"></div>
+              </div>
+            </el-tab-pane>
+
+            <!-- Tab 3: 订阅历史 (UA Donut Chart & Timeline Pull logs) -->
+            <el-tab-pane label="订阅历史" name="subscribe">
+              <!-- Sharing alert banner -->
+              <el-alert
+                v-if="subAuditData.suspectAlert"
+                :title="'疑似账号共享警告: 24小时内有 ' + subAuditData.suspectCount + ' 个不同 IP 访问了该用户的订阅配置！'"
+                type="warning"
+                show-icon
+                class="sub-abuse-alert"
+                :closable="false"
+              />
+              <div class="tab-content-split sub-audit-split">
+                <!-- Left: Donut Chart -->
+                <div class="split-left donut-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">常用客户端占比 (最近100次)</span>
+                  </div>
+                  <div ref="clientChart" class="echarts-container donut-chart-box"></div>
+                </div>
+                <!-- Right: Timeline Pull logs -->
+                <div class="split-right timeline-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">订阅拉取记录 (最近15次)</span>
+                  </div>
+                  <div class="timeline-scroll-wrap">
+                    <el-timeline v-if="subAuditData.logs && subAuditData.logs.length > 0">
+                      <el-timeline-item
+                        v-for="log in subAuditData.logs"
+                        :key="log.id"
+                        :timestamp="log.accessed_at"
+                        placement="top"
+                        type="primary"
+                        size="normal"
+                      >
+                        <div class="timeline-log-card">
+                          <div class="log-ip-row">
+                            <span class="log-ip">{{ log.client_ip }}</span>
+                            <el-tag size="small" type="info" effect="plain" class="log-geo">{{ log.country }} {{ log.region }}</el-tag>
+                          </div>
+                          <div class="log-ua-row" :title="log.user_agent">
+                            <span class="ua-label">客户端:</span>
+                            <span class="ua-val">{{ parseUAString(log.user_agent) }}</span>
+                          </div>
+                        </div>
+                      </el-timeline-item>
+                    </el-timeline>
+                    <el-empty v-else description="暂无订阅拉取记录" :image-size="60" style="padding: 20px 0;" />
+                  </div>
+                </div>
+              </div>
+            </el-tab-pane>
+
+            <!-- Tab 4: 合规与偏好 (Radar, Gauge, and Top 10 Domains) -->
+            <el-tab-pane label="合规与偏好" name="compliance">
+              <div class="tab-content-split compliance-split">
+                <!-- Left: Radar Chart of Category -->
+                <div class="split-col radar-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">流量分类偏好</span>
+                  </div>
+                  <div ref="radarChart" class="echarts-container radar-chart-box"></div>
+                </div>
+                <!-- Middle: Gauge Chart of Security Score -->
+                <div class="split-col gauge-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">合规安全评分</span>
+                  </div>
+                  <div ref="gaugeChart" class="echarts-container gauge-chart-box"></div>
+                  <div class="score-explain-text">
+                    {{ complianceData.score >= 90 ? '账户状态健康，未见滥用' : (complianceData.score >= 60 ? '有少量BT/P2P记录，建议警告' : '违规下载严重，建议立即封禁') }}
+                  </div>
+                </div>
+                <!-- Right: Top 10 Domains Visited -->
+                <div class="split-col domain-list-section">
+                  <div class="section-header-sub">
+                    <span class="sub-title">最常访问网站 TOP 10</span>
+                  </div>
+                  <div class="domain-scroll-wrap">
+                    <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
+                      <el-empty :description="$t('detail.noDomains')" :image-size="50" />
+                    </div>
+                    <div v-else class="domain-list">
+                      <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item-mini">
+                        <span class="rank-badge-mini" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
+                        <span class="domain-name-mini" :title="item.domain">
+                          {{ item.domain }}
+                          <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 4px;">P2P</el-tag>
+                        </span>
+                        <span class="visit-count-mini">{{ item.visit_count }}次</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </el-card>
+      </el-col>
+
+      <!-- Right Column: Sub card & Quick action card -->
+      <el-col :xs="24" :sm="24" :md="8" class="col-right">
         <!-- Sub Card -->
         <el-card class="stat-card sub-card">
           <template #header>
@@ -349,8 +467,9 @@
 
 <script>
 import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning } from '@element-plus/icons-vue'
-import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire } from '@/api/user'
+import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, activeConnections, killConnection, trafficHistory, subLogs, domainStats } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
+import * as echarts from 'echarts'
 import { restart } from '@/api/trojan'
 import { readablizeBytes, base64Encode, base64Decode } from '@/utils/common'
 import { mapState } from 'vuex'
@@ -419,7 +538,17 @@ export default {
       userInfo: {
         username: '',
         password: ''
-      }
+      },
+      activeTab: 'audit',
+      activeConns: [],
+      trafficHistoryData: [],
+      trafficMetrics: { avg: 0, peak: 0, remainingDays: -1 },
+      subAuditData: { logs: [], clientStats: {}, suspectAlert: false, suspectCount: 0 },
+      complianceData: { categories: {}, score: 100 },
+      trafficChartInstance: null,
+      clientChartInstance: null,
+      radarChartInstance: null,
+      gaugeChartInstance: null
     }
   },
   computed: {
@@ -560,6 +689,7 @@ export default {
           // Generate initial inline QR code
           this.$nextTick(() => {
             this.updateInlineQRCode(this.shareLink)
+            this.handleTabChange(this.activeTab)
           })
         } else {
           this.$message.error('Get details failed: ' + res.Msg)
@@ -833,6 +963,360 @@ export default {
       } else {
         this.$message.error(result.Msg)
       }
+    }
+  },
+  unmounted() {
+    if (this.trafficChartInstance) this.trafficChartInstance.dispose()
+    if (this.clientChartInstance) this.clientChartInstance.dispose()
+    if (this.radarChartInstance) this.radarChartInstance.dispose()
+    if (this.gaugeChartInstance) this.gaugeChartInstance.dispose()
+  },
+  methods: {
+    handleTabChange(tabName) {
+      this.$nextTick(() => {
+        if (tabName === 'audit') {
+          this.fetchActiveConnections()
+        } else if (tabName === 'traffic') {
+          this.renderTrafficChart()
+        } else if (tabName === 'subscribe') {
+          this.renderClientChart()
+        } else if (tabName === 'compliance') {
+          this.renderComplianceCharts()
+        }
+      })
+    },
+    async fetchActiveConnections() {
+      try {
+        const res = await activeConnections(this.username)
+        if (res.Msg === 'success') {
+          this.activeConns = res.Data || []
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    async killConn(clientIP, clientPort) {
+      try {
+        const formData = new FormData()
+        formData.append('client_ip', clientIP)
+        formData.append('client_port', clientPort)
+        const res = await killConnection(formData)
+        if (res.Msg === 'success') {
+          this.$message.success('已强行切断该会话连接')
+          this.fetchActiveConnections()
+        } else {
+          this.$message.error(res.Msg)
+        }
+      } catch (err) {
+        this.$message.error(err.message)
+      }
+    },
+    async fetchTrafficHistory() {
+      try {
+        const res = await trafficHistory(this.username)
+        if (res.Msg === 'success') {
+          this.trafficHistoryData = res.Data || []
+          this.calculateTrafficMetrics()
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    async fetchSubLogs() {
+      try {
+        const res = await subLogs(this.username)
+        if (res.Msg === 'success') {
+          this.subAuditData = res.Data || { logs: [], clientStats: {}, suspectAlert: false, suspectCount: 0 }
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    async fetchDomainStats() {
+      try {
+        const res = await domainStats(this.username)
+        if (res.Msg === 'success') {
+          this.complianceData = res.Data || { categories: {}, score: 100 }
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    calculateTrafficMetrics() {
+      if (this.trafficHistoryData.length === 0) {
+        this.trafficMetrics = { avg: 0, peak: 0, remainingDays: -1 }
+        return
+      }
+
+      let totalUpload = 0
+      let totalDownload = 0
+      let maxDaily = 0
+
+      this.trafficHistoryData.forEach(item => {
+        const dailySum = item.upload + item.download
+        totalUpload += item.upload
+        totalDownload += item.download
+        if (dailySum > maxDaily) {
+          maxDaily = dailySum
+        }
+      })
+
+      const daysCount = this.trafficHistoryData.length
+      const avgDaily = (totalUpload + totalDownload) / daysCount
+
+      let remainingDays = -1
+      if (this.detailData.quota > 0) {
+        const used = this.detailData.upload + this.detailData.download
+        if (used >= this.detailData.quota) {
+          remainingDays = 0
+        } else {
+          const remainingQuota = this.detailData.quota - used
+          const activeAvg = avgDaily > 0 ? avgDaily : 100 * 1024 * 1024
+          remainingDays = Math.ceil(remainingQuota / activeAvg)
+        }
+      }
+
+      this.trafficMetrics = {
+        avg: avgDaily,
+        peak: maxDaily,
+        remainingDays: remainingDays
+      }
+    },
+    async renderTrafficChart() {
+      await this.fetchTrafficHistory()
+
+      this.$nextTick(() => {
+        const chartEl = this.$refs.trafficChart
+        if (!chartEl) return
+        
+        if (!this.trafficChartInstance) {
+          this.trafficChartInstance = echarts.init(chartEl, 'dark', { backgroundColor: 'transparent' })
+        }
+
+        const dates = this.trafficHistoryData.map(item => item.date)
+        const uploadData = this.trafficHistoryData.map(item => parseFloat((item.upload / (1024 * 1024 * 1024)).toFixed(2)))
+        const downloadData = this.trafficHistoryData.map(item => parseFloat((item.download / (1024 * 1024 * 1024)).toFixed(2)))
+
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+          },
+          grid: {
+            top: '12%',
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          legend: {
+            data: ['上传流量', '下载流量'],
+            textStyle: { color: '#9ca3af' }
+          },
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: dates,
+            axisLine: { lineStyle: { color: '#374151' } },
+            axisLabel: { color: '#9ca3af' }
+          },
+          yAxis: {
+            type: 'value',
+            name: '流量 (GB)',
+            axisLine: { lineStyle: { color: '#374151' } },
+            axisLabel: { color: '#9ca3af' },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.03)' } }
+          },
+          series: [
+            {
+              name: '上传流量',
+              type: 'line',
+              smooth: true,
+              data: uploadData,
+              itemStyle: { color: '#10b981' },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: 'rgba(16, 185, 129, 0.2)' },
+                  { offset: 1, color: 'rgba(16, 185, 129, 0)' }
+                ])
+              }
+            },
+            {
+              name: '下载流量',
+              type: 'line',
+              smooth: true,
+              data: downloadData,
+              itemStyle: { color: '#3b82f6' },
+              areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: 'rgba(59, 130, 246, 0.2)' },
+                  { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+                ])
+              }
+            }
+          ]
+        }
+
+        this.trafficChartInstance.setOption(option)
+        this.trafficChartInstance.resize()
+      })
+    },
+    async renderClientChart() {
+      await this.fetchSubLogs()
+
+      this.$nextTick(() => {
+        const chartEl = this.$refs.clientChart
+        if (!chartEl) return
+
+        if (!this.clientChartInstance) {
+          this.clientChartInstance = echarts.init(chartEl, 'dark', { backgroundColor: 'transparent' })
+        }
+
+        const data = []
+        for (const [key, val] of Object.entries(this.subAuditData.clientStats)) {
+          data.push({ name: key, value: val })
+        }
+
+        const option = {
+          tooltip: { trigger: 'item' },
+          legend: {
+            orient: 'vertical',
+            left: 'left',
+            textStyle: { color: '#9ca3af' }
+          },
+          series: [
+            {
+              name: '客户端占比',
+              type: 'pie',
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              itemStyle: {
+                borderRadius: 8,
+                borderColor: '#1f2937',
+                borderWidth: 2
+              },
+              label: {
+                show: false,
+                position: 'center'
+              },
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                  color: '#ffffff'
+                }
+              },
+              labelLine: { show: false },
+              data: data.length > 0 ? data : [{ name: '暂无数据', value: 0 }]
+            }
+          ]
+        }
+
+        this.clientChartInstance.setOption(option)
+        this.clientChartInstance.resize()
+      })
+    },
+    async renderComplianceCharts() {
+      await this.fetchDomainStats()
+
+      this.$nextTick(() => {
+        const radarEl = this.$refs.radarChart
+        if (radarEl) {
+          if (!this.radarChartInstance) {
+            this.radarChartInstance = echarts.init(radarEl, 'dark', { backgroundColor: 'transparent' })
+          }
+
+          const cats = this.complianceData.categories
+          const radarData = [cats.Video, cats.Social, cats.Tech, cats.Abuse, cats.Search]
+
+          const option = {
+            tooltip: {},
+            radar: {
+              indicator: [
+                { name: '流媒体视频', max: Math.max(...radarData, 100) },
+                { name: '社交网络', max: Math.max(...radarData, 100) },
+                { name: '技术/学术', max: Math.max(...radarData, 100) },
+                { name: '违规BT', max: Math.max(...radarData, 100) },
+                { name: '日常搜索', max: Math.max(...radarData, 100) }
+              ],
+              splitArea: { show: false },
+              axisLine: { lineStyle: { color: '#374151' } },
+              splitLine: { lineStyle: { color: 'rgba(255,255,255,0.03)' } },
+              name: { textStyle: { color: '#9ca3af', fontSize: 12 } }
+            },
+            series: [
+              {
+                name: '访问类别分布',
+                type: 'radar',
+                data: [
+                  {
+                    value: radarData,
+                    name: '访问频次',
+                    itemStyle: { color: '#3b82f6' },
+                    areaStyle: { color: 'rgba(59, 130, 246, 0.3)' }
+                  }
+                ]
+              }
+            ]
+          }
+          this.radarChartInstance.setOption(option)
+          this.radarChartInstance.resize()
+        }
+
+        const gaugeEl = this.$refs.gaugeChart
+        if (gaugeEl) {
+          if (!this.gaugeChartInstance) {
+            this.gaugeChartInstance = echarts.init(gaugeEl, 'dark', { backgroundColor: 'transparent' })
+          }
+
+          const score = this.complianceData.score
+          let color = '#10b981'
+          if (score < 60) {
+            color = '#ef4444'
+          } else if (score < 90) {
+            color = '#f59e0b'
+          }
+
+          const option = {
+            series: [
+              {
+                type: 'gauge',
+                startAngle: 180,
+                endAngle: 0,
+                radius: '90%',
+                pointer: { show: false },
+                progress: {
+                  show: true,
+                  overlap: false,
+                  roundCap: true,
+                  clip: false,
+                  itemStyle: { color: color }
+                },
+                axisLine: {
+                  lineStyle: { width: 12, color: [[1, '#1f2937']] },
+                  roundCap: true
+                },
+                splitLine: { show: false },
+                axisTick: { show: false },
+                axisLabel: { show: false },
+                data: [{ value: score, name: '分' }],
+                detail: {
+                  width: 50,
+                  height: 30,
+                  fontSize: 28,
+                  color: '#ffffff',
+                  offsetCenter: [0, '-10%'],
+                  valueAnimation: true,
+                  formatter: '{value}'
+                }
+              }
+            ]
+          }
+          this.gaugeChartInstance.setOption(option)
+          this.gaugeChartInstance.resize()
+        }
+      })
     }
   }
 }
@@ -1408,6 +1892,380 @@ export default {
         display: none;
       }
     }
+  }
+}
+
+/* Unified Tabs Dashboard */
+.dashboard-tabs-card {
+  margin-top: 12px;
+  background-color: var(--el-bg-color-overlay);
+  border-radius: 16px;
+  border: 1px solid var(--el-border-color-light);
+  box-shadow: var(--el-box-shadow-light);
+
+  :deep(.el-card__body) {
+    padding: 24px;
+    height: 600px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-tabs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    :deep(.el-tabs__header) {
+      margin-bottom: 20px;
+    }
+
+    :deep(.el-tabs__content) {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    :deep(.el-tab-pane) {
+      flex: 1;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.tab-content-split {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+.split-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  
+  .section-header-sub {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .sub-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--el-text-color-primary);
+    }
+  }
+}
+
+.pulsating-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  
+  .pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--el-color-success);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px var(--el-color-success);
+    animation: pulse 1.8s infinite;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.active-conns-table, .ip-table {
+  flex: 1;
+  border-radius: 8px;
+  border: 1px solid var(--el-border-color-lighter);
+  background-color: var(--el-bg-color-page);
+  
+  .port-sub-text {
+    font-size: 11px;
+    color: var(--el-text-color-secondary);
+    margin-top: 2px;
+  }
+  
+  .conn-time-badge {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--el-color-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+/* Traffic Trend Tab */
+.traffic-tab-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.metrics-cards-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  
+  .metric-card-mini {
+    flex: 1;
+    background: linear-gradient(135deg, rgba(55, 65, 81, 0.3) 0%, rgba(31, 41, 55, 0.5) 100%);
+    border: 1px solid var(--el-border-color-lighter);
+    padding: 12px 16px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    .mini-label {
+      font-size: 11px;
+      color: var(--el-text-color-secondary);
+      font-weight: 500;
+    }
+    
+    .mini-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--el-text-color-primary);
+    }
+    
+    &.warning-forecast {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.03) 100%);
+      
+      .mini-val {
+        color: var(--el-color-warning);
+      }
+    }
+  }
+}
+
+.echarts-container {
+  flex: 1;
+  width: 100%;
+  min-height: 280px;
+}
+
+/* Subscription logs */
+.sub-abuse-alert {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.sub-audit-split {
+  .donut-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .timeline-section {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    
+    .timeline-scroll-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 8px;
+      margin-top: 8px;
+      
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: var(--el-border-color-lighter);
+        border-radius: 3px;
+      }
+    }
+  }
+}
+
+.timeline-log-card {
+  background: linear-gradient(135deg, rgba(55, 65, 81, 0.2) 0%, rgba(31, 41, 55, 0.3) 100%);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  
+  .log-ip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .log-ip {
+      font-family: var(--el-font-family-monospace);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--el-text-color-primary);
+    }
+    
+    .log-geo {
+      font-weight: 600;
+    }
+  }
+  
+  .log-ua-row {
+    font-size: 11px;
+    display: flex;
+    gap: 4px;
+    color: var(--el-text-color-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+    .ua-label {
+      font-weight: 500;
+    }
+    
+    .ua-val {
+      font-weight: 600;
+      color: var(--el-text-color-regular);
+    }
+  }
+}
+
+/* Compliance split */
+.compliance-split {
+  .split-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    
+    &.gauge-section {
+      align-items: center;
+      justify-content: center;
+      
+      .gauge-chart-box {
+        min-height: 200px;
+        flex: 1;
+      }
+      
+      .score-explain-text {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--el-text-color-secondary);
+        margin-top: -12px;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+    }
+    
+    &.domain-list-section {
+      flex: 1.1;
+      
+      .domain-scroll-wrap {
+        flex: 1;
+        overflow-y: auto;
+        padding-right: 8px;
+        
+        &::-webkit-scrollbar {
+          width: 6px;
+        }
+        &::-webkit-scrollbar-thumb {
+          background-color: var(--el-border-color-lighter);
+          border-radius: 3px;
+        }
+      }
+      
+      .domain-item-mini {
+        display: flex;
+        align-items: center;
+        padding: 8px 4px;
+        border-bottom: 1px solid var(--el-border-color-lighter);
+        font-size: 12px;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+        
+        .rank-badge-mini {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 700;
+          margin-right: 8px;
+          background-color: var(--el-fill-color-darker);
+          color: var(--el-text-color-secondary);
+          flex-shrink: 0;
+          
+          &.rank-1 { background-color: #ef4444; color: white; }
+          &.rank-2 { background-color: #f59e0b; color: white; }
+          &.rank-3 { background-color: #3b82f6; color: white; }
+        }
+        
+        .domain-name-mini {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-weight: 600;
+          color: var(--el-text-color-primary);
+        }
+        
+        .visit-count-mini {
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--el-text-color-secondary);
+          margin-left: 8px;
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Scaling */
+@media (max-width: 768px) {
+  .profile-hero-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    
+    .hero-right {
+      width: 100%;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 16px;
+      gap: 12px;
+      
+      .metric-divider {
+        display: none;
+      }
+    }
+  }
+  
+  .tab-content-split {
+    flex-direction: column;
+    overflow-y: auto;
   }
 }
 </style>

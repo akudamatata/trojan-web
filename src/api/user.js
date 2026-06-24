@@ -31,3 +31,23 @@ export function userDetail(username) {
 export function saveIPGeo(data) {
     return request.post('/trojan/user/geo', data)
 }
+
+export function activeConnections(username) {
+    return request.get(`/trojan/user/active-connections?username=${username}`)
+}
+
+export function killConnection(data) {
+    return request.post('/trojan/user/active-connections/kill', data)
+}
+
+export function trafficHistory(username) {
+    return request.get(`/trojan/user/traffic-history?username=${username}`)
+}
+
+export function subLogs(username) {
+    return request.get(`/trojan/user/sub-logs?username=${username}`)
+}
+
+export function domainStats(username) {
+    return request.get(`/trojan/user/domain-stats?username=${username}`)
+}

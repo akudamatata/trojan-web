@@ -67,7 +67,7 @@ export default defineConfig(({ command }) => {
             },
             rollupOptions:{
                 external: ['vue', 'vuex', 'vue-i18n', 'vue-router', 'element-plus',
-                'axios', 'crypto-js', 'dayjs', 'easyqrcodejs', 'nprogress'],
+                'axios', 'crypto-js', 'dayjs', 'easyqrcodejs', 'nprogress', 'echarts'],
                 plugins: [
                     externalGlobals({
                         vue: 'Vue',
@@ -79,7 +79,8 @@ export default defineConfig(({ command }) => {
                         'dayjs': 'dayjs',
                         'easyqrcodejs': 'QRCode',
                         'nprogress': 'NProgress',
-                        'element-plus': 'ElementPlus'
+                        'element-plus': 'ElementPlus',
+                        echarts: 'echarts'
                     }),
                 ]
             }
