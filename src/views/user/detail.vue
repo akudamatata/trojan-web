@@ -563,6 +563,10 @@ export default {
       this.goBack()
     }
   },
+  unmounted() {
+    if (this.radarChartInstance) this.radarChartInstance.dispose()
+    if (this.gaugeChartInstance) this.gaugeChartInstance.dispose()
+  },
   methods: {
     goBack() {
       this.$router.push({ name: 'user' })
@@ -884,13 +888,7 @@ export default {
       } else {
         this.$message.error(result.Msg)
       }
-    }
-  },
-  unmounted() {
-    if (this.radarChartInstance) this.radarChartInstance.dispose()
-    if (this.gaugeChartInstance) this.gaugeChartInstance.dispose()
-  },
-  methods: {
+    },
     handleTabChange(tabName) {
       this.$nextTick(() => {
         if (tabName === 'audit') {
