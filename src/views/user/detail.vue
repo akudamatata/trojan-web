@@ -36,15 +36,23 @@
           <div class="user-sub-details">
             <span class="sub-info-item">
               <el-icon><Calendar /></el-icon>
-              {{ $t('detail.expiryDate') }}: <span class="highlight">{{ detailData.expiryDate || $t('detail.forever') }}</span>
+              <span class="sub-info-label">{{ $t('detail.expiryDate') }}:</span>
+              <el-tag type="info" size="small" effect="plain" class="info-tag-val">
+                {{ detailData.expiryDate || $t('detail.forever') }}
+              </el-tag>
             </span>
             <span class="sub-info-item" v-if="detailData.useDays > 0">
               <el-icon><Clock /></el-icon>
-              {{ $t('detail.limitDays') }}: <span class="highlight">{{ detailData.useDays }} {{ $t('user.days') || '天' }}</span>
+              <span class="sub-info-label">{{ $t('detail.limitDays') }}:</span>
+              <el-tag type="warning" size="small" effect="plain" class="info-tag-val">
+                {{ detailData.useDays }} {{ $t('user.days') || '天' }}
+              </el-tag>
             </span>
             <span class="sub-info-item">
+              <el-icon><Warning /></el-icon>
+              <span class="sub-info-label">{{ $t('detail.abuseDetect') }}:</span>
               <el-tag :type="hasAbuseBehavior ? 'danger' : 'success'" size="small" effect="plain" class="abuse-badge">
-                {{ $t('detail.abuseDetect') }}: {{ hasAbuseBehavior ? $t('detail.abuseInfo', { n: abuseDomainsCount }) : $t('detail.noAbuse') }}
+                {{ hasAbuseBehavior ? $t('detail.abuseInfo', { n: abuseDomainsCount }) : $t('detail.noAbuse') }}
               </el-tag>
             </span>
           </div>
@@ -189,7 +197,7 @@
               <div ref="qrcodeInline" class="qrcode-inline-box"></div>
             </div>
 
-            <el-radio-group v-model="subType" size="small" class="sub-radio-group">
+            <el-radio-group v-model="subType" size="default" class="sub-radio-group">
               <el-radio-button label="trojan">{{ $t('user.trojanShareLink') || 'Trojan' }}</el-radio-button>
               <el-radio-button label="clash">{{ $t('user.clashShareLink') || 'Clash' }}</el-radio-button>
               <el-radio-button label="shadowrocket">{{ $t('user.universalShareLink') || 'Rocket' }}</el-radio-button>
@@ -200,7 +208,7 @@
                 v-model="shareLink" 
                 readonly 
                 placeholder="..." 
-                size="small"
+                size="default"
                 class="sub-input"
               >
                 <template #append>
@@ -210,7 +218,7 @@
             </div>
 
             <div class="sub-actions" v-if="subType === 'clash'">
-              <el-button type="primary" size="small" class="clash-btn" @click="importToClash">
+              <el-button type="primary" size="default" class="clash-btn" @click="importToClash">
                 {{ $t('user.importClash') || '导入 Clash' }}
               </el-button>
             </div>
@@ -231,42 +239,42 @@
                   <span class="action-name">{{ $t('detail.limitQuota') }}</span>
                   <span class="action-desc">设定用户可用流量配额</span>
                 </div>
-                <el-button type="primary" plain size="small" :icon="Tools" @click="handleLimitData">配置</el-button>
+                <el-button type="primary" plain size="default" :icon="Tools" @click="handleLimitData">配置</el-button>
               </div>
               <div class="action-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.resetTraffic') }}</span>
                   <span class="action-desc">重置已使用上传与下载流量</span>
                 </div>
-                <el-button type="warning" plain size="small" :icon="RefreshRight" @click="handleResetData">重置</el-button>
+                <el-button type="warning" plain size="default" :icon="RefreshRight" @click="handleResetData">重置</el-button>
               </div>
               <div class="action-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.editUser') }}</span>
                   <span class="action-desc">修改该用户的用户名及密码</span>
                 </div>
-                <el-button type="success" plain size="small" :icon="Edit" @click="handleModifyUser">修改</el-button>
+                <el-button type="success" plain size="default" :icon="Edit" @click="handleModifyUser">修改</el-button>
               </div>
               <div class="action-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.setExpire') }}</span>
                   <span class="action-desc">设置该账户的有效使用期限</span>
                 </div>
-                <el-button type="info" plain size="small" :icon="Calendar" @click="handleSetExpire">设置</el-button>
+                <el-button type="info" plain size="default" :icon="Calendar" @click="handleSetExpire">设置</el-button>
               </div>
               <div class="action-item" v-if="detailData.expiryDate">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.cancelExpire') }}</span>
                   <span class="action-desc">恢复该账户为永久有效状态</span>
                 </div>
-                <el-button type="info" plain size="small" @click="handleCancelExpire">取消</el-button>
+                <el-button type="info" plain size="default" @click="handleCancelExpire">取消</el-button>
               </div>
               <div class="action-item danger-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.delUser') }}</span>
                   <span class="action-desc">从系统中彻底移除该用户账户</span>
                 </div>
-                <el-button type="danger" plain size="small" :icon="Delete" @click="handleDeleteUser">删除</el-button>
+                <el-button type="danger" plain size="default" :icon="Delete" @click="handleDeleteUser">删除</el-button>
               </div>
             </div>
           </div>
@@ -340,7 +348,7 @@
 </template>
 
 <script>
-import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock } from '@element-plus/icons-vue'
+import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning } from '@element-plus/icons-vue'
 import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
 import { restart } from '@/api/trojan'
@@ -360,6 +368,7 @@ export default {
       RefreshRight,
       Calendar,
       Clock,
+      Warning,
       username: '',
       detailData: {
         id: 0,
@@ -936,6 +945,15 @@ export default {
           font-size: 13px;
           color: var(--el-text-color-secondary);
           
+          .sub-info-label {
+            margin-right: 2px;
+          }
+          
+          .info-tag-val {
+            font-weight: 600;
+            border-radius: 4px;
+          }
+          
           .highlight {
             color: var(--el-text-color-primary);
             font-weight: 600;
@@ -1014,6 +1032,11 @@ export default {
   background-color: var(--el-bg-color-overlay);
   overflow: hidden;
   
+  :deep(.el-card__header) {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--el-border-color-light);
+  }
+  
   .card-header {
     display: flex;
     justify-content: space-between;
@@ -1021,8 +1044,6 @@ export default {
     font-weight: 700;
     font-size: 15px;
     color: var(--el-text-color-primary);
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--el-border-color-light);
   }
   
   .card-body {
@@ -1194,7 +1215,7 @@ export default {
       }
       
       .el-button {
-        width: 64px;
+        width: 76px;
         font-weight: 600;
       }
     }
