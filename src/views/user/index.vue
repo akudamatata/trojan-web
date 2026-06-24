@@ -370,11 +370,11 @@ export default {
     },
     created() {
         this.refresh()
-        this.clientHeight = document.body.clientHeight - 120
+        this.clientHeight = document.body.clientHeight - 240
     },
     mounted() {
         window.onresize = () => {
-            this.clientHeight = document.body.clientHeight - 120
+            this.clientHeight = document.body.clientHeight - 240
         }
     },
     methods: {
