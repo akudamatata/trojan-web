@@ -1713,4 +1713,48 @@ export default {
     overflow-y: auto;
   }
 }
+
+/* Align left and right columns to equal height on desktop */
+@media (min-width: 992px) {
+  .col-left, .col-right {
+    display: flex;
+    flex-direction: column;
+    
+    .stat-card {
+      margin-bottom: 24px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .col-left {
+    .domain-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      :deep(.el-card__body) {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+  
+  .col-right {
+    .action-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      
+      :deep(.el-card__body) {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+}
 </style>
