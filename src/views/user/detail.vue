@@ -99,130 +99,96 @@
           </div>
         </el-card>
 
-        <!-- Unified Tabs Dashboard -->
-        <el-card class="stat-card dashboard-tabs-card">
-          <el-tabs v-model="activeTab" class="dashboard-tabs" @tab-change="handleTabChange">
-            <!-- Tab 1: 网络审计 (Recent IPs & Active Connections) -->
-            <el-tab-pane label="网络审计" name="audit">
-              <div class="tab-content-split">
-                <!-- Active connections table -->
-                <div class="split-section active-conns-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">当前活跃会话</span>
-                    <el-tag :type="activeConns.length > 0 ? 'success' : 'info'" size="small" effect="plain" class="pulsating-tag">
-                      <span class="pulse-dot" v-if="activeConns.length > 0"></span>
-                      {{ activeConns.length > 0 ? '在线' : '离线' }} ({{ activeConns.length }}个会话)
+        <!-- Recent Connected IPs -->
+        <el-card class="stat-card ip-card">
+          <template #header>
+            <div class="card-header">
+              <span>最近连入记录 (近30天)</span>
+            </div>
+          </template>
+          <div class="card-body-table">
+            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
+              <el-table-column label="#" type="index" width="50" align="center" />
+              <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
+                <template #default="scope">
+                  <span class="ip-address-text">{{ scope.row.ip }}</span>
+                  <div style="margin-top: 4px;">
+                    <el-tag :type="scope.row.isActive ? 'success' : 'info'" size="small">
+                      {{ scope.row.isActive ? $t('detail.online') : $t('detail.offline') }}
                     </el-tag>
                   </div>
-                  <el-table :data="activeConns" style="width: 100%" class="active-conns-table" height="280" :empty-text="'暂无活跃会话'">
-                    <el-table-column label="#" type="index" width="50" align="center" />
-                    <el-table-column prop="client_ip" label="来源地址" width="160">
-                      <template #default="scope">
-                        <span class="ip-address-text">{{ scope.row.client_ip }}</span>
-                        <div class="port-sub-text">端口: {{ scope.row.client_port }}</div>
-                      </template>
-                    </el-table-column>
-                    <el-table-column prop="target_host" label="访问目标" show-overflow-tooltip />
-                    <el-table-column label="连接时间" width="100" align="center">
-                      <template #default="scope">
-                        <span class="conn-time-badge">{{ formatConnTime(scope.row.connected_at) }}</span>
-                      </template>
-                    </el-table-column>
-                    <el-table-column label="操作" width="80" align="center">
-                      <template #default="scope">
-                        <el-button type="danger" size="small" :icon="Delete" circle @click="killConn(scope.row.client_ip, scope.row.client_port)" />
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </div>
+                </template>
+              </el-table-column>
+              <el-table-column :label="$t('detail.location')" width="180">
+                <template #default="scope">
+                  <div v-if="scope.row.loading" class="geoip-loading">
+                    <el-icon class="is-loading"><Loading /></el-icon> {{ $t('detail.querying') }}
+                  </div>
+                  <div v-else-if="scope.row.error" class="geoip-error">
+                    <span class="text-muted">{{ $t('detail.queryFailed') }}</span>
+                  </div>
+                  <div v-else class="geoip-info-cell">
+                    <span class="country-badge">{{ scope.row.country }}</span>
+                    <div class="city-text">{{ scope.row.region }} {{ scope.row.city }}</div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column :label="$t('detail.isp')" width="160">
+                <template #default="scope">
+                  <span v-if="scope.row.loading">-</span>
+                  <span v-else-if="scope.row.error" class="text-muted">unknown</span>
+                  <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" align="center">
+                <template #default="scope">
+                  <el-button 
+                    v-if="scope.row.isActive" 
+                    type="danger" 
+                    size="small" 
+                    @click="kickIP(scope.row.ip)"
+                  >
+                    一键断流
+                  </el-button>
+                  <span v-else>-</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-card>
 
-                <!-- Recent Connected IPs -->
-                <div class="split-section recent-ips-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">最近连入记录 (近30天)</span>
-                  </div>
-                  <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
-                    <el-table-column label="#" type="index" width="50" align="center" />
-                    <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
-                      <template #default="scope">
-                        <span class="ip-address-text">{{ scope.row.ip }}</span>
-                        <div style="margin-top: 4px;">
-                          <el-tag :type="scope.row.isActive ? 'success' : 'info'" size="small">
-                            {{ scope.row.isActive ? $t('detail.online') : $t('detail.offline') }}
-                          </el-tag>
-                        </div>
-                      </template>
-                    </el-table-column>
-                    <el-table-column :label="$t('detail.location')" width="180">
-                      <template #default="scope">
-                        <div v-if="scope.row.loading" class="geoip-loading">
-                          <el-icon class="is-loading"><Loading /></el-icon> {{ $t('detail.querying') }}
-                        </div>
-                        <div v-else-if="scope.row.error" class="geoip-error">
-                          <span class="text-muted">{{ $t('detail.queryFailed') }}</span>
-                        </div>
-                        <div v-else class="geoip-info-cell">
-                          <span class="country-badge">{{ scope.row.country }}</span>
-                          <div class="city-text">{{ scope.row.region }} {{ scope.row.city }}</div>
-                        </div>
-                      </template>
-                    </el-table-column>
-                    <el-table-column :label="$t('detail.isp')">
-                      <template #default="scope">
-                        <span v-if="scope.row.loading">-</span>
-                        <span v-else-if="scope.row.error" class="text-muted">unknown</span>
-                        <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
-                      </template>
-                    </el-table-column>
-                  </el-table>
+        <!-- Top 10 Domains Visited -->
+        <el-card class="stat-card domain-card">
+          <template #header>
+            <div class="card-header">
+              <span>最常访问网站 TOP 10</span>
+            </div>
+          </template>
+          <div class="card-body">
+            <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
+              <el-empty :description="$t('detail.noDomains')" :image-size="50" />
+            </div>
+            <div v-else class="domain-list">
+              <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item">
+                <div class="domain-rank-info">
+                  <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
+                  <span class="domain-name" :title="item.domain">
+                    {{ item.domain }}
+                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 4px;">P2P</el-tag>
+                  </span>
                 </div>
+                <div class="domain-bar-section">
+                  <el-progress 
+                    :percentage="getDomainPercentage(item.visit_count)" 
+                    :show-text="false" 
+                    :stroke-width="6" 
+                    class="domain-progress-bar"
+                  />
+                </div>
+                <span class="visit-count">{{ item.visit_count }}次</span>
               </div>
-            </el-tab-pane>
-
-            <!-- Tab 4: 合规与偏好 (Radar, Gauge, and Top 10 Domains) -->
-            <el-tab-pane label="合规与偏好" name="compliance">
-              <div class="tab-content-split compliance-split">
-                <!-- Left: Radar Chart of Category -->
-                <div class="split-col radar-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">流量分类偏好</span>
-                  </div>
-                  <div ref="radarChart" class="echarts-container radar-chart-box"></div>
-                </div>
-                <!-- Middle: Gauge Chart of Security Score -->
-                <div class="split-col gauge-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">合规安全评分</span>
-                  </div>
-                  <div ref="gaugeChart" class="echarts-container gauge-chart-box"></div>
-                  <div class="score-explain-text">
-                    {{ complianceData.score >= 90 ? '账户状态健康，未见滥用' : (complianceData.score >= 60 ? '有少量BT/P2P记录，建议警告' : '违规下载严重，建议立即封禁') }}
-                  </div>
-                </div>
-                <!-- Right: Top 10 Domains Visited -->
-                <div class="split-col domain-list-section">
-                  <div class="section-header-sub">
-                    <span class="sub-title">最常访问网站 TOP 10</span>
-                  </div>
-                  <div class="domain-scroll-wrap">
-                    <div v-if="!detailData.domains || detailData.domains.length === 0" class="empty-state">
-                      <el-empty :description="$t('detail.noDomains')" :image-size="50" />
-                    </div>
-                    <div v-else class="domain-list">
-                      <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item-mini">
-                        <span class="rank-badge-mini" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
-                        <span class="domain-name-mini" :title="item.domain">
-                          {{ item.domain }}
-                          <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 4px;">P2P</el-tag>
-                        </span>
-                        <span class="visit-count-mini">{{ item.visit_count }}次</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
+            </div>
+          </div>
         </el-card>
       </el-col>
 
@@ -393,9 +359,8 @@
 
 <script>
 import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning } from '@element-plus/icons-vue'
-import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, activeConnections, killConnection, domainStats } from '@/api/user'
+import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, activeConnections, killConnection } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
-import * as echarts from 'echarts'
 import { restart } from '@/api/trojan'
 import { readablizeBytes, base64Encode, base64Decode } from '@/utils/common'
 import { mapState } from 'vuex'
@@ -464,12 +429,7 @@ export default {
       userInfo: {
         username: '',
         password: ''
-      },
-      activeTab: 'audit',
-      activeConns: [],
-      complianceData: { categories: {}, score: 100 },
-      radarChartInstance: null,
-      gaugeChartInstance: null
+      }
     }
   },
   computed: {
@@ -563,10 +523,6 @@ export default {
       this.goBack()
     }
   },
-  unmounted() {
-    if (this.radarChartInstance) this.radarChartInstance.dispose()
-    if (this.gaugeChartInstance) this.gaugeChartInstance.dispose()
-  },
   methods: {
     goBack() {
       this.$router.push({ name: 'user' })
@@ -614,7 +570,6 @@ export default {
           // Generate initial inline QR code
           this.$nextTick(() => {
             this.updateInlineQRCode(this.shareLink)
-            this.handleTabChange(this.activeTab)
           })
         } else {
           this.$message.error('Get details failed: ' + res.Msg)
@@ -889,151 +844,52 @@ export default {
         this.$message.error(result.Msg)
       }
     },
-    handleTabChange(tabName) {
-      this.$nextTick(() => {
-        if (tabName === 'audit') {
-          this.fetchActiveConnections()
-        } else if (tabName === 'compliance') {
-          this.renderComplianceCharts()
-        }
-      })
-    },
-    async fetchActiveConnections() {
+    async kickIP(ip) {
       try {
         const res = await activeConnections(this.username)
-        if (res.Msg === 'success') {
-          this.activeConns = res.Data || []
+        if (res.Msg !== 'success') {
+          this.$message.error('获取活跃会话失败: ' + res.Msg)
+          return
         }
-      } catch (err) {
-        console.error(err)
-      }
-    },
-    async killConn(clientIP, clientPort) {
-      try {
-        const formData = new FormData()
-        formData.append('client_ip', clientIP)
-        formData.append('client_port', clientPort)
-        const res = await killConnection(formData)
-        if (res.Msg === 'success') {
-          this.$message.success('已强行切断该会话连接')
-          this.fetchActiveConnections()
+        
+        const conns = res.Data || []
+        const targetConns = conns.filter(c => c.client_ip === ip)
+        if (targetConns.length === 0) {
+          this.$message.warning('该 IP 当前无活跃连接')
+          return
+        }
+
+        let successCount = 0
+        let failCount = 0
+        
+        const killPromises = targetConns.map(async (conn) => {
+          const formData = new FormData()
+          formData.append('client_ip', conn.client_ip)
+          formData.append('client_port', conn.client_port)
+          try {
+            const killRes = await killConnection(formData)
+            if (killRes.Msg === 'success') {
+              successCount++
+            } else {
+              failCount++
+            }
+          } catch (e) {
+            failCount++
+          }
+        })
+
+        await Promise.all(killPromises)
+
+        if (failCount === 0) {
+          this.$message.success(`成功切断该 IP 的所有连接 (共 ${successCount} 个)`)
         } else {
-          this.$message.error(res.Msg)
+          this.$message.warning(`部分连接切断失败 (成功: ${successCount}, 失败: ${failCount})`)
         }
+
+        this.fetchDetail()
       } catch (err) {
-        this.$message.error(err.message)
+        this.$message.error('操作失败: ' + err.message)
       }
-    },
-    async fetchDomainStats() {
-      try {
-        const res = await domainStats(this.username)
-        if (res.Msg === 'success') {
-          this.complianceData = res.Data || { categories: {}, score: 100 }
-        }
-      } catch (err) {
-        console.error(err)
-      }
-    },
-    async renderComplianceCharts() {
-      await this.fetchDomainStats()
-
-      this.$nextTick(() => {
-        const radarEl = this.$refs.radarChart
-        if (radarEl) {
-          if (!this.radarChartInstance) {
-            this.radarChartInstance = echarts.init(radarEl, 'dark', { backgroundColor: 'transparent' })
-          }
-
-          const cats = this.complianceData.categories
-          const radarData = [cats.Video, cats.Social, cats.Tech, cats.Abuse, cats.Search]
-
-          const option = {
-            tooltip: {},
-            radar: {
-              indicator: [
-                { name: '流媒体视频', max: Math.max(...radarData, 100) },
-                { name: '社交网络', max: Math.max(...radarData, 100) },
-                { name: '技术/学术', max: Math.max(...radarData, 100) },
-                { name: '违规BT', max: Math.max(...radarData, 100) },
-                { name: '日常搜索', max: Math.max(...radarData, 100) }
-              ],
-              splitArea: { show: false },
-              axisLine: { lineStyle: { color: '#374151' } },
-              splitLine: { lineStyle: { color: 'rgba(255,255,255,0.03)' } },
-              name: { textStyle: { color: '#9ca3af', fontSize: 12 } }
-            },
-            series: [
-              {
-                name: '访问类别分布',
-                type: 'radar',
-                data: [
-                  {
-                    value: radarData,
-                    name: '访问频次',
-                    itemStyle: { color: '#3b82f6' },
-                    areaStyle: { color: 'rgba(59, 130, 246, 0.3)' }
-                  }
-                ]
-              }
-            ]
-          }
-          this.radarChartInstance.setOption(option)
-          this.radarChartInstance.resize()
-        }
-
-        const gaugeEl = this.$refs.gaugeChart
-        if (gaugeEl) {
-          if (!this.gaugeChartInstance) {
-            this.gaugeChartInstance = echarts.init(gaugeEl, 'dark', { backgroundColor: 'transparent' })
-          }
-
-          const score = this.complianceData.score
-          let color = '#10b981'
-          if (score < 60) {
-            color = '#ef4444'
-          } else if (score < 90) {
-            color = '#f59e0b'
-          }
-
-          const option = {
-            series: [
-              {
-                type: 'gauge',
-                startAngle: 180,
-                endAngle: 0,
-                radius: '90%',
-                pointer: { show: false },
-                progress: {
-                  show: true,
-                  overlap: false,
-                  roundCap: true,
-                  clip: false,
-                  itemStyle: { color: color }
-                },
-                axisLine: {
-                  lineStyle: { width: 12, color: [[1, '#1f2937']] },
-                  roundCap: true
-                },
-                splitLine: { show: false },
-                axisTick: { show: false },
-                axisLabel: { show: false },
-                data: [{ value: score, name: '分' }],
-                detail: {
-                  width: 50,
-                  height: 30,
-                  fontSize: 28,
-                  color: '#ffffff',
-                  offsetCenter: [0, '-10%'],
-                  valueAnimation: true,
-                  formatter: '{value}'
-                }
-              }
-            ]
-          }
-          this.gaugeChartInstance.setOption(option)
-          this.gaugeChartInstance.resize()
-        }
-      })
     }
   }
 }
