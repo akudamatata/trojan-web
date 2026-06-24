@@ -239,42 +239,42 @@
                   <span class="action-name">{{ $t('detail.limitQuota') }}</span>
                   <span class="action-desc">设定用户可用流量配额</span>
                 </div>
-                <el-button type="primary" plain size="default" :icon="Tools" @click="handleLimitData">配置</el-button>
+                <el-button type="primary" :icon="Tools" @click="handleLimitData">配置</el-button>
               </div>
               <div class="action-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.resetTraffic') }}</span>
                   <span class="action-desc">重置已使用上传与下载流量</span>
                 </div>
-                <el-button type="warning" plain size="default" :icon="RefreshRight" @click="handleResetData">重置</el-button>
+                <el-button type="warning" :icon="RefreshRight" @click="handleResetData">重置</el-button>
               </div>
               <div class="action-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.editUser') }}</span>
                   <span class="action-desc">修改该用户的用户名及密码</span>
                 </div>
-                <el-button type="success" plain size="default" :icon="Edit" @click="handleModifyUser">修改</el-button>
+                <el-button type="success" :icon="Edit" @click="handleModifyUser">修改</el-button>
               </div>
               <div class="action-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.setExpire') }}</span>
                   <span class="action-desc">设置该账户的有效使用期限</span>
                 </div>
-                <el-button type="info" plain size="default" :icon="Calendar" @click="handleSetExpire">设置</el-button>
+                <el-button type="info" :icon="Calendar" @click="handleSetExpire">设置</el-button>
               </div>
               <div class="action-item" v-if="detailData.expiryDate">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.cancelExpire') }}</span>
                   <span class="action-desc">恢复该账户为永久有效状态</span>
                 </div>
-                <el-button type="info" plain size="default" @click="handleCancelExpire">取消</el-button>
+                <el-button type="info" @click="handleCancelExpire">取消</el-button>
               </div>
               <div class="action-item danger-item">
                 <div class="action-info">
                   <span class="action-name">{{ $t('detail.delUser') }}</span>
                   <span class="action-desc">从系统中彻底移除该用户账户</span>
                 </div>
-                <el-button type="danger" plain size="default" :icon="Delete" @click="handleDeleteUser">删除</el-button>
+                <el-button type="danger" :icon="Delete" @click="handleDeleteUser">删除</el-button>
               </div>
             </div>
           </div>
@@ -359,6 +359,11 @@ import dayjs from 'dayjs'
 
 export default {
   name: 'UserDetail',
+  components: {
+    Calendar,
+    Clock,
+    Warning
+  },
   data() {
     return {
       ArrowLeft,
@@ -670,8 +675,8 @@ export default {
           qrEl.innerHTML = ''
           if (text) {
             new QRCode(qrEl, {
-              width: 120,
-              height: 120,
+              width: 180,
+              height: 180,
               text: text
             })
           }
@@ -939,19 +944,27 @@ export default {
         flex-wrap: wrap;
         
         .sub-info-item {
-          display: flex;
+          display: inline-flex;
           align-items: center;
           gap: 6px;
           font-size: 13px;
           color: var(--el-text-color-secondary);
+          line-height: 1;
           
           .sub-info-label {
             margin-right: 2px;
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            line-height: 1;
           }
           
           .info-tag-val {
             font-weight: 600;
             border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
           }
           
           .highlight {
@@ -961,6 +974,10 @@ export default {
           
           .el-icon {
             font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
           }
         }
         
@@ -1100,13 +1117,13 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     
     .qrcode-inline-box {
       background-color: #ffffff;
-      padding: 8px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
       display: inline-block;
       
       canvas, img {
@@ -1118,7 +1135,7 @@ export default {
   .sub-radio-group {
     display: flex;
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     
     .el-radio-button {
       flex: 1;
@@ -1126,16 +1143,25 @@ export default {
       
       :deep(.el-radio-button__inner) {
         width: 100%;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
+        padding: 0 20px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
   
   .sub-input-container {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     
     .sub-input {
+      :deep(.el-input__wrapper) {
+        height: 44px;
+        font-size: 14px;
+      }
       :deep(.el-input-group__append) {
         padding: 0;
         
@@ -1146,8 +1172,9 @@ export default {
           font-weight: 600;
           color: var(--el-color-primary);
           height: 100%;
-          padding: 0 16px;
+          padding: 0 20px;
           border-radius: 0;
+          font-size: 14px;
           
           &:hover {
             background-color: var(--el-fill-color-light);
@@ -1163,8 +1190,9 @@ export default {
     
     .clash-btn {
       flex: 1;
-      height: 36px;
+      height: 44px;
       font-weight: 600;
+      font-size: 14px;
     }
   }
 }
@@ -1215,8 +1243,10 @@ export default {
       }
       
       .el-button {
-        width: 76px;
+        width: 88px;
+        height: 38px;
         font-weight: 600;
+        font-size: 13px;
       }
     }
   }
