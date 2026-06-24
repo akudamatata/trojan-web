@@ -27,3 +27,7 @@ export function cancelExpire(id) {
 export function userDetail(username) {
     return request.get(`/trojan/user/detail?username=${username}`)
 }
+
+export function saveIPGeo(data) {
+    return request.post('/trojan/user/geo', data)
+}

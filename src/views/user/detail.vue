@@ -55,6 +55,43 @@
             </div>
           </div>
         </el-card>
+
+        <!-- Subscription Generator Card -->
+        <el-card class="stat-card sub-card" style="margin-top: 16px;">
+          <template #header>
+            <div class="card-header">
+              <span>⚡ 快捷管理与订阅生成器</span>
+            </div>
+          </template>
+          <div class="card-body">
+            <el-radio-group v-model="subType" size="small" style="margin-bottom: 15px; display: flex; width: 100%;">
+              <el-radio-button label="trojan">Trojan节点</el-radio-button>
+              <el-radio-button label="clash">Clash订阅</el-radio-button>
+              <el-radio-button label="shadowrocket">小火箭订阅</el-radio-button>
+            </el-radio-group>
+
+            <el-input 
+              v-model="shareLink" 
+              readonly 
+              placeholder="生成链接中..." 
+              size="small"
+              class="sub-input"
+            >
+              <template #append>
+                <el-button @click="copyLink">复制</el-button>
+              </template>
+            </el-input>
+
+            <div class="sub-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+              <el-button v-if="subType === 'clash'" type="primary" size="small" style="flex: 1;" @click="importToClash">
+                一键导入 Clash
+              </el-button>
+              <el-button type="success" size="small" style="flex: 1;" @click="showQRCode">
+                二维码分享
+              </el-button>
+            </div>
+          </div>
+        </el-card>
       </el-col>
 
       <!-- Right side: Top 10 Domains Visited -->
@@ -74,11 +111,14 @@
               <div v-for="(item, index) in detailData.domains" :key="item.domain" class="domain-item">
                 <div class="domain-rank-info">
                   <span class="rank-badge" :class="'rank-' + (index + 1)">{{ index + 1 }}</span>
-                  <span class="domain-name" :title="item.domain">{{ item.domain }}</span>
+                  <span class="domain-name" :title="item.domain">
+                    {{ item.domain }}
+                    <el-tag v-if="isAbuseDomain(item.domain)" type="danger" size="small" style="margin-left: 6px;">P2P/BT下载</el-tag>
+                  </span>
                 </div>
                 <div class="domain-bar-section">
                   <el-progress 
-                    :percentage="getDomainPercentage(item.visitCount)" 
+                    :percentage="getDomainPercentage(item.visit_count)" 
                     :show-text="false" 
                     color="#409eff"
                     :stroke-width="10"
@@ -104,9 +144,12 @@
       <div class="card-body">
         <el-table :data="ipTableData" style="width: 100%" class="ip-table" empty-text="最近一个月无登录 IP 记录">
           <el-table-column label="序号" type="index" width="80" align="center" />
-          <el-table-column prop="ip" label="客户端连入 IP" width="220" align="left">
+          <el-table-column prop="ip" label="客户端连入 IP" width="280" align="left">
             <template #default="scope">
               <span class="ip-address-text">{{ scope.row.ip }}</span>
+              <el-tag :type="scope.row.isActive ? 'success' : 'info'" size="small" style="margin-left: 8px;">
+                {{ scope.row.isActive ? '当前在线' : '离线' }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="地理归属地 (国家/省/市)" width="320" align="left">
@@ -133,13 +176,24 @@
         </el-table>
       </div>
     </el-card>
+
+    <!-- Dialog for QR Code -->
+    <el-dialog title="分享二维码" v-model="qrcodeVisible" width="300px" @close="clearQRCode">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
+        <div ref="qrcode" class="qrcode-box" style="margin-bottom: 10px;"></div>
+        <p style="margin-top: 10px; font-size: 12px; color: var(--el-text-color-secondary); word-break: break-all; text-align: center; width: 100%;">
+          {{ shareLink }}
+        </p>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { ArrowLeft, Loading } from '@element-plus/icons-vue'
-import { userDetail } from '@/api/user'
-import { bytefmt } from '@/utils/string'
+import { userDetail, saveIPGeo } from '@/api/user'
+import { readablizeBytes, base64Encode, base64Decode } from '@/utils/common'
+import * as QRCode from 'easyqrcodejs'
 
 export default {
   name: 'UserDetail',
@@ -158,7 +212,11 @@ export default {
         domains: []
       },
       ipTableData: [],
-      maxVisitCount: 1
+      maxVisitCount: 1,
+      subType: 'trojan',
+      qrcodeVisible: false,
+      domain: '',
+      port: 0
     }
   },
   computed: {
@@ -185,6 +243,25 @@ export default {
       const used = this.detailData.upload + this.detailData.download
       const percent = (used / this.detailData.quota) * 100
       return parseFloat(percent.toFixed(1))
+    },
+    shareLink() {
+      if (!this.domain) return ''
+      
+      const pass = base64Decode(this.detailData.password || '')
+      if (this.subType === 'trojan') {
+        const remark = encodeURIComponent(`${this.domain}:${this.port}`)
+        return `trojan://${pass}@${this.domain}:${this.port}#${remark}`
+      } else {
+        const userInfo = base64Encode(`{"user": "${this.username}", "pass": "${pass}"}`)
+        const protocol = window.location.hostname === '127.0.0.1' ? 'https:' : window.location.protocol
+        const baseSubUrl = `${protocol}//${this.domain}:${this.port}/trojan/user/subscribe?token=${userInfo}`
+        if (this.subType === 'clash') {
+          return baseSubUrl
+        } else if (this.subType === 'shadowrocket') {
+          return `${baseSubUrl}&flag=shadowrocket`
+        }
+      }
+      return ''
     }
   },
   created() {
@@ -202,7 +279,7 @@ export default {
     },
     formatBytes(bytes) {
       if (bytes === -1) return '无限流量'
-      return bytefmt(bytes)
+      return readablizeBytes(bytes)
     },
     getDomainPercentage(visitCount) {
       if (this.maxVisitCount <= 0) return 0
@@ -213,24 +290,30 @@ export default {
         const res = await userDetail(this.username)
         if (res.Msg === 'success') {
           this.detailData = res.Data
+          this.domain = res.Data.domain || ''
+          this.port = res.Data.port || 0
 
           // 计算排名前十网站的最大访问量，用于折算相对百分比
           if (this.detailData.domains && this.detailData.domains.length > 0) {
             this.maxVisitCount = Math.max(...this.detailData.domains.map(d => d.visit_count))
           }
 
-          // 初始化 IP 表格行，默认 loading
+          // 初始化 IP 表格行，有缓存的 GeoIP 直接显示，没缓存的标记为 loading
           if (this.detailData.ips) {
-            this.ipTableData = this.detailData.ips.map(ip => ({
-              ip,
-              country: '',
-              region: '',
-              city: '',
-              isp: '',
-              loading: true,
-              error: false
-            }))
-            // 并发获取 IP 归属地信息
+            this.ipTableData = this.detailData.ips.map(item => {
+              const hasCachedGeo = item.country && item.country !== ''
+              return {
+                ip: item.ip,
+                isActive: item.is_active,
+                country: item.country || '',
+                region: item.region || '',
+                city: item.city || '',
+                isp: item.isp || '',
+                loading: !hasCachedGeo,
+                error: false
+              }
+            })
+            // 只对没有缓存的 IP 查询归属地
             this.fetchGeoIPs()
           }
         } else {
@@ -240,9 +323,14 @@ export default {
         this.$message.error('获取详情错误: ' + err.message)
       }
     },
-    // 并发查询 IP 物理属地 (ip-api.com)
-    fetchGeoIPs() {
-      this.ipTableData.forEach(async (row) => {
+    // 串行查询未缓存的 IP 物理属地 (ipapi.co)，查询完成后回写服务器缓存
+    async fetchGeoIPs() {
+      // 过滤出需要查询的行（没有缓存的）
+      const uncachedRows = this.ipTableData.filter(row => row.loading)
+      if (uncachedRows.length === 0) return
+
+      for (let i = 0; i < uncachedRows.length; i++) {
+        const row = uncachedRows[i]
         try {
           const response = await fetch(`https://ipapi.co/${row.ip}/json/`)
           if (response.ok) {
@@ -258,7 +346,6 @@ export default {
               row.loading = false
             }
           } else {
-            // 备用国内接口 ip-api.com (免费版不支持 https，所以如果在 https 面板运行，这里会报 mixed content，我们进行报错处理)
             const backupResponse = await fetch(`http://ip-api.com/json/${row.ip}?lang=zh-CN`).catch(() => null)
             if (backupResponse && backupResponse.ok) {
               const data = await backupResponse.json()
@@ -281,7 +368,81 @@ export default {
           row.error = true
           row.loading = false
         }
+
+        // 查询成功后，异步回写服务器缓存（下次打开直接显示，不再查 API）
+        if (!row.error && row.country) {
+          const formData = new FormData()
+          formData.append('username', this.username)
+          formData.append('ip', row.ip)
+          formData.append('country', row.country)
+          formData.append('region', row.region)
+          formData.append('city', row.city)
+          formData.append('isp', row.isp)
+          saveIPGeo(formData).catch(() => {}) // 缓存失败不影响前端显示
+        }
+
+        // 每个 IP 之间等待 300ms，避免被 ipapi.co 限流
+        if (i < uncachedRows.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 300))
+        }
+      }
+    },
+    isAbuseDomain(domain) {
+      if (!domain) return false
+      const abuseKeywords = ['torrent', 'tracker', 'peer', 'bittorrent', 'utorrent', 'opentracker', 'announce', 'magnet', 'xunlei', 'thunder', 'qbittorrent']
+      const lowerDomain = domain.toLowerCase()
+      return abuseKeywords.some(keyword => lowerDomain.includes(keyword))
+    },
+    copyLink() {
+      const text = this.shareLink
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          this.$message.success('已复制到剪贴板')
+        }).catch(() => {
+          this.fallbackCopyText(text)
+        })
+      } else {
+        this.fallbackCopyText(text)
+      }
+    },
+    fallbackCopyText(text) {
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      textArea.style.position = 'fixed'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      try {
+        document.execCommand('copy')
+        this.$message.success('已复制到剪贴板')
+      } catch (err) {
+        this.$message.error('复制失败，请手动选择复制')
+      }
+      document.body.removeChild(textArea)
+    },
+    importToClash() {
+      const url = `clash://install-config?url=${encodeURIComponent(this.shareLink)}`
+      window.location.href = url
+    },
+    showQRCode() {
+      this.qrcodeVisible = true
+      this.$nextTick(() => {
+        const qrEl = this.$refs.qrcode
+        if (qrEl) {
+          qrEl.innerHTML = ''
+          new QRCode(qrEl, {
+            width: 200,
+            height: 200,
+            text: this.shareLink
+          })
+        }
       })
+    },
+    clearQRCode() {
+      const qrEl = this.$refs.qrcode
+      if (qrEl) {
+        qrEl.innerHTML = ''
+      }
     }
   }
 }
@@ -292,6 +453,24 @@ export default {
   padding: 24px;
   background-color: var(--el-bg-color-page);
   min-height: calc(100vh - 50px);
+}
+
+.qrcode-box {
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  
+  canvas, img {
+    display: block;
+  }
+}
+
+.sub-card {
+  .card-body {
+    padding: 8px 12px 12px 12px;
+  }
 }
 
 .header-section {

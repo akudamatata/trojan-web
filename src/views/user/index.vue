@@ -42,6 +42,7 @@
         >
           <template #default="scope">
             <el-button type="primary" link @click="gotoDetail(scope.row.Username)">
+              <span v-if="onlineUsers.includes(scope.row.Username)" class="online-dot"></span>
               {{ scope.row.Username }}
             </el-button>
           </template>
@@ -244,6 +245,7 @@ export default {
             port: 0,
             shareLink: '',
             dataList: [],
+            onlineUsers: [],
             multipleSelection: [],
             copySelection: [],
             clientHeight: 0,
@@ -702,6 +704,7 @@ export default {
                 } else {
                     this.dataList = result.Data.userList
                 }
+                this.onlineUsers = result.Data.onlineUsers || []
                 this.port = result.Data.port
                 if (result.Data.domain !== '') {
                     this.domain = result.Data.domain
@@ -782,5 +785,20 @@ export default {
 .quota-warning-text {
     color: #ef4444 !important;
     font-weight: 600 !important;
+}
+.online-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    margin-right: 6px;
+    box-shadow: 0 0 4px #22c55e;
+    animation: pulse-dot 2s ease-in-out infinite;
+    vertical-align: middle;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 4px #22c55e; }
+    50% { opacity: 0.6; box-shadow: 0 0 8px #22c55e; }
 }
 </style>
