@@ -145,15 +145,41 @@
               </el-table-column>
               <el-table-column label="操作" align="center" width="220">
                 <template #default="scope">
-                  <div v-if="scope.row.isActive" style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+                  <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+                    <!-- 如果已被封禁，显示解封按钮 -->
                     <el-button 
-                      type="danger" 
+                      v-if="scope.row.isBanned"
+                      type="success" 
                       size="small" 
-                      @click="kickIP(scope.row.ip)"
+                      @click="handleUnbanIP(scope.row.ip)"
                     >
-                      一键断流
+                      解除封禁
                     </el-button>
-                    <el-dropdown trigger="click" @command="(cmd) => handleBanIP(scope.row.ip, cmd)">
+                    <!-- 如果未封禁，且在线，显示断流和拉黑 -->
+                    <template v-else-if="scope.row.isActive">
+                      <el-button 
+                        type="danger" 
+                        size="small" 
+                        @click="kickIP(scope.row.ip)"
+                      >
+                        一键断流
+                      </el-button>
+                      <el-dropdown trigger="click" @command="(cmd) => handleBanIP(scope.row.ip, cmd)">
+                        <el-button type="warning" size="small">
+                          一键拉黑<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                        </el-button>
+                        <template #dropdown>
+                          <el-dropdown-menu>
+                            <el-dropdown-item command="day">拉黑 1 天</el-dropdown-item>
+                            <el-dropdown-item command="week">拉黑 1 周</el-dropdown-item>
+                            <el-dropdown-item command="month">拉黑 1 月</el-dropdown-item>
+                            <el-dropdown-item command="permanent">永久拉黑</el-dropdown-item>
+                          </el-dropdown-menu>
+                        </template>
+                      </el-dropdown>
+                    </template>
+                    <!-- 如果未封禁且不在线，只显示拉黑 -->
+                    <el-dropdown v-else trigger="click" @command="(cmd) => handleBanIP(scope.row.ip, cmd)">
                       <el-button type="warning" size="small">
                         一键拉黑<el-icon class="el-icon--right"><ArrowDown /></el-icon>
                       </el-button>
@@ -167,7 +193,6 @@
                       </template>
                     </el-dropdown>
                   </div>
-                  <span v-else>-</span>
                 </template>
               </el-table-column>
             </el-table>
@@ -607,6 +632,7 @@ export default {
         if (res.Msg === 'success') {
           this.$message.success('IP解封成功')
           await this.loadBlacklist()
+          await this.fetchDetail()
         } else {
           this.$message.error(res.Msg)
         }
@@ -649,6 +675,7 @@ export default {
                 region: item.region || '',
                 city: item.city || '',
                 isp: item.isp || '',
+                isBanned: item.is_banned || false,
                 loading: !hasCachedGeo,
                 error: false
               }
