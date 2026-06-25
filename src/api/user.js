@@ -40,6 +40,12 @@ export function killConnection(data) {
     return request.post('/trojan/user/active-connections/kill', data)
 }
 
+export function killConnectionByIP(ip) {
+    const formData = new FormData()
+    formData.append('client_ip', ip)
+    return request.post('/trojan/user/kill-by-ip', formData)
+}
+
 export function trafficHistory(username) {
     return request.get(`/trojan/user/traffic-history?username=${username}`)
 }

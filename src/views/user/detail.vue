@@ -359,7 +359,7 @@
 
 <script>
 import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning } from '@element-plus/icons-vue'
-import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, activeConnections, killConnection } from '@/api/user'
+import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, killConnectionByIP } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
 import { restart } from '@/api/trojan'
 import { readablizeBytes, base64Encode, base64Decode } from '@/utils/common'
@@ -846,47 +846,15 @@ export default {
     },
     async kickIP(ip) {
       try {
-        const res = await activeConnections(this.username)
-        if (res.Msg !== 'success') {
-          this.$message.error('获取活跃会话失败: ' + res.Msg)
-          return
-        }
-        
-        const conns = res.Data || []
-        const targetConns = conns.filter(c => c.client_ip === ip)
-        if (targetConns.length === 0) {
-          this.$message.warning('该 IP 当前无活跃连接')
-          return
-        }
-
-        let successCount = 0
-        let failCount = 0
-        
-        const killPromises = targetConns.map(async (conn) => {
-          const formData = new FormData()
-          formData.append('client_ip', conn.client_ip)
-          formData.append('client_port', conn.client_port)
-          try {
-            const killRes = await killConnection(formData)
-            if (killRes.Msg === 'success') {
-              successCount++
-            } else {
-              failCount++
-            }
-          } catch (e) {
-            failCount++
-          }
-        })
-
-        await Promise.all(killPromises)
-
-        if (failCount === 0) {
-          this.$message.success(`成功切断该 IP 的所有连接 (共 ${successCount} 个)`)
+        const res = await killConnectionByIP(ip)
+        if (res.Msg === 'success') {
+          const killed = res.Data && res.Data.killed ? res.Data.killed : 0
+          this.$message.success(`已向 ${ip} 发送断流指令 (切断 ${killed} 个连接)`)
+          // 延迟刷新，让连接有时间真正断开
+          setTimeout(() => this.fetchDetail(), 1500)
         } else {
-          this.$message.warning(`部分连接切断失败 (成功: ${successCount}, 失败: ${failCount})`)
+          this.$message.error('断流失败: ' + res.Msg)
         }
-
-        this.fetchDetail()
       } catch (err) {
         this.$message.error('操作失败: ' + err.message)
       }
