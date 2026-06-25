@@ -57,3 +57,21 @@ export function subLogs(username) {
 export function domainStats(username) {
     return request.get(`/trojan/user/domain-stats?username=${username}`)
 }
+
+export function getIPBlacklist() {
+    return request.get('/trojan/user/blacklist')
+}
+
+export function banIP(ip, duration) {
+    const formData = new FormData()
+    formData.append('ip', ip)
+    formData.append('duration', duration)
+    return request.post('/trojan/user/blacklist/ban', formData)
+}
+
+export function unbanIP(ip) {
+    const formData = new FormData()
+    formData.append('ip', ip)
+    return request.post('/trojan/user/blacklist/unban', formData)
+}
+

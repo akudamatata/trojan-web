@@ -102,8 +102,11 @@
         <!-- Recent Connected IPs -->
         <el-card class="stat-card ip-card">
           <template #header>
-            <div class="card-header">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
               <span>最近连入记录 (近30天)</span>
+              <el-button type="info" size="small" @click="showBlacklistDialog">
+                黑名单管理
+              </el-button>
             </div>
           </template>
           <div class="card-body-table">
@@ -140,16 +143,30 @@
                   <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center">
+              <el-table-column label="操作" align="center" width="220">
                 <template #default="scope">
-                  <el-button 
-                    v-if="scope.row.isActive" 
-                    type="danger" 
-                    size="small" 
-                    @click="kickIP(scope.row.ip)"
-                  >
-                    一键断流
-                  </el-button>
+                  <div v-if="scope.row.isActive" style="display: flex; justify-content: center; gap: 8px; align-items: center;">
+                    <el-button 
+                      type="danger" 
+                      size="small" 
+                      @click="kickIP(scope.row.ip)"
+                    >
+                      一键断流
+                    </el-button>
+                    <el-dropdown trigger="click" @command="(cmd) => handleBanIP(scope.row.ip, cmd)">
+                      <el-button type="warning" size="small">
+                        一键拉黑<el-icon class="el-icon--right"><ArrowDown /></el-icon>
+                      </el-button>
+                      <template #dropdown>
+                        <el-dropdown-menu>
+                          <el-dropdown-item command="day">拉黑 1 天</el-dropdown-item>
+                          <el-dropdown-item command="week">拉黑 1 周</el-dropdown-item>
+                          <el-dropdown-item command="month">拉黑 1 月</el-dropdown-item>
+                          <el-dropdown-item command="permanent">永久拉黑</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </template>
+                    </el-dropdown>
+                  </div>
                   <span v-else>-</span>
                 </template>
               </el-table-column>
@@ -354,12 +371,39 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- Dialog for Blacklist Management -->
+    <el-dialog title="黑名单 IP 管理" v-model="blacklistVisible" width="620px">
+      <el-table :data="blacklistData" style="width: 100%" height="300" :empty-text="'暂无封禁IP'">
+        <el-table-column prop="ip" label="被封 IP" width="150" align="center" />
+        <el-table-column prop="ban_type" label="封禁时长" width="100" align="center">
+          <template #default="scope">
+            <el-tag :type="scope.row.ban_type === 'permanent' ? 'danger' : 'warning'" size="small">
+              {{ scope.row.ban_type === 'day' ? '1天' : (scope.row.ban_type === 'week' ? '1周' : (scope.row.ban_type === 'month' ? '1月' : '永久')) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="created_at" label="封禁时间" width="160" align="center" />
+        <el-table-column label="操作" align="center">
+          <template #default="scope">
+            <el-button type="success" size="small" @click="handleUnbanIP(scope.row.ip)">
+              解封
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="blacklistVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning } from '@element-plus/icons-vue'
-import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, killConnectionByIP } from '@/api/user'
+import { ArrowLeft, Loading, Tools, Edit, Delete, RefreshRight, Calendar, Clock, Warning, ArrowDown } from '@element-plus/icons-vue'
+import { userDetail, saveIPGeo, updateUser, delUser, setExpire, cancelExpire, killConnectionByIP, getIPBlacklist, banIP, unbanIP } from '@/api/user'
 import { setQuota, cleanData } from '@/api/data'
 import { restart } from '@/api/trojan'
 import { readablizeBytes, base64Encode, base64Decode } from '@/utils/common'
@@ -372,7 +416,8 @@ export default {
   components: {
     Calendar,
     Clock,
-    Warning
+    Warning,
+    ArrowDown
   },
   data() {
     return {
@@ -384,6 +429,9 @@ export default {
       Calendar,
       Clock,
       Warning,
+      ArrowDown,
+      blacklistVisible: false,
+      blacklistData: [],
       username: '',
       detailData: {
         id: 0,
@@ -524,6 +572,48 @@ export default {
     }
   },
   methods: {
+    async showBlacklistDialog() {
+      this.blacklistVisible = true
+      await this.loadBlacklist()
+    },
+    async loadBlacklist() {
+      try {
+        const res = await getIPBlacklist()
+        if (res.Msg === 'success') {
+          this.blacklistData = res.Data || []
+        } else {
+          this.$message.error(res.Msg)
+        }
+      } catch (e) {
+        this.$message.error(e.message || '加载黑名单失败')
+      }
+    },
+    async handleBanIP(ip, duration) {
+      try {
+        const res = await banIP(ip, duration)
+        if (res.Msg === 'success') {
+          this.$message.success('IP拉黑成功并已切断当前连接')
+          await this.fetchDetail()
+        } else {
+          this.$message.error(res.Msg)
+        }
+      } catch (e) {
+        this.$message.error(e.message || '拉黑失败')
+      }
+    },
+    async handleUnbanIP(ip) {
+      try {
+        const res = await unbanIP(ip)
+        if (res.Msg === 'success') {
+          this.$message.success('IP解封成功')
+          await this.loadBlacklist()
+        } else {
+          this.$message.error(res.Msg)
+        }
+      } catch (e) {
+        this.$message.error(e.message || '解封失败')
+      }
+    },
     goBack() {
       this.$router.push({ name: 'user' })
     },
