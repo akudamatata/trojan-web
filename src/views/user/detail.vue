@@ -112,7 +112,7 @@
           <div class="card-body-table">
             <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
               <el-table-column label="#" type="index" width="50" align="center" />
-              <el-table-column prop="ip" :label="$t('detail.ipAddress')" width="160">
+              <el-table-column prop="ip" :label="$t('detail.ipAddress')" min-width="140">
                 <template #default="scope">
                   <span class="ip-address-text">{{ scope.row.ip }}</span>
                   <div style="margin-top: 4px;">
@@ -122,7 +122,7 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('detail.location')" width="180">
+              <el-table-column :label="$t('detail.location')" min-width="160">
                 <template #default="scope">
                   <div v-if="scope.row.loading" class="geoip-loading">
                     <el-icon class="is-loading"><Loading /></el-icon> {{ $t('detail.querying') }}
@@ -136,14 +136,14 @@
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column :label="$t('detail.isp')" width="160">
+              <el-table-column :label="$t('detail.isp')" min-width="140">
                 <template #default="scope">
                   <span v-if="scope.row.loading">-</span>
                   <span v-else-if="scope.row.error" class="text-muted">unknown</span>
                   <span class="isp-text" :title="scope.row.isp">{{ scope.row.isp || 'unknown' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center" width="220">
+              <el-table-column label="操作" align="center" min-width="240">
                 <template #default="scope">
                   <div style="display: flex; justify-content: center; gap: 8px; align-items: center;">
                     <!-- 如果已被封禁，显示解封按钮 -->
@@ -1210,7 +1210,7 @@ export default {
   }
   
   .card-body-table {
-    padding: 0;
+    padding: 0 20px 20px 20px;
   }
 }
 
