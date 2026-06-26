@@ -39,35 +39,41 @@
             <el-divider class="setting-divider" />
 
             <el-form-item :label="$t('navbar.resetTitle')">
-              <div class="form-row">
+              <div class="form-row" style="margin-bottom: 12px;">
                 <el-input-number v-model="resetDay" :min="0" :max="31" class="flex-input-number" />
+              </div>
+              <div class="form-row">
                 <el-button type="primary" @click="handleResetDay()">更新重置日</el-button>
               </div>
-              <div class="item-tip">{{ $t('navbar.meanClose') }}。每月该号将自动清空所有用户的上传/下载流量数据。</div>
+              <div class="item-tip" style="margin-top: 8px;">{{ $t('navbar.meanClose') }}。每月该号将自动清空所有用户的上传/下载流量数据。</div>
             </el-form-item>
 
             <el-divider class="setting-divider" />
 
             <el-form-item label="修改Web服务端口">
-              <div class="form-row">
+              <div class="form-row" style="margin-bottom: 12px;">
                 <el-input-number v-model="webPort" :min="1" :max="65535" class="flex-input-number" />
+              </div>
+              <div class="form-row">
                 <el-button type="primary" @click="handleWebPort()">更新端口</el-button>
               </div>
-              <div class="item-tip warning-tip">注意：修改端口后Web面板将重启，并使用新端口访问，请注意防火墙放行。</div>
+              <div class="item-tip warning-tip" style="margin-top: 8px;">注意：修改端口后Web面板将重启，并使用新端口访问，请注意防火墙放行。</div>
             </el-form-item>
 
             <el-divider class="setting-divider" />
 
             <el-form-item label="服务器总流量限制">
-              <div class="form-row">
+              <div class="form-row" style="margin-bottom: 12px;">
                 <el-input-number v-model="serverTotalQuota" :min="-1" class="flex-input-number" />
                 <el-select v-model="serverQuotaUnit" placeholder="单位" style="width: 100px">
                   <el-option label="GB" value="GB" />
                   <el-option label="TB" value="TB" />
                 </el-select>
+              </div>
+              <div class="form-row">
                 <el-button type="primary" @click="handleServerTotalQuota()">更新限制</el-button>
               </div>
-              <div class="item-tip">设置服务器双向总流量限制（输入 -1 表示无限制）。用量到达 80% 会在首页进行红色预警。</div>
+              <div class="item-tip" style="margin-top: 8px;">设置服务器双向总流量限制（输入 -1 表示无限制）。用量到达 80% 会在首页进行红色预警。</div>
             </el-form-item>
           </el-form>
         </el-card>
