@@ -3,7 +3,12 @@
     <el-form ref="loginForm" :model="loginForm" class="login-form" autocomplete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title"> {{title}} </h3>
+        <h3 class="title">
+          <template v-for="(item, idx) in parsedTitle" :key="idx">
+            <span v-if="item.isEmoji" class="emoji-text">{{ item.text }}</span>
+            <span v-else class="gradient-text">{{ item.text }}</span>
+          </template>
+        </h3>
       </div>
 
       <el-form-item prop="username">
@@ -80,7 +85,21 @@ export default {
         })
     },
     computed: {
-        ...mapState(['docTitle'])
+        ...mapState(['docTitle']),
+        parsedTitle() {
+            if (!this.title) return []
+            try {
+                const parts = this.title.split(/(\p{Extended_Pictographic})/gu)
+                return parts.map(part => {
+                    return {
+                        text: part,
+                        isEmoji: part ? /(\p{Extended_Pictographic})/u.test(part) : false
+                    }
+                }).filter(item => item.text !== '')
+            } catch (e) {
+                return [{ text: this.title, isEmoji: false }]
+            }
+        }
     },
     mounted() {
         this.$refs.password.focus()
@@ -209,14 +228,21 @@ $cursor: #fff;
 
     .title {
       font-size: 24px;
-      // Gradient text
-      background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       margin: 0px auto;
       text-align: center;
       font-weight: 700;
       letter-spacing: 1px;
+
+      .gradient-text {
+        background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .emoji-text {
+        -webkit-text-fill-color: initial;
+        background: none;
+      }
     }
   }
 
