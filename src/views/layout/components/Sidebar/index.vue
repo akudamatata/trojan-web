@@ -3,7 +3,8 @@
     <!-- 系统 Logo 与标题区域 -->
     <div class="sidebar-logo-container" :class="{'is-collapsed': isCollapse}">
       <div v-show="!isCollapse" class="logo-wrapper">
-        <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
+        <img src="@/assets/logo.png" class="logo-img logo-dark-theme" alt="Logo" />
+        <img src="@/assets/logo_light.png" class="logo-img logo-light-theme" alt="Logo" />
         <span class="logo-title">{{ sidebarTitle || docTitle || 'Trojan Web' }}</span>
       </div>
       <div class="hamburger-btn" @click="toggleSideBar">
@@ -105,6 +106,13 @@ export default {
     border-radius: 6px;
     object-fit: cover;
     flex-shrink: 0;
+    
+    &.logo-light-theme {
+      display: none !important;
+    }
+    &.logo-dark-theme {
+      display: block !important;
+    }
   }
   
   .logo-title {
@@ -171,10 +179,15 @@ export default {
     border-bottom: 1px solid #e2e8f0;
     
     .logo-img {
-      border: 1px solid rgba(0, 0, 0, 0.06) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-      background-color: #030712 !important; // 确保在白底上底色统一且精致
-      box-sizing: border-box;
+      &.logo-light-theme {
+        display: block !important;
+      }
+      &.logo-dark-theme {
+        display: none !important;
+      }
+      border: none !important;
+      box-shadow: none !important;
+      background-color: transparent !important;
     }
     
     .logo-title {
