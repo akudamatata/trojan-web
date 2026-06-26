@@ -2,7 +2,12 @@
   <div class="register-container">
     <el-form class="register-form" :model="form" :rules="registerRules" ref="form" label-position="left">
       <div class="title-container">
-        <h3 class="title">{{ $t('setupPass') }}</h3>
+        <h3 class="title">
+          <template v-for="(item, idx) in parsedTitle" :key="idx">
+            <span v-if="item.isEmoji" class="emoji-text">{{ item.text }}</span>
+            <span v-else class="gradient-text">{{ item.text }}</span>
+          </template>
+        </h3>
       </div>
       <el-form-item prop="password1">
         <span class="svg-container">
@@ -19,6 +24,7 @@
       <el-button type="primary" style="width:100%;height:48px;border-radius:10px;font-size:16px;font-weight:600;margin-bottom:30px;background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);border: none;" :loading="loading" @click.prevent="register">
         {{ $t('register') }}
       </el-button>
+      <div v-if="footer" class="register-footer">{{ footer }}</div>
     </el-form>
   </div>
 </template>
@@ -50,11 +56,27 @@ export default {
                 ]
             },
             loading: false,
-            pwdType: 'password'
+            pwdType: 'password',
+            title: '',
+            footer: ''
         }
     },
     computed: {
-        ...mapState(['docTitle'])
+        ...mapState(['docTitle']),
+        parsedTitle() {
+            const titleVal = this.title || this.$t('setupPass')
+            try {
+                const parts = titleVal.split(/(\p{Extended_Pictographic})/gu)
+                return parts.map(part => {
+                    return {
+                        text: part,
+                        isEmoji: part ? /(\p{Extended_Pictographic})/u.test(part) : false
+                    }
+                }).filter(item => item.text !== '')
+            } catch (e) {
+                return [{ text: titleVal, isEmoji: false }]
+            }
+        }
     },
     created() {
         document.title = this.docTitle
@@ -62,6 +84,12 @@ export default {
             if (res.code === 200) {
                 this.$store.commit('LOGIN_OUT')
                 this.$router.replace('/login').catch()
+            } else if (res.data) {
+                this.title = res.data.title || ''
+                this.footer = res.data.footer || ''
+                if (this.title) {
+                    document.title = this.title
+                }
             }
         })
     },
@@ -169,15 +197,31 @@ $cursor: #fff;
 
     .title {
       font-size: 24px;
-      // Gradient text
-      background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
       margin: 0px auto;
       text-align: center;
       font-weight: 700;
       letter-spacing: 1px;
+
+      .gradient-text {
+        background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .emoji-text {
+        -webkit-text-fill-color: initial;
+        background: none;
+      }
     }
+  }
+
+  .register-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #9ca3af;
+    opacity: 0.6;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
   }
 }
 </style>

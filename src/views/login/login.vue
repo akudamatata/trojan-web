@@ -51,6 +51,7 @@
       </el-tooltip>
 
       <el-button :loading="loading" type="primary" style="width:100%;height:48px;border-radius:10px;font-size:16px;font-weight:600;margin-bottom:30px;background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);border: none;" @click.prevent="handleLogin">{{ $t('login') }}</el-button>
+      <div v-if="footer" class="login-footer">{{ footer }}</div>
     </el-form>
   </div>
 </template>
@@ -69,7 +70,8 @@ export default {
             loading: false,
             capsTooltip: false,
             passwordType: 'password',
-            title: ''
+            title: '',
+            footer: ''
         }
     },
     created() {
@@ -79,6 +81,7 @@ export default {
                 this.$router.replace('/register').catch()
             } else {
                 this.title = res.data.title
+                this.footer = res.data.footer || ''
                 document.title = this.title
                 this.$store.commit('SET_TITLE', this.title)
             }
@@ -259,6 +262,15 @@ $cursor: #fff;
     &:hover {
       color: #6366f1;
     }
+  }
+
+  .login-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #9ca3af;
+    opacity: 0.6;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
   }
 }
 </style>

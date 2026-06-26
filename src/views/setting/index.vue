@@ -14,12 +14,21 @@
           </template>
           
           <el-form label-position="top" class="setting-form">
-            <el-form-item :label="$t('navbar.changeTitle')">
-              <div class="form-row">
-                <el-input v-model="title" :placeholder="$t('navbar.inputTitle')" class="flex-input" />
-                <el-button type="primary" @click="handleLoginInfo()">保存标题</el-button>
+            <el-form-item label="登录页面展示信息">
+              <div class="form-row" style="margin-bottom: 12px;">
+                <el-input v-model="title" :placeholder="$t('navbar.inputTitle')" class="flex-input">
+                  <template #prepend>标题</template>
+                </el-input>
               </div>
-              <div class="item-tip">修改登录页面显示的系统名称标题。</div>
+              <div class="form-row" style="margin-bottom: 12px;">
+                <el-input v-model="footer" placeholder="例如: Powered by Trojan 或 @XX科技 2026" class="flex-input">
+                  <template #prepend>角标</template>
+                </el-input>
+              </div>
+              <div style="display: flex; justify-content: flex-end;">
+                <el-button type="primary" @click="handleLoginInfo()">保存设置</el-button>
+              </div>
+              <div class="item-tip">修改登录及管理员设置页面显示的系统名称标题与底部版权角标信息。</div>
             </el-form-item>
 
             <el-divider class="setting-divider" />
@@ -212,6 +221,7 @@ export default {
         return {
             activeTab: 'general',
             title: '',
+            footer: '',
             camouflageDomain: '',
             certInfo: null,
             certLoading: false,
@@ -258,6 +268,7 @@ export default {
         async getTitle() {
             const result = await check()
             this.title = result.data.title
+            this.footer = result.data.footer || ''
         },
         async getCamouflageDomain() {
             const result = await getCamouflageDomain()
@@ -357,6 +368,7 @@ export default {
         async handleLoginInfo() {
             const formData = new FormData()
             formData.set('title', this.title)
+            formData.set('footer', this.footer)
             const result = await setLoginInfo(formData)
             if (result.Msg === 'success') {
                 ElMessage({
