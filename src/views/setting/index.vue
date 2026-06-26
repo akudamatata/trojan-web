@@ -25,10 +25,10 @@
                   <template #prepend>角标</template>
                 </el-input>
               </div>
-              <div style="display: flex; justify-content: flex-end;">
+              <div style="display: flex; justify-content: flex-end; width: 100%;">
                 <el-button type="primary" @click="handleLoginInfo()">保存设置</el-button>
               </div>
-              <div class="item-tip">修改登录及管理员设置页面显示的系统名称标题与底部版权角标信息。</div>
+              <div class="item-tip" style="display: block; width: 100%; margin-top: 8px; line-height: 1.5;">修改登录及管理员设置页面显示的系统名称标题与底部版权角标信息。</div>
             </el-form-item>
 
             <el-divider class="setting-divider" />

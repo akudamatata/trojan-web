@@ -772,8 +772,8 @@ export default {
   border-radius: 12px !important;
   position: relative;
   overflow: hidden;
-  background: #111827 !important;
-  border: 1px solid #1f2937 !important;
+  background: var(--el-bg-color-overlay) !important;
+  border: 1px solid var(--el-border-color) !important;
   
   &::before {
     content: '';
@@ -813,13 +813,13 @@ export default {
   .traffic-info {
     span {
       font-size: 12px;
-      color: #9ca3af;
+      color: var(--el-text-color-secondary);
       font-weight: 500;
     }
     h2 {
       margin: 4px 0 0 0;
       font-size: 22px;
-      color: #ffffff;
+      color: var(--el-text-color-primary);
       font-weight: 700;
     }
   }
@@ -841,13 +841,13 @@ export default {
 
 .info-card {
   border-radius: 12px !important;
-  background: #111827 !important;
-  border: 1px solid #1f2937 !important;
+  background: var(--el-bg-color-overlay) !important;
+  border: 1px solid var(--el-border-color) !important;
 
   ::v-deep(.el-card__header) {
-    border-bottom: 1px solid #1f2937 !important;
+    border-bottom: 1px solid var(--el-border-color) !important;
     padding: 14px 20px !important;
-    color: #ffffff !important;
+    color: var(--el-text-color-primary) !important;
     font-weight: 600 !important;
     font-size: 15px !important;
   }
@@ -861,7 +861,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--el-border-color);
     
     &:last-child {
       border-bottom: none;
@@ -873,12 +873,12 @@ export default {
     }
     
     .info-label {
-      color: #9ca3af;
+      color: var(--el-text-color-secondary);
       font-size: 13px;
     }
     
     .info-value {
-      color: #ffffff;
+      color: var(--el-text-color-primary);
       font-size: 13px;
       font-weight: 500;
       

@@ -51,8 +51,8 @@
       </el-tooltip>
 
       <el-button :loading="loading" type="primary" style="width:100%;height:48px;border-radius:10px;font-size:16px;font-weight:600;margin-bottom:30px;background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);border: none;" @click.prevent="handleLogin">{{ $t('login') }}</el-button>
-      <div v-if="footer" class="login-footer">{{ footer }}</div>
     </el-form>
+    <div v-if="footer" class="page-footer">{{ footer }}</div>
   </div>
 </template>
 
@@ -159,13 +159,14 @@ $cursor: #fff;
       background: transparent !important;
     }
 
-    input {
+    input, .el-input__inner {
       background: transparent !important;
       border: 0px;
       -webkit-appearance: none;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
-      color: $light_gray;
+      color: $light_gray !important;
+      -webkit-text-fill-color: $light_gray !important;
       height: 48px;
       caret-color: $cursor;
 
@@ -264,12 +265,15 @@ $cursor: #fff;
     }
   }
 
-  .login-footer {
+  .page-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
     font-size: 12px;
     color: #9ca3af;
     opacity: 0.6;
-    margin-top: 10px;
     letter-spacing: 0.5px;
   }
 }

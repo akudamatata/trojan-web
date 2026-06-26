@@ -177,27 +177,37 @@
 }
 
 /* ===== 浅色主题侧边栏适配 ===== */
-/* 侧边栏保持深色（设计原则：导航保持视觉权重），但 Navbar 顶部栏适配浅色 */
+/* 浅色侧边栏：苹果官网般的极简精致风格 */
 [data-theme="light"] #app {
   .sidebar-container {
-    background-color: #1e293b;
-    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
+    background-color: #ffffff !important;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: none !important;
   }
 
-  // 浅色模式侧边栏菜单项颜色
+  // 浅色模式菜单项默认
   .el-menu-item {
-    color: #94a3b8 !important;
+    color: #475569 !important;
 
     &:hover {
-      background-color: #334155 !important;
-      color: #e2e8f0 !important;
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
     }
 
     &.is-active {
-      background-color: rgba(99, 102, 241, 0.2) !important;
-      color: #a5b4fc !important;
+      background-color: #eef2ff !important;
+      color: #6366f1 !important;
       font-weight: 600 !important;
+      
+      .svg-icon {
+        color: #6366f1 !important;
+      }
     }
+  }
+
+  // 修改折叠时背景
+  .el-menu--collapse {
+    background-color: #ffffff !important;
   }
 }
 

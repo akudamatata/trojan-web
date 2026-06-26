@@ -24,8 +24,8 @@
       <el-button type="primary" style="width:100%;height:48px;border-radius:10px;font-size:16px;font-weight:600;margin-bottom:30px;background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);border: none;" :loading="loading" @click.prevent="register">
         {{ $t('register') }}
       </el-button>
-      <div v-if="footer" class="register-footer">{{ footer }}</div>
     </el-form>
+    <div v-if="footer" class="page-footer">{{ footer }}</div>
   </div>
 </template>
 

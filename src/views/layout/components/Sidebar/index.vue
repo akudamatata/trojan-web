@@ -155,4 +155,26 @@ export default {
   flex: 1;
 }
 
+/* 浅色主题侧边栏内部容器与 Logo 适配 */
+:root[data-theme="light"] {
+  .sidebar-container-inner {
+    background-color: #ffffff;
+  }
+  .sidebar-logo-container {
+    border-bottom: 1px solid #e2e8f0;
+    
+    .logo-title {
+      color: #0f172a;
+    }
+    
+    .hamburger-btn {
+      color: #475569;
+      
+      &:hover {
+        color: #6366f1;
+        background-color: #f1f5f9;
+      }
+    }
+  }
+}
 </style>
