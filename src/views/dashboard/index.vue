@@ -964,7 +964,7 @@ export default {
     
     .mini-progress {
       ::v-deep(.el-progress-bar__outer) {
-        background-color: #1a202c !important;
+        background-color: var(--el-fill-color) !important;
         border-radius: 6px;
       }
       ::v-deep(.el-progress-bar__inner) {
@@ -990,7 +990,7 @@ export default {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    color: #9ca3af;
+    color: var(--el-text-color-secondary);
     margin-top: 2px;
   }
 }
@@ -1008,11 +1008,11 @@ export default {
 
 .chart-card {
   border-radius: 12px !important;
-  background: #111827 !important;
-  border: 1px solid #1f2937 !important;
+  background: var(--el-bg-color-overlay) !important;
+  border: 1px solid var(--el-border-color) !important;
 
   ::v-deep(.el-card__header) {
-    border-bottom: 1px solid #1f2937 !important;
+    border-bottom: 1px solid var(--el-border-color) !important;
     padding: 14px 20px !important;
   }
 
@@ -1023,7 +1023,7 @@ export default {
     width: 100%;
     
     .chart-title {
-      color: #ffffff;
+      color: var(--el-text-color-primary);
       font-weight: 600;
       font-size: 14px;
     }
@@ -1032,7 +1032,7 @@ export default {
       display: flex;
       gap: 16px;
       font-size: 12px;
-      color: #9ca3af;
+      color: var(--el-text-color-secondary);
       
       .legend-item {
         display: flex;
@@ -1076,15 +1076,15 @@ export default {
       .y-label {
         font-size: 9px;
         font-family: monospace;
-        color: rgba(255, 255, 255, 0.18);
+        color: var(--el-text-color-placeholder);
         white-space: nowrap;
         line-height: 1;
 
         &:first-child {
-          color: rgba(255, 255, 255, 0.35);
+          color: var(--el-text-color-secondary);
         }
         &:last-child {
-          color: rgba(255, 255, 255, 0.35);
+          color: var(--el-text-color-secondary);
         }
       }
     }
@@ -1107,6 +1107,11 @@ export default {
         height: 100%;
         display: block;
         overflow: visible;
+        
+        line {
+          stroke: var(--el-border-color) !important;
+          opacity: 0.4;
+        }
       }
     }
 
@@ -1115,7 +1120,7 @@ export default {
       justify-content: space-between;
       padding: 6px 10px 0 10px;
       font-size: 10px;
-      color: #6b7280;
+      color: var(--el-text-color-secondary);
       font-family: monospace;
       box-sizing: border-box;
     }
@@ -1134,13 +1139,13 @@ export default {
 
 .top-users-card {
   border-radius: 12px !important;
-  background: #111827 !important;
-  border: 1px solid #1f2937 !important;
+  background: var(--el-bg-color-overlay) !important;
+  border: 1px solid var(--el-border-color) !important;
 
   ::v-deep(.el-card__header) {
-    border-bottom: 1px solid #1f2937 !important;
+    border-bottom: 1px solid var(--el-border-color) !important;
     padding: 14px 20px !important;
-    color: #ffffff !important;
+    color: var(--el-text-color-primary) !important;
     font-weight: 600 !important;
     font-size: 15px !important;
   }
@@ -1151,19 +1156,19 @@ export default {
     ::v-deep(tr) {
       background-color: transparent !important;
       &:hover > td {
-        background-color: #1a202c !important;
+        background-color: var(--el-fill-color-light) !important;
       }
     }
 
     ::v-deep(th.el-table__cell) {
-      background-color: #0d111a !important;
-      color: #9ca3af !important;
-      border-bottom: 1px solid #1f2937 !important;
+      background-color: var(--el-fill-color) !important;
+      color: var(--el-text-color-secondary) !important;
+      border-bottom: 1px solid var(--el-border-color) !important;
     }
 
     ::v-deep(td.el-table__cell) {
-      border-bottom: 1px solid #1f2937 !important;
-      color: #ffffff;
+      border-bottom: 1px solid var(--el-border-color) !important;
+      color: var(--el-text-color-primary);
     }
   }
 
@@ -1177,7 +1182,7 @@ export default {
     font-size: 12px;
     font-weight: bold;
     color: #ffffff;
-    background-color: #374151;
+    background-color: var(--el-border-color-lighter);
 
     &.rank-1 {
       background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
@@ -1196,9 +1201,9 @@ export default {
 
 ::v-deep(.mini-radio-group) {
   .el-radio-button__inner {
-    background-color: #1a202c !important;
-    border-color: #1f2937 !important;
-    color: #9ca3af !important;
+    background-color: var(--el-fill-color) !important;
+    border-color: var(--el-border-color) !important;
+    color: var(--el-text-color-secondary) !important;
     font-size: 11px !important;
     padding: 5px 10px !important;
   }

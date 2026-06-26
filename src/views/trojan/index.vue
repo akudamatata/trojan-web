@@ -362,10 +362,10 @@ export default {
 }
 
 .control-form {
-  background: #111827;
+  background: var(--el-bg-color-overlay);
   padding: 18px 24px 4px 24px;
   border-radius: 12px;
-  border: 1px solid #1f2937;
+  border: 1px solid var(--el-border-color);
   margin-bottom: 24px;
   display: flex;
   flex-wrap: wrap;
@@ -381,7 +381,7 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #1f2937;
+  border: 1px solid var(--el-border-color);
 
   .el-button {
     border: none !important;
@@ -392,7 +392,7 @@ export default {
 
 .form-select-item {
   ::v-deep(.el-form-item__label) {
-    color: #9ca3af !important;
+    color: var(--el-text-color-regular) !important;
     font-weight: 500;
   }
 }
@@ -400,7 +400,7 @@ export default {
 .form-switch-item {
   margin-left: 10px;
   ::v-deep(.el-form-item__label) {
-    color: #9ca3af !important;
+    color: var(--el-text-color-regular) !important;
     font-weight: 500;
   }
 }
@@ -411,7 +411,7 @@ export default {
   flex-direction: column;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #1f2937;
+  border: 1px solid var(--el-border-color);
   background-color: #05070c;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   margin-bottom: 10px;
@@ -420,7 +420,7 @@ export default {
 .terminal-header {
   height: 36px;
   background-color: #0f1319;
-  border-bottom: 1px solid #1f2937;
+  border-bottom: 1px solid var(--el-border-color);
   display: flex;
   align-items: center;
   padding: 0 16px;
@@ -446,7 +446,7 @@ export default {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  color: #9ca3af;
+  color: var(--el-text-color-secondary);
   font-size: 12px;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
@@ -481,6 +481,44 @@ export default {
   }
   &::-webkit-scrollbar-track {
     background: #05070c;
+  }
+}
+
+/* 浅色主题终端与控制面板适配 */
+:root[data-theme="light"] {
+  .control-form {
+    border-color: #e2e8f0;
+  }
+  
+  .modern-btn-group {
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  
+  .terminal-window {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
+  }
+  
+  .terminal-header {
+    background-color: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .terminal-body {
+    background-color: #f8fafc !important;
+    color: #334155 !important;
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      &:hover {
+        background-color: #94a3b8;
+      }
+    }
+    &::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
   }
 }
 </style>

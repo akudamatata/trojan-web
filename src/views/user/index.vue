@@ -761,10 +761,10 @@ export default {
     box-sizing: border-box;
 }
 .user-action-bar {
-    background: #111827;
+    background: var(--el-bg-color-overlay);
     padding: 16px 24px;
     border-radius: 12px;
-    border: 1px solid #1f2937;
+    border: 1px solid var(--el-border-color);
     margin-bottom: 24px;
     display: flex;
     justify-content: space-between;

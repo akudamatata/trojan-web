@@ -833,8 +833,8 @@ export default {
 }
 
 .setting-card {
-  background-color: #111827 !important;
-  border: 1px solid #1f2937 !important;
+  background-color: var(--el-bg-color-overlay) !important;
+  border: 1px solid var(--el-border-color) !important;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   margin-bottom: 24px;
@@ -909,6 +909,19 @@ export default {
     line-height: 1.5;
     padding: 12px;
     border-radius: 8px;
+    
+    &:focus {
+      border-color: var(--el-color-primary) !important;
+    }
+  }
+}
+
+/* 浅色主题终端文本框适配 */
+:root[data-theme="light"] {
+  .terminal-textarea ::v-deep(.el-textarea__inner) {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
     
     &:focus {
       border-color: var(--el-color-primary) !important;

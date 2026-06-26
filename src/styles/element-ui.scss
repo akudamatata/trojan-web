@@ -152,6 +152,13 @@ html, body {
   color: #0f172a !important;
 }
 
+[data-theme="light"] .el-input-group__prepend, 
+[data-theme="light"] .el-input-group__append {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
 [data-theme="light"] .el-select__wrapper {
   background-color: #ffffff !important;
   box-shadow: 0 0 0 1px #e2e8f0 inset !important;
@@ -355,6 +362,43 @@ body {
 
 .el-input__inner {
   color: var(--el-text-color-primary) !important;
+}
+
+.el-input-group__prepend, .el-input-group__append {
+  background-color: #111827 !important;
+  color: var(--el-text-color-secondary) !important;
+  border: 1px solid var(--el-border-color) !important;
+  padding: 0 16px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+}
+
+.el-input-group--prepend {
+  .el-input-group__prepend {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-right: none !important;
+  }
+  .el-input__wrapper {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+}
+
+.el-input-group--append {
+  .el-input-group__append {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-left: none !important;
+  }
+  .el-input__wrapper {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
 }
 
 .el-select__wrapper {
