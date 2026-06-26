@@ -84,6 +84,7 @@ export default {
                 this.footer = res.data.footer || ''
                 document.title = this.title
                 this.$store.commit('SET_TITLE', this.title)
+                this.$store.commit('SET_SIDEBAR_TITLE', res.data.sidebar_title || '')
             }
         })
     },

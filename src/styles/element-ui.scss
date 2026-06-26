@@ -544,12 +544,12 @@ body {
 .el-menu--collapse {
   width: 54px !important;
   
-  .el-menu-item {
+  .el-menu-item, .el-sub-menu__title {
     margin: 4px 0 !important;
     padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
     
     .svg-icon {
       margin: 0 !important;

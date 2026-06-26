@@ -73,6 +73,7 @@ export const constantRoutes = [
     {
         path: '/user',
         component: Layout,
+        meta: { title: 'user' },
         children: [
             {
                 path: '',

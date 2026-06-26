@@ -9,6 +9,7 @@ export default {
     line: Object.prototype.hasOwnProperty.call(localStorage, 'line') ? parseInt(localStorage.getItem('line')) : 300,
     type: Object.prototype.hasOwnProperty.call(localStorage, 'type') ? localStorage.getItem('type') : 'trojan',
     docTitle: Object.prototype.hasOwnProperty.call(localStorage, 'docTitle') ? localStorage.getItem('docTitle') : '',
+    sidebarTitle: Object.prototype.hasOwnProperty.call(localStorage, 'sidebarTitle') ? localStorage.getItem('sidebarTitle') : '',
     dialogWidth: '25%',
     nprogress: true,
     noerror: false,

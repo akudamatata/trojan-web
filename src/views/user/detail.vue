@@ -3,11 +3,6 @@
     <!-- Back Button & Header -->
     <div class="header-section">
       <el-button :icon="ArrowLeft" @click="goBack" class="back-btn">{{ $t('detail.back') }}</el-button>
-      <div class="breadcrumb-nav">
-        <span class="bc-item">首页</span>
-        <span class="bc-separator">/</span>
-        <span class="bc-item active">用户详情</span>
-      </div>
     </div>
 
     <!-- P2P/BT Alert Warning -->
@@ -110,7 +105,7 @@
             </div>
           </template>
           <div class="card-body-table">
-            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="280">
+            <el-table :data="ipTableData" style="width: 100%" class="ip-table" :empty-text="$t('detail.noIps')" height="170">
               <el-table-column label="#" type="index" width="50" align="center" />
               <el-table-column prop="ip" :label="$t('detail.ipAddress')" min-width="140">
                 <template #default="scope">
@@ -982,7 +977,7 @@ export default {
 
 <style scoped lang="scss">
 .user-detail-container {
-  padding: 24px;
+  padding: 16px;
   background-color: var(--el-bg-color-page);
   min-height: calc(100vh - 50px);
 }
@@ -1032,8 +1027,8 @@ export default {
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  padding: 24px 32px;
-  margin-bottom: 24px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
   box-shadow: var(--el-box-shadow-light);
   flex-wrap: wrap;
   gap: 24px;
@@ -1806,7 +1801,7 @@ export default {
     flex-direction: column;
     
     .stat-card {
-      margin-bottom: 24px;
+      margin-bottom: 12px;
       
       &:last-child {
         margin-bottom: 0;
@@ -1839,6 +1834,29 @@ export default {
         display: flex;
         flex-direction: column;
       }
+    }
+  }
+}
+
+/* 浅色主题下用户详情装饰条背景及字体色彩优化 */
+:root[data-theme="light"] {
+  .profile-hero-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.12) 100%) !important;
+    border: 1px solid rgba(99, 102, 241, 0.16) !important;
+    box-shadow: 0 4px 20px 0 rgba(99, 102, 241, 0.01) !important;
+    
+    .user-avatar-glowing {
+      border-color: rgba(99, 102, 241, 0.2) !important;
+      box-shadow: 0 0 16px rgba(59, 130, 246, 0.25) !important;
+    }
+    
+    .metric-divider {
+      border-color: rgba(99, 102, 241, 0.15) !important;
+    }
+
+    .hero-right .metric-item {
+      .up-val { color: #4f46e5 !important; }
+      .down-val { color: #10b981 !important; }
     }
   }
 }

@@ -12,6 +12,10 @@ export default {
         state.docTitle = docTitle
         localStorage.setItem('docTitle', state.docTitle)
     },
+    SET_SIDEBAR_TITLE(state, sidebarTitle) {
+        state.sidebarTitle = sidebarTitle
+        localStorage.setItem('sidebarTitle', state.sidebarTitle)
+    },
     SET_WIDTH(state, width) {
         state.dialogWidth = width
     },

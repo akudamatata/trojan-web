@@ -4,7 +4,7 @@
     <div class="sidebar-logo-container" :class="{'is-collapsed': isCollapse}">
       <div v-show="!isCollapse" class="logo-wrapper">
         <img src="@/assets/logo.png" class="logo-img" alt="Logo" />
-        <span class="logo-title">{{ docTitle || 'Trojan Web' }}</span>
+        <span class="logo-title">{{ sidebarTitle || docTitle || 'Trojan Web' }}</span>
       </div>
       <div class="hamburger-btn" @click="toggleSideBar">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
@@ -60,6 +60,9 @@ export default {
         },
         docTitle() {
             return this.$store.state.docTitle
+        },
+        sidebarTitle() {
+            return this.$store.state.sidebarTitle
         }
     },
     methods: {
@@ -142,6 +145,10 @@ export default {
       height: 100%;
       border-radius: 0;
       color: #a0aec0;
+      margin-left: 0 !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
       
       &:hover {
         color: #ffffff;
@@ -163,6 +170,13 @@ export default {
   .sidebar-logo-container {
     border-bottom: 1px solid #e2e8f0;
     
+    .logo-img {
+      border: 1px solid rgba(0, 0, 0, 0.06) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+      background-color: #030712 !important; // 确保在白底上底色统一且精致
+      box-sizing: border-box;
+    }
+    
     .logo-title {
       color: #0f172a;
     }
@@ -173,6 +187,18 @@ export default {
       &:hover {
         color: #6366f1;
         background-color: #f1f5f9;
+      }
+    }
+    
+    &.is-collapsed {
+      .hamburger-btn {
+        color: #475569 !important;
+        background-color: transparent !important;
+        
+        &:hover {
+          color: #6366f1 !important;
+          background-color: #f1f5f9 !important;
+        }
       }
     }
   }

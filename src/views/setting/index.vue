@@ -15,20 +15,19 @@
           
           <el-form label-position="top" class="setting-form">
             <el-form-item label="登录页面展示信息">
-              <div class="form-row" style="margin-bottom: 12px;">
-                <el-input v-model="title" :placeholder="$t('navbar.inputTitle')" class="flex-input">
+              <div class="form-row" style="flex-wrap: wrap;">
+                <el-input v-model="title" :placeholder="$t('navbar.inputTitle')" style="width: 180px;">
                   <template #prepend>标题</template>
                 </el-input>
-              </div>
-              <div class="form-row" style="margin-bottom: 12px;">
-                <el-input v-model="footer" placeholder="例如: Powered by Trojan 或 @XX科技 2026" class="flex-input">
+                <el-input v-model="footer" placeholder="例如: Powered by Trojan" style="width: 240px;">
                   <template #prepend>角标</template>
                 </el-input>
-              </div>
-              <div style="display: flex; justify-content: flex-end; width: 100%;">
+                <el-input v-model="sidebarTitle" placeholder="例如: 📕掌阅电子书" style="width: 180px;">
+                  <template #prepend>侧边栏</template>
+                </el-input>
                 <el-button type="primary" @click="handleLoginInfo()">保存设置</el-button>
               </div>
-              <div class="item-tip" style="display: block; width: 100%; margin-top: 8px; line-height: 1.5;">修改登录及管理员设置页面显示的系统名称标题与底部版权角标信息。</div>
+              <div class="item-tip">修改登录及管理员设置页面显示的系统名称标题、底部版权角标信息与侧边栏标题。</div>
             </el-form-item>
 
             <el-divider class="setting-divider" />
@@ -322,6 +321,7 @@ export default {
             activeTab: 'general',
             title: '',
             footer: '',
+            sidebarTitle: '',
             camouflageDomain: '',
             certInfo: null,
             certLoading: false,
@@ -375,6 +375,7 @@ export default {
             const result = await check()
             this.title = result.data.title
             this.footer = result.data.footer || ''
+            this.sidebarTitle = result.data.sidebar_title || ''
         },
         async getCamouflageDomain() {
             const result = await getCamouflageDomain()
@@ -475,6 +476,7 @@ export default {
             const formData = new FormData()
             formData.set('title', this.title)
             formData.set('footer', this.footer)
+            formData.set('sidebar_title', this.sidebarTitle)
             const result = await setLoginInfo(formData)
             if (result.Msg === 'success') {
                 ElMessage({
@@ -483,6 +485,7 @@ export default {
                 })
                 document.title = this.title
                 this.$store.commit('SET_TITLE', this.title)
+                this.$store.commit('SET_SIDEBAR_TITLE', this.sidebarTitle)
             } else {
                 ElMessage.error(result.Msg)
             }

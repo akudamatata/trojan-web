@@ -43,7 +43,15 @@ export default {
                 matched = [{ path: '/dashboard', meta: { title: 'dashboard' } }].concat(matched)
             }
 
-            this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
+            // Remove duplicate consecutive breadcrumb items with the same title
+            const uniqueMatched = []
+            matched.forEach(item => {
+                if (uniqueMatched.length === 0 || uniqueMatched[uniqueMatched.length - 1].meta.title !== item.meta.title) {
+                    uniqueMatched.push(item)
+                }
+            })
+
+            this.levelList = uniqueMatched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
         },
         isDashboard(route) {
             const name = route && route.name
