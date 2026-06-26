@@ -142,7 +142,7 @@
 
 // when menu collapsed
 .el-menu--vertical {
-  &>.el-menu {
+  >.el-menu {
     .svg-icon {
       margin-right: 16px;
     }
@@ -174,4 +174,43 @@
       border-radius: 20px;
     }
   }
+}
+
+/* ===== 浅色主题侧边栏适配 ===== */
+/* 侧边栏保持深色（设计原则：导航保持视觉权重），但 Navbar 顶部栏适配浅色 */
+[data-theme="light"] #app {
+  .sidebar-container {
+    background-color: #1e293b;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
+  }
+
+  // 浅色模式侧边栏菜单项颜色
+  .el-menu-item {
+    color: #94a3b8 !important;
+
+    &:hover {
+      background-color: #334155 !important;
+      color: #e2e8f0 !important;
+    }
+
+    &.is-active {
+      background-color: rgba(99, 102, 241, 0.2) !important;
+      color: #a5b4fc !important;
+      font-weight: 600 !important;
+    }
+  }
+}
+
+/* 全局过渡动画：主题切换时平滑过渡 */
+*, *::before, *::after {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease, box-shadow 0.25s ease;
+}
+
+/* 排除不需要过渡的元素（避免动画干扰） */
+.el-button, a, svg, img, .svg-icon {
+  transition: none;
+}
+
+.el-button {
+  transition: all 0.2s ease !important;
 }

@@ -3,9 +3,14 @@
     <breadcrumb class="breadcrumb-container" />
 
     <div class="right-menu">
-        <!-- 一键切换语言按钮 -->
-        <div class="lang-switch-btn" @click="toggleLanguage">
-            <span class="lang-text">{{ currentLangText }}</span>
+        <!-- 主题切换按钮 -->
+        <div class="icon-btn theme-btn" @click="toggleTheme" :title="themeTooltip">
+            <span class="icon-btn-icon">{{ themeIcon }}</span>
+        </div>
+
+        <!-- 语言切换快捷按钮 -->
+        <div class="icon-btn lang-btn" @click="toggleLanguage" :title="currentLangText === 'EN' ? '切换为英文' : 'Switch to Chinese'">
+            <span class="icon-btn-text">{{ currentLangText }}</span>
         </div>
 
         <!-- Admin 用户头像与下拉菜单 -->
@@ -81,6 +86,19 @@ export default {
         ]),
         currentLangText() {
             return this.$i18n.locale === 'zh' ? 'EN' : '中'
+        },
+        themeMode() {
+            return this.$store.state.app.themeMode
+        },
+        themeIcon() {
+            if (this.themeMode === 'light') return '☀️'
+            if (this.themeMode === 'system') return '💻'
+            return '🌙'
+        },
+        themeTooltip() {
+            if (this.themeMode === 'light') return '当前：浅色模式，点击切换深色'
+            if (this.themeMode === 'system') return '当前：跟随系统，点击切换深色'
+            return '当前：深色模式，点击切换浅色'
         }
     },
     methods: {
@@ -92,6 +110,12 @@ export default {
                 message: nextLang === 'zh' ? '切换语言成功' : 'Switch Language Success',
                 type: 'success'
             })
+        },
+        toggleTheme() {
+            // 切换逻辑: dark -> light -> dark (system 通过设置页切换)
+            const current = this.themeMode
+            const next = (current === 'dark' || current === 'system') ? 'light' : 'dark'
+            this.$store.dispatch('app/setTheme', next)
         },
         async systemVersion() {
             const result = await version()
@@ -129,35 +153,49 @@ export default {
         bottom: 0;
         display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 8px;
 
-        .lang-switch-btn {
+        /* 通用图标按钮样式 */
+        .icon-btn {
             display: flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
             cursor: pointer;
-            color: var(--el-text-color-secondary);
-            font-size: 13px;
-            padding: 2px 10px;
-            height: 28px;
-            line-height: 24px;
-            border-radius: 6px;
-            transition: all 0.3s;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
             border: 1px solid var(--el-border-color);
-            background-color: rgba(255, 255, 255, 0.02);
+            background-color: transparent;
             user-select: none;
+            flex-shrink: 0;
 
             &:hover {
-                color: var(--el-color-primary);
                 border-color: var(--el-color-primary);
                 background-color: rgba(99, 102, 241, 0.08);
             }
 
-            .lang-icon {
-                font-size: 15px;
+            &:active {
+                transform: scale(0.92);
             }
-            .lang-text {
-                font-weight: 600;
+        }
+
+        .theme-btn {
+            .icon-btn-icon {
+                font-size: 16px;
+                line-height: 1;
+            }
+        }
+
+        .lang-btn {
+            .icon-btn-text {
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--el-text-color-secondary);
+            }
+
+            &:hover .icon-btn-text {
+                color: var(--el-color-primary);
             }
         }
 
@@ -173,6 +211,7 @@ export default {
             transition: color 0.3s;
             height: 50px;
             line-height: 50px;
+            margin-left: 8px;
 
             &:hover {
                 color: var(--el-color-primary);

@@ -183,6 +183,106 @@
           </div>
         </el-card>
       </el-tab-pane>
+
+      <!-- 外观与语言 -->
+      <el-tab-pane label="外观与语言" name="appearance">
+        <!-- 语言设置 -->
+        <el-card class="setting-card">
+          <template #header>
+            <div class="card-title">🌐 界面语言</div>
+          </template>
+          <div class="appearance-section">
+            <p class="appearance-desc">选择管理界面的显示语言，切换后立即生效。</p>
+            <div class="option-cards">
+              <div
+                class="option-card"
+                :class="{ active: currentLanguage === 'zh' }"
+                @click="handleSetLanguage('zh')"
+              >
+                <div class="option-card-icon">🇨🇳</div>
+                <div class="option-card-label">简体中文</div>
+                <div class="option-card-check" v-if="currentLanguage === 'zh'">✓</div>
+              </div>
+              <div
+                class="option-card"
+                :class="{ active: currentLanguage === 'en' }"
+                @click="handleSetLanguage('en')"
+              >
+                <div class="option-card-icon">🇺🇸</div>
+                <div class="option-card-label">English</div>
+                <div class="option-card-check" v-if="currentLanguage === 'en'">✓</div>
+              </div>
+            </div>
+          </div>
+        </el-card>
+
+        <!-- 主题设置 -->
+        <el-card class="setting-card" style="margin-top: 24px">
+          <template #header>
+            <div class="card-title">🎨 界面主题</div>
+          </template>
+          <div class="appearance-section">
+            <p class="appearance-desc">选择管理界面的显示主题，切换后立即生效并自动保存。</p>
+            <div class="option-cards theme-cards">
+              <div
+                class="option-card theme-card"
+                :class="{ active: currentTheme === 'dark' }"
+                @click="handleSetTheme('dark')"
+              >
+                <div class="theme-preview dark-preview">
+                  <div class="preview-sidebar"></div>
+                  <div class="preview-content">
+                    <div class="preview-bar"></div>
+                    <div class="preview-blocks">
+                      <div class="preview-block"></div>
+                      <div class="preview-block"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="option-card-label">🌙 深色模式</div>
+                <div class="option-card-check" v-if="currentTheme === 'dark'">✓</div>
+              </div>
+              <div
+                class="option-card theme-card"
+                :class="{ active: currentTheme === 'light' }"
+                @click="handleSetTheme('light')"
+              >
+                <div class="theme-preview light-preview">
+                  <div class="preview-sidebar"></div>
+                  <div class="preview-content">
+                    <div class="preview-bar"></div>
+                    <div class="preview-blocks">
+                      <div class="preview-block"></div>
+                      <div class="preview-block"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="option-card-label">☀️ 浅色模式</div>
+                <div class="option-card-check" v-if="currentTheme === 'light'">✓</div>
+              </div>
+              <div
+                class="option-card theme-card"
+                :class="{ active: currentTheme === 'system' }"
+                @click="handleSetTheme('system')"
+              >
+                <div class="theme-preview system-preview">
+                  <div class="preview-sidebar"></div>
+                  <div class="preview-content">
+                    <div class="preview-bar"></div>
+                    <div class="preview-blocks">
+                      <div class="preview-block"></div>
+                      <div class="preview-block"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="option-card-label">💻 跟随系统</div>
+                <div class="option-card-check" v-if="currentTheme === 'system'">✓</div>
+              </div>
+            </div>
+            <div class="item-tip" style="margin-top: 16px">「跟随系统」将自动检测您的操作系统深色/浅色模式设置并同步切换。</div>
+          </div>
+        </el-card>
+      </el-tab-pane>
     </el-tabs>
 
     <!-- 证书申请日志弹窗 -->
@@ -250,6 +350,12 @@ export default {
         ...mapState(['isAdmin']),
         uploadUrl() {
             return `${process.env.NODE_ENV === 'production' ? `${location.origin}` : 'api'}/trojan/import`
+        },
+        currentTheme() {
+            return this.$store.state.app.themeMode
+        },
+        currentLanguage() {
+            return this.$store.state.app.language
         }
     },
     created() {
@@ -507,12 +613,176 @@ export default {
             } else {
                 ElMessage.error(res.Msg)
             }
+        },
+        handleSetTheme(mode) {
+            this.$store.dispatch('app/setTheme', mode)
+            const labels = { dark: '深色模式', light: '浅色模式', system: '跟随系统' }
+            ElMessage({
+                message: `已切换为${labels[mode]}`,
+                type: 'success'
+            })
+        },
+        handleSetLanguage(lang) {
+            if (lang === this.$i18n.locale) return
+            this.$i18n.locale = lang
+            this.$store.dispatch('app/setLanguage', lang)
+            ElMessage({
+                message: lang === 'zh' ? '已切换为简体中文' : 'Switched to English',
+                type: 'success'
+            })
         }
     }
 }
 </script>
 
 <style lang="scss" scoped>
+/* 外观与语言 Tab 样式 */
+.appearance-section {
+  padding: 8px 16px 16px;
+}
+
+.appearance-desc {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+}
+
+.option-cards {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.option-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 28px;
+  border-radius: 12px;
+  border: 2px solid var(--el-border-color);
+  background-color: var(--el-fill-color);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 120px;
+  user-select: none;
+
+  &:hover {
+    border-color: var(--el-color-primary-light-3);
+    background-color: rgba(99, 102, 241, 0.04);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.12);
+  }
+
+  &.active {
+    border-color: var(--el-color-primary) !important;
+    background-color: rgba(99, 102, 241, 0.08) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .option-card-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .option-card-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--el-text-color-primary);
+  }
+
+  .option-card-check {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--el-color-primary);
+  }
+}
+
+/* 主题预览卡片 */
+.theme-cards {
+  gap: 20px;
+}
+
+.theme-card {
+  padding: 0 0 16px 0;
+  gap: 12px;
+  min-width: 140px;
+  overflow: hidden;
+
+  .option-card-label {
+    font-size: 13px;
+  }
+}
+
+.theme-preview {
+  width: 140px;
+  height: 90px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  .preview-sidebar {
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  .preview-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .preview-bar {
+    height: 10px;
+    border-radius: 4px;
+    opacity: 0.6;
+  }
+
+  .preview-blocks {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .preview-block {
+    flex: 1;
+    border-radius: 4px;
+    opacity: 0.5;
+  }
+}
+
+/* 深色预览配色 */
+.dark-preview {
+  background-color: #060913;
+  .preview-sidebar { background-color: #0a0e17; }
+  .preview-bar { background-color: #1f2937; }
+  .preview-block { background-color: #111827; }
+}
+
+/* 浅色预览配色 */
+.light-preview {
+  background-color: #f1f5f9;
+  .preview-sidebar { background-color: #1e293b; }
+  .preview-bar { background-color: #e2e8f0; }
+  .preview-block { background-color: #ffffff; }
+}
+
+/* 跟随系统预览（左深右浅分割）*/
+.system-preview {
+  background: linear-gradient(90deg, #060913 50%, #f1f5f9 50%);
+  .preview-sidebar { background-color: #0a0e17; }
+  .preview-bar { background: linear-gradient(90deg, #1f2937 50%, #e2e8f0 50%); }
+  .preview-block { background: linear-gradient(90deg, #111827 50%, #ffffff 50%); }
+}
+
 .setting-container {
   padding: 24px;
   background-color: var(--el-bg-color-page);

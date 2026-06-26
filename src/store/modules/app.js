@@ -1,12 +1,24 @@
 import { getLanguage } from '@/lang/index'
 
+// 应用主题到 html 元素
+function applyThemeToDOM(mode) {
+    const html = document.documentElement
+    if (mode === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+        html.setAttribute('data-theme', prefersDark ? 'dark' : 'light')
+    } else {
+        html.setAttribute('data-theme', mode)
+    }
+}
+
 const state = {
     sidebar: {
-        opened: Object.prototype.hasOwnProperty.call(localStorage, 'sidebarStatus') ? localStorage.getItem('sidebarStatus') === 0 : true,
+        opened: Object.prototype.hasOwnProperty.call(localStorage, 'sidebarStatus') ? localStorage.getItem('sidebarStatus') === '1' : true,
         withoutAnimation: false
     },
     language: getLanguage(),
-    device: 'desktop'
+    device: 'desktop',
+    themeMode: localStorage.getItem('themeMode') || 'dark'
 }
 
 const mutations = {
@@ -30,6 +42,10 @@ const mutations = {
     SET_LANGUAGE: (state, language) => {
         state.language = language
         localStorage.setItem('language', language)
+    },
+    SET_THEME: (state, mode) => {
+        state.themeMode = mode
+        localStorage.setItem('themeMode', mode)
     }
 }
 
@@ -45,6 +61,32 @@ const actions = {
     },
     setLanguage({ commit }, language) {
         commit('SET_LANGUAGE', language)
+    },
+    setTheme({ commit, state }, mode) {
+        commit('SET_THEME', mode)
+        applyThemeToDOM(mode)
+
+        // 如果是 system 模式，监听系统主题变化
+        if (mode === 'system') {
+            const mq = window.matchMedia('(prefers-color-scheme: dark)')
+            const handler = () => applyThemeToDOM('system')
+            // 移除旧的监听器（保存在 window 上防止重复绑定）
+            if (window._themeMediaQueryHandler) {
+                mq.removeEventListener('change', window._themeMediaQueryHandler)
+            }
+            window._themeMediaQueryHandler = handler
+            mq.addEventListener('change', handler)
+        } else {
+            // 非 system 模式，移除 system 监听器
+            const mq = window.matchMedia('(prefers-color-scheme: dark)')
+            if (window._themeMediaQueryHandler) {
+                mq.removeEventListener('change', window._themeMediaQueryHandler)
+                window._themeMediaQueryHandler = null
+            }
+        }
+    },
+    applyTheme({ dispatch, state }) {
+        dispatch('setTheme', state.themeMode)
     }
 }
 
