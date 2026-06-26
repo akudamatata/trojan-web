@@ -528,7 +528,6 @@ body {
   margin: 4px 8px !important;
   height: 48px !important;
   line-height: 48px !important;
-  padding-left: 36px !important;
 
   &:hover {
     background-color: #1a202c !important;
@@ -540,6 +539,13 @@ body {
     color: #a5b4fc !important;
     font-weight: 600 !important;
   }
+}
+
+.el-menu:not(.el-menu--collapse) .el-menu-item {
+  padding-left: 36px !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
 }
 
 .el-menu--collapse {
