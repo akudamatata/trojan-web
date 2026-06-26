@@ -92,6 +92,8 @@ export default {
     display: flex;
     align-items: center;
     gap: 10px;
+    flex: 1;
+    min-width: 0;
   }
   
   .logo-img {
@@ -108,6 +110,8 @@ export default {
     color: #ffffff;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .hamburger-btn {
@@ -120,6 +124,8 @@ export default {
     color: #a0aec0;
     cursor: pointer;
     transition: all 0.2s;
+    flex-shrink: 0;
+    margin-left: 8px;
 
     &:hover {
       color: #ffffff;
