@@ -35,6 +35,7 @@ export default {
         trojan: 'Trojan',
         user: 'User',
         userDetail: 'User Detail',
+        audit: 'Behavior Audit',
         setting: 'System Setting'
     },
     navbar: {

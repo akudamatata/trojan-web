@@ -91,6 +91,18 @@ export const constantRoutes = [
         ]
     },
     {
+        path: '/audit',
+        component: Layout,
+        children: [
+            {
+                path: '',
+                name: 'audit',
+                component: () => import('@/views/audit/index'),
+                meta: { title: 'audit', icon: 'eye-open', roles: ['admin'] }
+            }
+        ]
+    },
+    {
         path: '/setting',
         component: Layout,
         children: [

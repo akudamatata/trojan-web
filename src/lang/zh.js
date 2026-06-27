@@ -35,6 +35,7 @@ export default {
         trojan: 'Trojan管理',
         user: '用户管理',
         userDetail: '用户详情',
+        audit: '上网行为审计',
         setting: '系统设置'
     },
     navbar: {

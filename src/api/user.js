@@ -75,3 +75,12 @@ export function unbanIP(ip) {
     return request.post('/trojan/user/blacklist/unban', formData)
 }
 
+export function auditList(params) {
+    return request.get('/trojan/user/audit/list', { params })
+}
+
+export function auditDomainUsers(params) {
+    return request.get('/trojan/user/audit/domain-users', { params })
+}
+
+
