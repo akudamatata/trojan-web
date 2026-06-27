@@ -251,9 +251,12 @@ export default {
           limit: this.pagination.limit
         }
         const res = await auditList(params)
+        console.log('API Raw Response:', res)
+        console.log('res.data:', res.data)
         if (res.msg === 'success' && res.data) {
           this.records = res.data.records || []
           this.total = res.data.total || 0
+          console.log('Set records success, count:', this.records.length)
         }
       } catch (err) {
         console.error('Fetch audit logs error:', err)
