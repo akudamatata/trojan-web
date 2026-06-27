@@ -253,9 +253,9 @@ export default {
         const res = await auditList(params)
         console.log('API Raw Response:', res)
         console.log('res.data:', res.data)
-        if (res.msg === 'success' && res.data) {
-          this.records = res.data.records || []
-          this.total = res.data.total || 0
+        if (res.Msg === 'success' && res.Data) {
+          this.records = res.Data.records || []
+          this.total = res.Data.total || 0
           console.log('Set records success, count:', this.records.length)
         }
       } catch (err) {
@@ -337,8 +337,8 @@ export default {
           date_end: this.dateRange[1]
         }
         const res = await auditDomainUsers(params)
-        if (res.msg === 'success' && res.data) {
-          this.drawer.records = res.data || []
+        if (res.Msg === 'success' && res.Data) {
+          this.drawer.records = res.Data || []
         }
       } catch (err) {
         console.error('Fetch domain users error:', err)
